@@ -234,3 +234,28 @@ Every discussion micro-stage strictly executes in a two-step handshake:
 2. **Discrete Likert Integers**: Individual item ratings must be integer-quantized within authentic rating boundaries (e.g. $[1, 5]$ or $[1, 7]$).
 3. **$J$-Batch Optimization**: Structural equation models must iterate through $J$ candidate batches to guarantee mathematical convergence and optimal fit ($\text{CFI} \ge .90, \text{RMSEA} \le .08$).
 4. **MSAI Screening**: Multi-Signal Anomaly Index (Directive 10) must be evaluated prior to release to confirm absence of single-point fabrication signatures.
+
+---
+
+## 8. Universal Academic Revision Pipeline (Stages R.0 – R.6)
+
+The Universal Academic Revision Pipeline provides an end-to-end, multi-agent, artifact-gated workflow for remediating and documenting revisions requested by journal peer reviewers, dissertation defense examination committees, or thesis supervisors. It supports polymorphic scope spanning **Journal Articles** (`journal_article`), **Individual Chapters** (`single_chapter`), **Full Theses** (`full_thesis`), **Research Proposals** (`proposal`), and **Generic Academic Documents** (`generic_document`).
+
+| Stage | Name | Assigned Subagent | Official Script / Capability | Required Physical Deliverables |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage R.0** | Feedback Ingestion & Polymorphic Scoping | `academic-orchestrator` / `data-agent` | `extract_docx_comments.py` | `00_extracted_comments.docx`, `00_extracted_comments.md`, `00_extracted_comments.json`, `revision_scope_manifest.json` |
+| **Stage R.1** | 3-Tier Multi-Domain Triage & Delegation Matrix | `academic-orchestrator` | `revision_pipeline_engine.py --triage` | `01_revision_triage_plan.docx`, `01_revision_triage_plan.md`, `01_revision_triage_plan.json` |
+| **Stage R.2** | Computational Recalculations & Statistical Patches | `statistics-agent` + `statistical-auditor` | Deterministic CLI (`regression.py`, `cfa.py`, etc.) | `02_statistical_revisions.docx`, `02_statistical_revisions.md`, `02_statistical_revisions.json` |
+| **Stage R.3** | Surgical In-Place Manuscript Remediation | `academic-writer` | `revision_pipeline_engine.py --remediate` | `*_Revised.docx`, `03_manuscript_remediation_log.docx`, `03_manuscript_remediation_log.md`, `03_remediation_manifest.json` |
+| **Stage R.4** | Formal Point-by-Point Rebuttal Compilation | `academic-writer` | `generate_revision_response_docx.py` | `Revision_Response_Table.docx` (or `Response_to_Reviewers.docx`), `.md`, `04_resolved_comments.json` |
+| **Stage R.5** | Adversarial Revision Audit & TIS Check | `validation-agent` + `thesis-integrity-auditor` | `pipeline_auditor.py --workflow academic_revision` | `05_revision_validation_report.docx`, `05_revision_validation_report.md`, `validation_report.json` |
+| **Stage R.6** | Final Sign-Off & Administrative Human Gate | `final-judge` + Admin Desk (`124911145`) | `viva_voce_simulator.py` | `06_revision_clearance_dossier.docx`, `06_revision_clearance_dossier.md`, `06_final_clearance_decision.json` |
+
+### 💡 The Universal Revision Invariants (Stages R.0 – R.6)
+0. **Polymorphic Scope**: Dynamically operates on journal articles, single chapters, proposals, or full dissertations, generating scope-tailored deliverables (`Article_Revised.docx` + `Response_to_Reviewers.docx`, `Chapter_4_Revised.docx` + `Chapter_4_Revision_Response_Table.docx`, or `Thesis_Revised.docx` + `Revision_Response_Table.docx`).
+1. **Universal Document Conservation Gate (LSN-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION)**: Clean-room document replacement is strictly forbidden (Draft Obliteration Anti-Pattern `AP-2026-DRAFT-OBLITERATION-REPLACEMENT`). The output document size must satisfy $\text{output\_bytes} \ge \text{input\_bytes} \times 0.90$.
+2. **Surgical Run-Level Mutation (AP-2026-PARAGRAPH-CLEAR-HIGHLIGHT-WIPEOUT)**: `paragraph.clear()` is banned during revision. Text mutations must execute at the XML run level (`<w:r>`). Existing client formatting (e.g., green highlights) must be preserved 100%, and all new revisions must be marked in yellow highlights for reviewer/committee inspection.
+3. **Exhaustive Comment Coverage (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)**: 100% of extracted reviewer or supervisor comments must be explicitly accounted for, resolved, and documented in the rebuttal table. Zero selective skipping.
+4. **APA 7 Tables & Persian Leading Zeros (Directives 4 & 5)**: Response tables require 3 horizontal borders, zero vertical borders, and proper Persian/English decimal typography.
+5. **Fail-Closed Validation Gate (Directive 22)**: Advancement to Stage R.6 strictly requires physical `validation_report.json` on disk with `overall_verdict == "PASS"` and `checks_failed == 0`.
+

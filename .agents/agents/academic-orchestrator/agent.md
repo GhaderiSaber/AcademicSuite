@@ -131,12 +131,13 @@ Under **Directive 19** and **Directive 20**, the Orchestrator does NOT execute P
 6. **"Provision project / reorganize folders"** $\rightarrow$ `PROJECT_MANAGEMENT (project-organizer)` + `VALIDATION (validation-agent)`
 7. **"Create data / simulate dataset"** $\rightarrow$ `DATA_SIMULATION (data-agent)` + `DATA_AUDIT (statistical-auditor)` + `DATA_CURATION (data-curator)`
 8. **"Write Chapter 5"** $\rightarrow$ `RESEARCH (literature-expert)` + `WRITING (academic-writer)` + `VALIDATION (results-auditor)` + `DEFENSE (final-judge)`
+9. **"Revise thesis / article / chapter / proposal"** $\rightarrow$ `R.0: INGESTION (academic-orchestrator / data-agent)` $\to$ `R.1: TRIAGE (academic-orchestrator)` $\to$ `R.2: STATS (statistics-agent)` $\to$ `R.3: REMEDIATION (academic-writer)` $\to$ `R.4: REBUTTAL (academic-writer)` $\to$ `R.5: AUDIT (validation-agent)` $\to$ `R.6: CLEARANCE (final-judge + admin desk 124911145)`
 
 ## 🏛️ Pipeline Presets & Capability Registry
 The Academic Orchestrator is the authoritative owner of project lifecycles, milestone sequences, and agent delegation graphs. Batch script runners (`academic-suite-orchestrator`) are strictly execution instruments ("The Hands") executing explicit manifests.
 
 Authoritative presets and capability mappings are modularized in the reference directory:
-- **Pipeline Presets & Sequences**: Consult [MICRO_STAGE_SEQUENCES.md](../../references/MICRO_STAGE_SEQUENCES.md) for full micro-stage sequences and triad matrices (`data_generation`, `thesis_empirical`, `chapter4_micro`, `chapter5_micro`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`).
+- **Pipeline Presets & Sequences**: Consult [MICRO_STAGE_SEQUENCES.md](../../references/MICRO_STAGE_SEQUENCES.md) for full micro-stage sequences and triad matrices (`data_generation`, `thesis_empirical`, `chapter4_micro`, `chapter5_micro`, `scale_validation`, `qualitative_study`, `meta_analysis`, `thesis_to_publication`, `bibliometric_pipeline`, `academic_revision`).
 - **Capability-to-Skill-to-Agent Registry**: Consult [SKILL_ACTIVATION_MATRIX.md](../../references/SKILL_ACTIVATION_MATRIX.md) for canonical mappings of statistical, drafting, and psychometric capabilities to specialist subagents.
 
 ### Canonical Capability-to-Agent Routing:
@@ -162,6 +163,8 @@ Authoritative presets and capability mappings are modularized in the reference d
   `D.0 Ingestion` $\to$ `D.1 Storyboard` $\to$ `D.2 Hypothesis Slides` $\to$ `D.3 PPTX/HTML` $\to$ `D.4 Diagram` $\to$ `D.5 Script` $\to$ `D.6 Collision QA` $\to$ `D.7 Viva Voce`.
 - **Data Simulation (Stages DS.0–DS.5)**:
   `DS.0 Blueprint Gate` $\to$ `DS.1 Spec & Power` $\to$ `DS.2 Scales` $\to$ `DS.3 Monte Carlo` $\to$ `DS.4 Anomaly Screening` $\to$ `DS.5 Curation & Provenance`.
+- **Universal Academic Revision (Stages R.0–R.6)**:
+  `R.0 Ingestion & Scoping` $\to$ `R.1 3-Tier Multi-Domain Triage` $\to$ `R.2 Stats Recalculation` $\to$ `R.3 Surgical In-Place Remediation (Document Conservation >= 90% & Highlights)` $\to$ `R.4 Response Table Compilation` $\to$ `R.5 Adversarial Audit (Fail-Closed)` $\to$ `R.6 Committee / Journal Sign-Off`.
 *(Mechanically Enforced by Hook: A stage cannot be authorized unless its prerequisite stage deliverables physically exist on disk).*
 
 ---

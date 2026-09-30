@@ -743,3 +743,37 @@ capabilities:
     dependencies:
       - "thesis_chapter4"
       - "thesis_chapter5"
+
+  academic_revision:
+    id: "academic_revision"
+    domain: "revision"
+    description: "Universal revision pipeline for journal articles, single chapters, full theses, and proposals with in-place document mutation, 3-tier triage, and formal point-by-point response tables."
+    intent_patterns:
+      - "\\brevis(?:e|ion)\\b"
+      - "\\bpeer[- ]review\\s+rebuttal\\b"
+      - "\\bresponse\\s+to\\s+reviewers?\\b"
+      - "\\bsupervisor\\s+(?:feedback|comments|revisions?)\\b"
+      - "\\bexaminer\\s+(?:corrections?|comments?)\\b"
+      - "\\bاصلاحات\\s+(?:پایان[- ]?نامه|رساله|مقاله|فصل|داوران|استاد)\\b"
+      - "\\bجدول\\s+پاسخ\\s+به\\s+داوران\\b"
+    required_skills:
+      - "persian-thesis-revision-assistant"
+      - "thesis-integrity-auditor"
+    primary_agent: "academic-orchestrator"
+    execution_worker: "academic-writer"
+    reviewer: "validation-agent"
+    challenger: "academic-challenger"
+    required_artifacts:
+      - "projects/*/01_raw_inputs/*"
+    output_artifacts:
+      - "projects/*/03_deliverables/*_Revised.docx"
+      - "projects/*/03_deliverables/Revision_Response_Table.docx"
+      - "projects/*/03_deliverables/validation_report.json"
+    validation_requirements:
+      - "document_conservation_ge_90"
+      - "highlight_preservation_green_and_yellow"
+      - "exhaustive_comment_coverage"
+      - "apa7_response_table_borders"
+      - "persian_leading_zeros"
+    dependencies: []
+

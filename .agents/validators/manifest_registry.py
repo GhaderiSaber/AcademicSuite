@@ -158,9 +158,22 @@ KNOWN_STAGE_PATTERNS = [
     r"^xx_hypothesis.*",
     r"^xx_mediation.*",
     r"^00_scale_reliability.*",
+    r"^01_screening.*",
+    r"^01_data_screening.*",
+    r"^02_literature.*",
+    r"^02_literature_review.*",
+    r"^01_problem_statement.*",
+    r"^02_theoretical.*",
+    r"^03_methodology.*",
+    r"^05_discussion.*",
     r"^empirical_findings.*",
     r"^statistical_audit.*",
     r"^master_decision_matrix.*",
+    r"^\d\d_[a-zA-Z0-9_-]+.*",
+    r"^stage_[a-zA-Z0-9_-]+.*",
+    r"^chapter_.*",
+    r"^chapter\d.*",
+    r"^monograph.*",
 ]
 
 
@@ -233,7 +246,9 @@ def is_data_analysis_stage(stage_or_file: str, stage_dir: Optional[str] = None) 
     # Curation, audit, assumptions, data preparation, passport, certificate
     data_indicators = [
         "curation", "data_quality", "data_audit", "clean_data", "data_cleaned",
-        "passport", "assumptions_report", "model_payload", "data_engineering"
+        "passport", "assumptions_report", "model_payload", "data_engineering",
+        "screening", "matrix", "frequencies", "descriptive", "simulation",
+        "normality", "collinearity", "power_analysis", "stats_results"
     ]
     if any(ind in stem for ind in data_indicators):
         return True
@@ -247,17 +262,51 @@ def is_data_analysis_stage(stage_or_file: str, stage_dir: Optional[str] = None) 
         # If a corresponding _payload file exists for this stem
         if f"{stem}_payload.json" in files or f"{stem}_payload" in files:
             return True
-        # If neither .docx nor .md exists on disk for this stem, check if .json has statistical data
+        # If neither .docx nor .md exists on disk for this stem, check if .json has valid data
         json_file = f"{stem}.json"
         has_text_draft = f"{stem}.md" in files or f"{stem}.docx" in files
         if not has_text_draft and json_file in files:
             try:
                 with open(os.path.join(target_dir, json_file), "r", encoding="utf-8") as jf:
                     jdata = json.load(jf)
-                if isinstance(jdata, dict) and any(k in jdata for k in ["result_json", "contract_version", "test_statistics", "execution_id", "tables", "diagnostics", "model_type"]):
+                if isinstance(jdata, (dict, list)):
                     return True
             except Exception:
                 pass
+
+    return False
+
+
+def is_narrative_stage(stage_or_file: str, stage_dir: Optional[str] = None) -> bool:
+    """
+    Determines whether a stage represents a pure narrative / text / scoping / qualitative stage
+    (e.g., literature review, theoretical background, qualitative themes, discussion prose)
+    that legitimately exists as Markdown (.md) without requiring a numerical data payload (.json).
+    """
+    if not stage_or_file or not isinstance(stage_or_file, str):
+        return False
+    norm = os.path.basename(stage_or_file).strip().lower()
+    stem = os.path.splitext(norm)[0]
+
+    narrative_indicators = [
+        "literature", "theory", "theoretical", "problem_statement",
+        "background", "scoping", "qualitative", "interview", "thematic",
+        "protocol", "manual", "intro", "introduction", "discussion",
+        "synthesis", "overview", "rebuttal", "response"
+    ]
+    if any(ind in stem for ind in narrative_indicators):
+        return True
+
+    target_dir = stage_dir if (stage_dir and os.path.isdir(stage_dir)) else (
+        os.path.dirname(stage_or_file) if os.path.isabs(stage_or_file) and os.path.isdir(os.path.dirname(stage_or_file)) else None
+    )
+    if target_dir and os.path.isdir(target_dir):
+        files = os.listdir(target_dir)
+        has_md = f"{stem}.md" in files
+        has_json = f"{stem}.json" in files or f"{stem}_payload.json" in files
+        has_docx = f"{stem}.docx" in files
+        if has_md and not has_json and not has_docx:
+            return True
 
     return False
 
@@ -343,6 +392,20 @@ def get_required_artifacts_for_stage(stage_stem: str, stage_dir: Optional[str] =
             }
         ]
 
+    # Pure narrative / qualitative / literature stage (.md only)
+    if is_narrative_stage(norm, stage_dir=stage_dir):
+        return [
+            {
+                "artifact_id": f"ART-{norm.upper()}-MD",
+                "type": "narrative_markdown",
+                "extension": ".md",
+                "filename_pattern": f"{norm}.md",
+                "required": True,
+                "schema": "",
+                "description": f"Narrative text and scholarly Markdown for {norm}"
+            }
+        ]
+
     # Tier 1: Drafting / Findings / Scale Validation Micro-Stages -> DYAD INVARIANT (.json + .md)
     # Intermediate .docx is optional (required: False) and assembled into monograph at chapter completion
     dyad_stages = [
@@ -352,7 +415,7 @@ def get_required_artifacts_for_stage(stage_stem: str, stage_dir: Optional[str] =
         "irt_roc", "stage_4d", "phase4d", "demographic", "descriptive"
     ]
 
-    is_dyad = any(k in norm for k in dyad_stages) or re.match(r"^\d\d_.*", norm)
+    is_dyad = any(k in norm for k in dyad_stages) or (re.match(r"^\d\d_.*", norm) and not is_narrative_stage(norm, stage_dir=stage_dir))
 
     if is_dyad:
         return [
@@ -399,7 +462,52 @@ def get_required_artifacts_for_stage(stage_stem: str, stage_dir: Optional[str] =
             }
         ]
 
-    # Fallback to Triad for any other recognized stage
+    # Pure narrative / qualitative / literature stage (.md only)
+    if is_narrative_stage(norm, stage_dir=stage_dir):
+        return [
+            {
+                "artifact_id": f"ART-{norm.upper()}-MD",
+                "type": "narrative_markdown",
+                "extension": ".md",
+                "filename_pattern": f"{norm}.md",
+                "required": True,
+                "schema": "",
+                "description": f"Narrative text and scholarly Markdown for {norm}"
+            }
+        ]
+
+    # Inspection on disk for existing files if stage_dir provided
+    if stage_dir and os.path.isdir(stage_dir):
+        files = os.listdir(stage_dir)
+        has_j = f"{norm}.json" in files or f"{norm}_payload.json" in files
+        has_m = f"{norm}.md" in files
+        has_d = f"{norm}.docx" in files
+        if has_j and not has_m and not has_d:
+            return [
+                {
+                    "artifact_id": f"ART-{norm.upper()}-JSON",
+                    "type": "stats_json",
+                    "extension": ".json",
+                    "filename_pattern": f"{norm}.json",
+                    "required": True,
+                    "schema": "",
+                    "description": f"Structured data payload for {norm}"
+                }
+            ]
+        if has_m and not has_j and not has_d:
+            return [
+                {
+                    "artifact_id": f"ART-{norm.upper()}-MD",
+                    "type": "narrative_markdown",
+                    "extension": ".md",
+                    "filename_pattern": f"{norm}.md",
+                    "required": True,
+                    "schema": "",
+                    "description": f"Narrative Markdown for {norm}"
+                }
+            ]
+
+    # Default fallback: Two-Tier Drafting Architecture (Dyad: .json + .md; .docx optional)
     return [
         {
             "artifact_id": f"ART-{norm.upper()}-JSON",
@@ -424,9 +532,9 @@ def get_required_artifacts_for_stage(stage_stem: str, stage_dir: Optional[str] =
             "type": "openxml_word",
             "extension": ".docx",
             "filename_pattern": f"{norm}.docx",
-            "required": True,
+            "required": False,
             "schema": "",
-            "description": f"OpenXML Word document for {norm}"
+            "description": f"Optional intermediate OpenXML Word document for {norm}"
         }
     ]
 

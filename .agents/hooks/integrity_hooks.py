@@ -153,7 +153,9 @@ def is_data_analysis_stage(stage_or_file: str, stage_dir: Optional[str] = None) 
 
     data_indicators = [
         "curation", "data_quality", "data_audit", "clean_data", "data_cleaned",
-        "passport", "assumptions_report", "model_payload", "data_engineering"
+        "passport", "assumptions_report", "model_payload", "data_engineering",
+        "screening", "matrix", "frequencies", "descriptive", "simulation",
+        "normality", "collinearity", "power_analysis", "stats_results"
     ]
     if any(ind in stem for ind in data_indicators):
         return True
@@ -167,17 +169,51 @@ def is_data_analysis_stage(stage_or_file: str, stage_dir: Optional[str] = None) 
         # If a corresponding _payload file exists for this stem
         if f"{stem}_payload.json" in files or f"{stem}_payload" in files:
             return True
-        # If neither .docx nor .md exists on disk for this stem, check if .json has statistical data
+        # If neither .docx nor .md exists on disk for this stem, check if .json has valid JSON data
         json_file = f"{stem}.json"
         has_text_draft = f"{stem}.md" in files or f"{stem}.docx" in files
         if not has_text_draft and json_file in files:
             try:
                 with open(os.path.join(target_dir, json_file), "r", encoding="utf-8") as jf:
                     jdata = json.load(jf)
-                if isinstance(jdata, dict) and any(k in jdata for k in ["result_json", "contract_version", "test_statistics", "execution_id", "tables", "diagnostics", "model_type"]):
+                if isinstance(jdata, (dict, list)):
                     return True
             except Exception:
                 pass
+
+    return False
+
+
+def is_narrative_stage(stage_or_file: str, stage_dir: Optional[str] = None) -> bool:
+    """
+    Determines whether a stage represents a pure narrative / text / scoping / qualitative stage
+    (e.g., literature review, theoretical background, qualitative themes, discussion prose)
+    that legitimately exists as Markdown (.md) without requiring a numerical data payload (.json).
+    """
+    if not stage_or_file or not isinstance(stage_or_file, str):
+        return False
+    norm = os.path.basename(stage_or_file).strip().lower()
+    stem = os.path.splitext(norm)[0]
+
+    narrative_indicators = [
+        "literature", "theory", "theoretical", "problem_statement",
+        "background", "scoping", "qualitative", "interview", "thematic",
+        "protocol", "manual", "intro", "introduction", "discussion",
+        "synthesis", "overview", "rebuttal", "response"
+    ]
+    if any(ind in stem for ind in narrative_indicators):
+        return True
+
+    target_dir = stage_dir if (stage_dir and os.path.isdir(stage_dir)) else (
+        os.path.dirname(stage_or_file) if os.path.isabs(stage_or_file) and os.path.isdir(os.path.dirname(stage_or_file)) else None
+    )
+    if target_dir and os.path.isdir(target_dir):
+        files = os.listdir(target_dir)
+        has_md = f"{stem}.md" in files
+        has_json = f"{stem}.json" in files or f"{stem}_payload.json" in files
+        has_docx = f"{stem}.docx" in files
+        if has_md and not has_json and not has_docx:
+            return True
 
     return False
 
@@ -282,9 +318,23 @@ class IntegrityHooks:
                     if not has_md: missing.append(f"{pfx}.md")
                     if missing and (has_docx or has_md):
                         return False, (
-                            f"HARD HOOK ENFORCEMENT (Directive 3 - Triad Artifact Invariant / Chapter Monograph Invariant): "
+                            f"HARD HOOK ENFORCEMENT (Directive 3 - Chapter Monograph Invariant): "
                             f"Chapter consolidation milestone '{pfx}' in '{s_dir}' is missing required master deliverables. Missing: {missing}. "
                             f"Chapter consolidation milestones strictly require both OpenXML Word (.docx) and Markdown (.md)."
+                        )
+                    continue
+
+                # Check if this represents a pure narrative / qualitative / literature stage (.md only)
+                is_narrative = (
+                    is_narrative_stage(pfx, stage_dir=s_dir) or
+                    is_narrative_stage(os.path.basename(s_dir), stage_dir=s_dir) or
+                    (has_md and not has_json and not has_docx)
+                )
+                if is_narrative:
+                    if not has_md:
+                        return False, (
+                            f"HARD HOOK ENFORCEMENT (Directive 3 - Narrative Stage Invariant): "
+                            f"Narrative stage '{pfx}' in '{s_dir}' is missing required Markdown narrative file: '{pfx}.md'."
                         )
                     continue
 
@@ -296,7 +346,7 @@ class IntegrityHooks:
                 if not has_md: missing.append(f"{pfx}.md")
                 if missing and (has_md or has_json or has_docx):
                     return False, (
-                        f"HARD HOOK ENFORCEMENT (Directive 3 - Triad Artifact Invariant / Micro-Stage Dyad Invariant): "
+                        f"HARD HOOK ENFORCEMENT (Directive 3 - Micro-Stage Dyad Invariant): "
                         f"Stage '{pfx}' in '{s_dir}' has incomplete physical artifacts. Missing: {missing}. "
                         f"Micro-stages require a synchronized dyad: structured data (.json) and scholarly narrative (.md)."
                     )

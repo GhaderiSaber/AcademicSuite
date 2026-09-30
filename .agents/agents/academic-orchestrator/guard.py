@@ -682,8 +682,17 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                             missing_arts = []
                                             empty_arts = []
                                             for art in req_arts:
-                                                art_name = os.path.basename(art)
-                                                found = find_files_matching(workspaces, re.escape(art_name))
+                                                found = []
+                                                if os.path.isabs(art) and os.path.isfile(art):
+                                                    found = [art]
+                                                else:
+                                                    for ws in workspaces:
+                                                        cand = os.path.join(ws, art)
+                                                        if os.path.isfile(cand):
+                                                            found.append(cand)
+                                                if not found:
+                                                    art_name = os.path.basename(art)
+                                                    found = find_files_matching(workspaces, re.escape(art_name))
                                                 if not found:
                                                     missing_arts.append(art)
                                                 elif all(os.path.getsize(f) == 0 for f in found):

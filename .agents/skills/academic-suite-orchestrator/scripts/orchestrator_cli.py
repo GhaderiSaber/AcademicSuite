@@ -161,6 +161,26 @@ SKILL_REGISTRY = {
         "default_sample": os.path.join(SKILLS_DIR, "persian-thesis-revision-assistant", "examples", "sample_feedback_payload.json"),
         "desc": "Triage of supervisor/examiner comments & Point-by-Point response table (.docx)"
     },
+    "revision_ingestion": {
+        "skill": "persian-thesis-revision-assistant",
+        "script": os.path.join(SKILLS_DIR, "persian-thesis-revision-assistant", "scripts", "extract_docx_comments.py"),
+        "desc": "Extract comments and feedback from Word .docx or text files (.json & .md)"
+    },
+    "revision_triage": {
+        "skill": "persian-thesis-revision-assistant",
+        "script": os.path.join(REPO_ROOT, ".agents", "scripts", "revision_pipeline_engine.py"),
+        "desc": "3-tier triage of comments into Format, Stats, and Theory (.json & .md)"
+    },
+    "revision_remediation": {
+        "skill": "persian-thesis-revision-assistant",
+        "script": os.path.join(REPO_ROOT, ".agents", "scripts", "revision_pipeline_engine.py"),
+        "desc": "In-place surgical docx mutation under Document Conservation Gate (>=90%)"
+    },
+    "revision_clearance": {
+        "skill": "persian-thesis-revision-assistant",
+        "script": os.path.join(REPO_ROOT, ".agents", "scripts", "revision_pipeline_engine.py"),
+        "desc": "Final revision clearance dossier and readiness decision (.json & .docx)"
+    },
     "reference": {
         "skill": "academic-reference-extractor",
         "script": os.path.join(SKILLS_DIR, "academic-reference-extractor", "scripts", "extract_section_references.py"),
@@ -275,6 +295,27 @@ PIPELINE_PRESETS = {
         "discussion",
         "audit",
         "chapter5_assembly"
+    ],
+    "academic_revision": [
+        "revision_ingestion",
+        "revision_triage",
+        "revision_remediation",
+        "revision",
+        "audit"
+    ],
+    "thesis_revision": [
+        "revision_ingestion",
+        "revision_triage",
+        "revision_remediation",
+        "revision",
+        "audit"
+    ],
+    "article_revision": [
+        "revision_ingestion",
+        "revision_triage",
+        "revision_remediation",
+        "revision",
+        "audit"
     ]
 }
 

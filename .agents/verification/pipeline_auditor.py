@@ -65,6 +65,24 @@ class PipelineAuditor:
         ],
         "defense_presentation": [
             (["Defense_Speech_Notes.docx", "Defense_Speaker_Notes.docx"], 1000)
+        ],
+        "academic_revision": [
+            (["Revision_Response_Table.docx", "Response_to_Reviewers.docx", "Point_by_Point_Rebuttal.docx"], 500),
+            (["Thesis_Revised.docx", "Article_Revised.docx", "Chapter_Revised.docx", "Proposal_Revised.docx", "Manuscript_Revised.docx"], 500),
+            ("04_resolved_comments.json", 50),
+            ("validation_report.json", 50)
+        ],
+        "thesis_revision": [
+            (["Revision_Response_Table.docx", "Response_to_Reviewers.docx"], 500),
+            (["Thesis_Revised.docx", "Article_Revised.docx", "Chapter_Revised.docx", "Manuscript_Revised.docx"], 500),
+            ("04_resolved_comments.json", 50),
+            ("validation_report.json", 50)
+        ],
+        "article_revision": [
+            (["Response_to_Reviewers.docx", "Revision_Response_Table.docx"], 500),
+            (["Article_Revised.docx", "Manuscript_Revised.docx"], 500),
+            ("04_resolved_comments.json", 50),
+            ("validation_report.json", 50)
         ]
     }
 
@@ -122,6 +140,10 @@ class PipelineAuditor:
 
         # 5. Word OpenXML & APA 7 Concordance Audit (Directive 4 & 5)
         self._audit_docx_concordance()
+
+        # 6. Revision Invariants Audit (if revision workflow)
+        if self.workflow in ("academic_revision", "thesis_revision", "article_revision", "all"):
+            self._audit_revision_invariants()
 
         return self._build_report()
 
@@ -361,6 +383,89 @@ class PipelineAuditor:
         mapping = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
         return str(num_str).translate(mapping)
 
+    def _audit_revision_invariants(self):
+        """Audits revision-specific invariants: Document conservation, APA 7 response table borders, comment coverage."""
+        # Check Document Conservation Gate manifest if present
+        manifest_p = os.path.join(self.target_dir, "03_remediation_manifest.json")
+        if os.path.exists(manifest_p):
+            try:
+                with open(manifest_p, 'r', encoding='utf-8') as f:
+                    man = json.load(f)
+                ratio = man.get("conservation_ratio", 1.0)
+                if ratio < 0.90:
+                    self._log_finding(
+                        "DOCUMENT_CONSERVATION_GATE",
+                        False,
+                        f"Document conservation gate failed: {ratio:.2%} < 90% (LSN-2026-DOCUMENT-CONSERVATION-IN-PLACE-REVISION)",
+                        "ERROR"
+                    )
+                else:
+                    self._log_finding(
+                        "DOCUMENT_CONSERVATION_GATE",
+                        True,
+                        f"Document conservation gate passed: {ratio:.2%} >= 90%",
+                        "INFO"
+                    )
+            except Exception as e:
+                self._log_finding("MANIFEST_READ_ERROR", False, f"Could not parse 03_remediation_manifest.json: {e}", "WARNING")
+
+        # Check Response Table Borders in .docx
+        table_files = ["Revision_Response_Table.docx", "Response_to_Reviewers.docx", "Point_by_Point_Rebuttal.docx"]
+        found_table = None
+        for tf in table_files:
+            tp = os.path.join(self.target_dir, tf)
+            if os.path.exists(tp):
+                found_table = tp
+                break
+
+        if found_table:
+            try:
+                with zipfile.ZipFile(found_table, 'r') as z:
+                    xml_str = z.read('word/document.xml').decode('utf-8')
+                    has_inside_v = re.search(r'<w:insideV[^>]*w:val="([^"]+)"', xml_str)
+                    if has_inside_v and has_inside_v.group(1) != "none":
+                        self._log_finding(
+                            "RESPONSE_TABLE_BORDERS",
+                            False,
+                            f"{os.path.basename(found_table)} contains vertical borders, violating APA 7.",
+                            "ERROR"
+                        )
+                    else:
+                        self._log_finding(
+                            "RESPONSE_TABLE_BORDERS",
+                            True,
+                            f"APA 7 borders verified on {os.path.basename(found_table)}: Zero vertical borders.",
+                            "INFO"
+                        )
+            except Exception:
+                pass
+
+        # Check comment resolution completeness
+        resolved_p = os.path.join(self.target_dir, "04_resolved_comments.json")
+        extracted_p = os.path.join(self.target_dir, "00_extracted_comments.json")
+        if os.path.exists(resolved_p) and os.path.exists(extracted_p):
+            try:
+                with open(extracted_p, 'r', encoding='utf-8') as f:
+                    ext_data = json.load(f)
+                with open(resolved_p, 'r', encoding='utf-8') as f:
+                    res_data = json.load(f)
+                if len(res_data) < len(ext_data) or len(res_data) == 0:
+                    self._log_finding(
+                        "EXHAUSTIVE_REVISION_COVERAGE",
+                        False,
+                        f"Comment coverage shortfall: {len(res_data)} resolved vs {len(ext_data)} extracted (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)",
+                        "ERROR"
+                    )
+                else:
+                    self._log_finding(
+                        "EXHAUSTIVE_REVISION_COVERAGE",
+                        True,
+                        f"100% comment coverage verified: {len(res_data)}/{len(ext_data)} comments resolved.",
+                        "INFO"
+                    )
+            except Exception:
+                pass
+
     def _build_report(self) -> Dict[str, Any]:
         """Formats the audit scorecard and saves PIPELINE_INTEGRITY_AUDIT.json."""
         errors = [f for f in self.findings if f["severity"] == "ERROR" and not f["passed"]]
@@ -410,7 +515,7 @@ class PipelineAuditor:
 
 def main():
     parser = argparse.ArgumentParser(description="Digital Saber Independent Pipeline Auditor")
-    parser.add_argument("--workflow", default="chapter4", help="Workflow to audit (chapter4, chapter5, proposal, journal_submission, defense_presentation, all)")
+    parser.add_argument("--workflow", default="chapter4", help="Workflow to audit (chapter4, chapter5, proposal, journal_submission, defense_presentation, academic_revision, thesis_revision, article_revision, all)")
     parser.add_argument("--dir", default="output", help="Target output directory to audit")
     parser.add_argument("--lax", action="store_true", help="Run in lax mode (warnings do not fail)")
 

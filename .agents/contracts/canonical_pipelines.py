@@ -12,6 +12,7 @@ codified in MICRO_STAGE_SEQUENCES.md for all 7 academic pipelines:
 5. Psychometric Scale Validation (Stages V.1 – V.9)
 6. Academic Defense Presentation (Stages D.0 – D.7)
 7. Empirical Data Generation & Simulation (Stages DS.0 – DS.5)
+8. Universal Academic Revision (Stages R.0 – R.6)
 
 Enforces Directive 3 (Artifact-Gated Stage Execution, Micro-Stage Granularity &
 Triad Artifact Invariant):
@@ -475,6 +476,55 @@ CANONICAL_STAGE_PREREQUISITES: Dict[str, Dict[str, Any]] = {
         "required_prerequisites": [
             r"04_data_audit_report\.(?:docx|md|json)"
         ]
+    },
+
+    # ─── 8. Universal Academic Revision Pipeline (Stages R.0 – R.6) ───
+    r"[Rr]\.0": {
+        "name": "Stage R.0: Feedback Ingestion & Polymorphic Scoping",
+        "pipeline": "academic_revision",
+        "required_prerequisites": []
+    },
+    r"[Rr]\.1": {
+        "name": "Stage R.1: 3-Tier Multi-Domain Triage",
+        "pipeline": "academic_revision",
+        "required_prerequisites": [
+            r"(?:00_extracted_comments\.(?:json|md)|extracted_comments\.json|comments\.json|revision_scope_manifest\.json)"
+        ]
+    },
+    r"[Rr]\.2": {
+        "name": "Stage R.2: Computational Recalculations & Statistical Patches",
+        "pipeline": "academic_revision",
+        "required_prerequisites": [
+            r"(?:01_revision_triage_plan\.(?:json|md)|revision_triage_plan\.json)"
+        ]
+    },
+    r"[Rr]\.3": {
+        "name": "Stage R.3: Surgical In-Place Manuscript Remediation",
+        "pipeline": "academic_revision",
+        "required_prerequisites": [
+            r"(?:01_revision_triage_plan\.(?:json|md)|02_statistical_revisions\.(?:json|md|docx))"
+        ]
+    },
+    r"[Rr]\.4": {
+        "name": "Stage R.4: Formal Point-by-Point Rebuttal Compilation",
+        "pipeline": "academic_revision",
+        "required_prerequisites": [
+            r"(?:03_remediation_manifest\.json|03_manuscript_remediation_log\.(?:md|docx)|.*(?:revised|remediated).*\.docx)"
+        ]
+    },
+    r"[Rr]\.5": {
+        "name": "Stage R.5: Adversarial Revision Audit & TIS Check",
+        "pipeline": "academic_revision",
+        "required_prerequisites": [
+            r"(?:Revision_Response_Table\.(?:docx|md)|Response_to_Reviewers\.(?:docx|md)|04_resolved_comments\.json)"
+        ]
+    },
+    r"[Rr]\.6": {
+        "name": "Stage R.6: Final Sign-Off & Administrative Human Gate",
+        "pipeline": "academic_revision",
+        "required_prerequisites": [
+            r"(?:validation_report\.json|05_revision_validation_report\.(?:json|md))"
+        ]
     }
 }
 
@@ -486,16 +536,25 @@ def find_files_matching(workspaces: List[str], pattern: str) -> List[str]:
     for ws in workspaces:
         if not ws or not os.path.exists(ws):
             continue
+        if os.path.isfile(pattern):
+            matched.append(os.path.abspath(pattern))
+            continue
+        direct_cand = os.path.join(ws, pattern)
+        if os.path.isfile(direct_cand):
+            matched.append(os.path.abspath(direct_cand))
+            continue
         for root, _, files in os.walk(ws):
-            # Skip hidden and scratch directories
-            if any(part.startswith(".") for part in root.split(os.sep) if part not in (".", "..")):
+            # Skip hidden and scratch directories, but allow .agents
+            parts = [p for p in root.split(os.sep) if p not in (".", "..")]
+            if any(part.startswith(".") and part != ".agents" for part in parts):
                 continue
             if "scratch" in root:
                 continue
             for f in files:
-                if regex.search(f):
+                rel_f = os.path.relpath(os.path.join(root, f), ws)
+                if regex.search(f) or regex.search(rel_f):
                     matched.append(os.path.join(root, f))
-    return matched
+    return list(dict.fromkeys(matched))
 
 
 GATE3_REQUIRED_INFERENTIAL_PAYLOADS: List[Tuple[str, str]] = [
@@ -540,8 +599,8 @@ def resolve_stage_spec(stage_str: str) -> Optional[Tuple[str, Dict[str, Any]]]:
     if not stage_str or not isinstance(stage_str, str):
         return None
 
-    # Match stage numbers (e.g. '4A.1', '4B.3', '4C.2.1', '4D.5', 'DS.1', 'D.3', 'V.4', 'P.2', '4.6.1', '2.3', '5.2')
-    m = re.search(r'\b(4[A-D]\.\d+(?:\.\d+)?|DS\.\d+|D\.\d+|V\.\d+|P\.\d+|[245]\.\d+(?:\.\d+)?)\b', stage_str, re.IGNORECASE)
+    # Match stage numbers (e.g. '4A.1', '4B.3', '4C.2.1', '4D.5', 'DS.1', 'D.3', 'V.4', 'P.2', 'R.1', '4.6.1', '2.3', '5.2')
+    m = re.search(r'\b(4[A-D]\.\d+(?:\.\d+)?|DS\.\d+|D\.\d+|V\.\d+|P\.\d+|R\.\d+|[245]\.\d+(?:\.\d+)?)\b', stage_str, re.IGNORECASE)
     if not m:
         return None
 
@@ -699,6 +758,27 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
             r"\bviva voce defense simulator\b",
         ],
         "remedy": "Independent adversarial validation and integrity audits cannot be self-delegated to authoring workers. Delegate to 'validation-agent'."
+    },
+    "academic_revision": {
+        "name": "Universal Academic Revision & Rebuttal",
+        "allowed_workers": {"academic-writer", "statistics-agent", "validation-agent", "data-agent", "literature-expert"},
+        "forbidden_workers": set(),
+        "script_patterns": [
+            r"extract_docx_comments\.py",
+            r"generate_revision_response_docx\.py",
+            r"revision_pipeline_engine\.py",
+            r"revision_triage_engine\.py",
+        ],
+        "keyword_patterns": [
+            r"\bpersian-thesis-revision-assistant\b",
+            r"\bacademic_revision\b",
+            r"\bthesis_revision\b",
+            r"\barticle_revision\b",
+            r"\bpoint-by-point rebuttal\b",
+            r"\bresponse to reviewers\b",
+            r"\bجدول پاسخ به داوران\b",
+        ],
+        "remedy": "Academic revision tasks should be coordinated through the Universal Academic Revision Pipeline (Stages R.0 – R.6)."
     }
 }
 

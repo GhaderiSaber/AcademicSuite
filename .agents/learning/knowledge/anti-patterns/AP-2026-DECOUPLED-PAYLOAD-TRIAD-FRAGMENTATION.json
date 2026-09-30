@@ -26,6 +26,8 @@
     "chapter-4-writing",
     "chapter-5-writing"
   ],
-  "reusable": true,
-  "updated_at": "2026-09-27T21:42:20Z"
+  "reusable": false,
+  "updated_at": "2026-09-30T18:21:00.778041+00:00",
+  "status": "SUPERSEDED",
+  "is_active_behavior": false
 }

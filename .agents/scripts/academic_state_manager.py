@@ -499,7 +499,73 @@ CHAPTER_5_STAGE_GRAPH = [
     }
 ]
 
-ALL_KNOWN_STAGES = DEFAULT_STAGE_GRAPH + CHAPTER_5_STAGE_GRAPH
+REVISION_STAGE_GRAPH = [
+    {
+        "stage_id": "00_feedback_ingestion",
+        "title": "Stage R.0: Feedback Ingestion & Polymorphic Scoping",
+        "initial_status": StageState.STAGE_READY.value,
+        "dependencies": [],
+        "required_input_artifacts": [],
+        "required_output_artifacts": ["00_extracted_comments.json"],
+        "active_agent": "academic-orchestrator"
+    },
+    {
+        "stage_id": "01_feedback_triage",
+        "title": "Stage R.1: 3-Tier Multi-Domain Triage & Delegation Plan",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["00_feedback_ingestion"],
+        "required_input_artifacts": ["00_extracted_comments.json"],
+        "required_output_artifacts": ["01_revision_triage_plan.json"],
+        "active_agent": "academic-orchestrator"
+    },
+    {
+        "stage_id": "02_statistical_revisions",
+        "title": "Stage R.2: Computational Recalculations & Statistical Patches",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["01_feedback_triage"],
+        "required_input_artifacts": ["01_revision_triage_plan.json"],
+        "required_output_artifacts": ["02_statistical_revisions.json"],
+        "active_agent": "statistics-agent"
+    },
+    {
+        "stage_id": "03_manuscript_remediation",
+        "title": "Stage R.3: Surgical In-Place Manuscript Remediation",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["01_feedback_triage"],
+        "required_input_artifacts": ["01_revision_triage_plan.json"],
+        "required_output_artifacts": ["03_remediation_manifest.json"],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "04_response_table_compilation",
+        "title": "Stage R.4: Formal Point-by-Point Rebuttal Compilation",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["03_manuscript_remediation"],
+        "required_input_artifacts": ["03_remediation_manifest.json"],
+        "required_output_artifacts": ["04_resolved_comments.json"],
+        "active_agent": "academic-writer"
+    },
+    {
+        "stage_id": "05_revision_audit",
+        "title": "Stage R.5: Adversarial Multi-Signal Revision Audit & TIS Check",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["04_response_table_compilation"],
+        "required_input_artifacts": ["04_resolved_comments.json"],
+        "required_output_artifacts": ["validation_report.json"],
+        "active_agent": "validation-agent"
+    },
+    {
+        "stage_id": "06_final_clearance",
+        "title": "Stage R.6: Final Sign-Off & Administrative Human Gate",
+        "initial_status": StageState.STAGE_LOCKED.value,
+        "dependencies": ["05_revision_audit"],
+        "required_input_artifacts": ["validation_report.json"],
+        "required_output_artifacts": ["06_final_clearance_decision.json"],
+        "active_agent": "final-judge"
+    }
+]
+
+ALL_KNOWN_STAGES = DEFAULT_STAGE_GRAPH + CHAPTER_5_STAGE_GRAPH + REVISION_STAGE_GRAPH
 
 
 # ==============================================================================
@@ -665,10 +731,15 @@ class StrictStateMachine:
     Fails closed on any violation.
     """
 
-    def __init__(self, state_dir: str, project_id: Optional[str] = None):
+    def __init__(self, state_dir: str, project_id: Optional[str] = None, project_path: Optional[str] = None):
         self.state_dir = os.path.abspath(state_dir)
         os.makedirs(self.state_dir, exist_ok=True)
-        self.project_id = project_id or os.path.basename(os.path.dirname(self.state_dir)) or "academic_project"
+        if project_id:
+            self.project_id = project_id
+        elif project_path:
+            self.project_id = os.path.basename(os.path.abspath(project_path))
+        else:
+            self.project_id = os.path.basename(os.path.dirname(self.state_dir)) or "academic_project"
         self.milestones: Dict[str, Dict[str, Any]] = {}
         self.stages: Dict[str, Dict[str, Any]] = {}
         self.project_state: str = ProjectState.PROJECT_CREATED.value
@@ -1537,6 +1608,7 @@ class StrictStateMachine:
                 if not next_stage_id:
                     default_ids = [s["stage_id"] for s in DEFAULT_STAGE_GRAPH]
                     ch5_ids = [s["stage_id"] for s in CHAPTER_5_STAGE_GRAPH]
+                    rev_ids = [s["stage_id"] for s in REVISION_STAGE_GRAPH]
                     if target_id in default_ids:
                         d_idx = default_ids.index(target_id)
                         if d_idx + 1 < len(default_ids):
@@ -1545,6 +1617,10 @@ class StrictStateMachine:
                         c_idx = ch5_ids.index(target_id)
                         if c_idx + 1 < len(ch5_ids):
                             next_stage_id = ch5_ids[c_idx + 1]
+                    elif target_id in rev_ids:
+                        r_idx = rev_ids.index(target_id)
+                        if r_idx + 1 < len(rev_ids):
+                            next_stage_id = rev_ids[r_idx + 1]
 
                 if next_stage_id:
                     if next_stage_id not in self.stages:
@@ -2116,8 +2192,15 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
     now_iso = datetime.now(timezone.utc).isoformat()
     project_id = os.path.basename(os.path.abspath(project_path))
 
-    current_stage = "01_findings_recap" if pipeline == "chapter5" else "00_data_curation"
-    active_milestone = "M8_DISCUSSION" if pipeline == "chapter5" else "M0_INGESTION"
+    if pipeline in ("academic_revision", "thesis_revision", "article_revision", "revision"):
+        current_stage = "00_feedback_ingestion"
+        active_milestone = "M_REVISION"
+    elif pipeline == "chapter5":
+        current_stage = "01_findings_recap"
+        active_milestone = "M8_DISCUSSION"
+    else:
+        current_stage = "00_data_curation"
+        active_milestone = "M0_INGESTION"
 
     # 1. project.json
     project_data = {
@@ -2140,17 +2223,26 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
     _write_json_if_missing(os.path.join(state_dir, "project.json"), project_data)
 
     # 2. requirements.json
-    deliverables = [
-        "Chapter_5_Discussion.docx",
-        "Chapter_5_Discussion.md",
-        "Master_Discussion_Matrix.docx",
-        "defense_discussion_brief.docx"
-    ] if pipeline == "chapter5" else [
-        "Chapter_4_Results.docx",
-        "Chapter_4_Results.md",
-        "Master_Hypothesis_Matrix.docx",
-        "Defense_Brief.docx"
-    ]
+    if pipeline in ("academic_revision", "thesis_revision", "article_revision", "revision"):
+        deliverables = [
+            "Revision_Response_Table.docx",
+            "Document_Revised_Highlights.docx",
+            "audit_report.json"
+        ]
+    elif pipeline == "chapter5":
+        deliverables = [
+            "Chapter_5_Discussion.docx",
+            "Chapter_5_Discussion.md",
+            "Master_Discussion_Matrix.docx",
+            "defense_discussion_brief.docx"
+        ]
+    else:
+        deliverables = [
+            "Chapter_4_Results.docx",
+            "Chapter_4_Results.md",
+            "Master_Hypothesis_Matrix.docx",
+            "Defense_Brief.docx"
+        ]
     req_data = {
         "research_questions": [
             {
@@ -2319,7 +2411,12 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
             )
 
     if not sm.stages:
-        stages_to_init = CHAPTER_5_STAGE_GRAPH if pipeline == "chapter5" else DEFAULT_STAGE_GRAPH
+        if pipeline in ("academic_revision", "thesis_revision", "article_revision", "revision"):
+            stages_to_init = REVISION_STAGE_GRAPH
+        elif pipeline == "chapter5":
+            stages_to_init = CHAPTER_5_STAGE_GRAPH
+        else:
+            stages_to_init = DEFAULT_STAGE_GRAPH
         for s in stages_to_init:
             sm.register_stage(
                 stage_id=s["stage_id"],
@@ -2335,6 +2432,10 @@ def init_state(project_path: str, title: str = "Empirical Research Project", met
 
     sm.lock_state_dir()
     return {"status": "SUCCESS", "state_dir": state_dir, "initialized_files": list(SCHEMA_MAP.keys())}
+
+
+# Backward compatibility and alias
+init_project_state = init_state
 
 
 def validate_state(project_path: str) -> Dict[str, Any]:

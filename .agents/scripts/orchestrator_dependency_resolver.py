@@ -144,6 +144,12 @@ CAPABILITY_REGISTRY = {
         "skill": "chapter-5-writing",
         "agent": "academic-writer",
         "tools": ["view_file", "write_to_file"]
+    },
+    "academic_revision": {
+        "description": "Universal academic revision, 3-tier triage, in-place document mutation, and response tables",
+        "skill": "persian-thesis-revision-assistant",
+        "agent": "academic-writer",
+        "tools": ["run_command", "view_file", "write_to_file"]
     }
 }
 
@@ -305,6 +311,49 @@ STAGE_DEPENDENCIES = {
         "capability": "chapter_5_writing",
         "required_files": ["project.json"],
         "required_stage": "09_chapter5_assembly"
+    },
+    # Universal Academic Revision Micro-Stages (Stages R.0 – R.6)
+    "00_feedback_ingestion": {
+        "title": "Stage R.0: Feedback Ingestion & Polymorphic Scoping",
+        "capability": "academic_revision",
+        "required_files": ["project.json"],
+        "required_stage": None
+    },
+    "01_feedback_triage": {
+        "title": "Stage R.1: 3-Tier Multi-Domain Triage & Delegation Plan",
+        "capability": "academic_revision",
+        "required_files": ["00_extracted_comments.json"],
+        "required_stage": "00_feedback_ingestion"
+    },
+    "02_statistical_revisions": {
+        "title": "Stage R.2: Computational Recalculations & Statistical Patches",
+        "capability": "computational_statistics",
+        "required_files": ["01_revision_triage_plan.json"],
+        "required_stage": "01_feedback_triage"
+    },
+    "03_manuscript_remediation": {
+        "title": "Stage R.3: Surgical In-Place Manuscript Remediation",
+        "capability": "academic_revision",
+        "required_files": ["01_revision_triage_plan.json"],
+        "required_stage": "01_feedback_triage"
+    },
+    "04_response_table_compilation": {
+        "title": "Stage R.4: Formal Point-by-Point Rebuttal Compilation",
+        "capability": "academic_revision",
+        "required_files": ["03_remediation_manifest.json"],
+        "required_stage": "03_manuscript_remediation"
+    },
+    "05_revision_audit": {
+        "title": "Stage R.5: Adversarial Multi-Signal Revision Audit & TIS Check",
+        "capability": "validation_audit",
+        "required_files": ["04_resolved_comments.json"],
+        "required_stage": "04_response_table_compilation"
+    },
+    "06_final_clearance": {
+        "title": "Stage R.6: Final Sign-Off & Administrative Human Gate",
+        "capability": "validation_audit",
+        "required_files": ["validation_report.json"],
+        "required_stage": "05_revision_audit"
     }
 }
 
@@ -333,7 +382,15 @@ STAGE_ORDER: Dict[str, int] = {
     "07_results_qc": 7,
     "08_evidence_qc": 8,
     "09_chapter5_assembly": 9,
-    "10_defense_brief": 10
+    "10_defense_brief": 10,
+    # Universal Academic Revision micro-stages
+    "00_feedback_ingestion": 0,
+    "01_feedback_triage": 1,
+    "02_statistical_revisions": 2,
+    "03_manuscript_remediation": 3,
+    "04_response_table_compilation": 4,
+    "05_revision_audit": 5,
+    "06_final_clearance": 6
 }
 
 
@@ -357,6 +414,7 @@ def resolve_capability(query: str) -> Dict[str, Any]:
         "regression": ["regression", "hierarchical", "r2", "stepwise", "f-change"],
         "apa_reporting": ["table", "apa", "border", "italic", "typography", "b nazanin"],
         "chapter_4_writing": ["chapter 4", "findings", "hypothesis", "results", "narrative"],
+        "academic_revision": ["revision", "revise", "rebuttal", "supervisor comment", "examiner comment", "reviewer comment", "response to reviewer", "response table", "اصلاحات", "داوران"],
         "chapter_5_writing": ["chapter 5", "discussion", "implications", "limitations", "recommendations", "conclusion"],
         "literature_review": ["literature", "chapter 2", "pubmed", "crossref", "background", "citations"],
         "methodology_review": ["methodology", "chapter 3", "g*power", "sample size", "validity"],

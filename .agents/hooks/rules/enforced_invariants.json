@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-30T17:09:43.924465+00:00",
+  "updated_at": "2026-09-30T18:21:00.778041+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -551,7 +551,7 @@
     "CAND-20260927-THESIS-INTEGRITY-001": {
       "item_id": "CAND-20260927-THESIS-INTEGRITY-001",
       "category": "Learned Mechanical Rule",
-      "statement": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage triads (.docx, .md, .json) are complete.",
+      "statement": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage deliverables are complete on disk before running global suite.",
       "target_agents": [
         "academic-orchestrator"
       ],
@@ -564,10 +564,10 @@
       "file_pattern": ".*",
       "check_type": "regex_ban",
       "pattern": "python3 .*run_all_validators\\.py --stage-dir 03_deliverables/?\\s",
-      "violation_message": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage triads (.docx, .md, .json) are complete.",
-      "remedy": "Wait until all micro-stage deliverables (.docx, .md, .json) are synthesized before running global validation, or target a specific micro-stage directory.",
+      "violation_message": "BAN-20260927-002: Premature global validation on 03_deliverables is blocked. Ensure all micro-stage deliverables are complete on disk before running global suite.",
+      "remedy": "Wait until stage deliverables are synthesized before running global validation, or target a specific micro-stage directory with --stage-dir.",
       "enabled": true,
-      "updated_at": "2026-09-30T17:09:43.924353+00:00"
+      "updated_at": "2026-09-30T18:21:00.778041+00:00"
     },
     "CAND-20260927-CHAPTER4-WRITING-001": {
       "item_id": "CAND-20260927-CHAPTER4-WRITING-001",
@@ -586,14 +586,14 @@
       "check_type": "regex_ban",
       "pattern": "python3 .*run_all_validators\\.py --stage-dir 03_deliverables/?\\s",
       "violation_message": "AP-2026-PREMATURE-GLOBAL-VALIDATION-DECOUPLED-TRIAD: Premature global validation blocked. Validate at micro-stage boundary first.",
-      "remedy": "Target specific micro-stage directories for validation, or ensure all triads (.docx, .md, .json) are generated before running global validation.",
+      "remedy": "Target specific micro-stage directories for validation, or ensure all stage deliverables are generated before running global validation.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146575+00:00"
+      "updated_at": "2026-09-30T18:21:00.778041+00:00"
     },
     "CAND-2026-ATOMIC-TRIAD-CH4-001": {
       "item_id": "CAND-2026-ATOMIC-TRIAD-CH4-001",
       "category": "Learned Mechanical Rule",
-      "statement": "Atomic Micro-Stage Triad Synthesis Invariant violation: Fragmented pipeline state detected. You must sequentially and atomically generate its complete synchronized triad (.docx, .md, .json).",
+      "statement": "Atomic Micro-Stage Findings Invariant: In Tier 1 micro-stages, enforce the analytical dyad (.json + .md; .docx optional). In Tier 2 chapter milestones, enforce the monograph (.docx + .md).",
       "target_agents": [
         "academic-orchestrator",
         "statistics-agent"
@@ -607,15 +607,15 @@
       "file_pattern": ".*\\\\.json$",
       "check_type": "substring_ban",
       "pattern": "FRAGMENTED_JSON_PAYLOAD_ONLY",
-      "violation_message": "Atomic Micro-Stage Triad Synthesis Invariant violation: Fragmented pipeline state detected. You must sequentially and atomically generate its complete synchronized triad (.docx, .md, .json).",
-      "remedy": "Ensure your micro-stage execution generates the complete triad (.docx, .md, .json) before proceeding or validating.",
+      "violation_message": "Fragmented pipeline state: stage deliverables do not match required artifacts.",
+      "remedy": "Generate required deliverables based on stage type (data stages: .json; narrative stages: .md; empirical micro-stages: .json + .md; chapter consolidation: .docx + .md).",
       "enabled": true,
-      "updated_at": "2026-09-30T17:09:43.924358+00:00"
+      "updated_at": "2026-09-30T18:21:00.778041+00:00"
     },
     "CAND-2026-ATOMIC-TRIAD-ORCH-001": {
       "item_id": "CAND-2026-ATOMIC-TRIAD-ORCH-001",
       "category": "Learned Mechanical Rule",
-      "statement": "Atomic Micro-Stage Triad Synthesis Invariant violation: Cannot validate fragmented JSON-only states.",
+      "statement": "Two-Tier Drafting Validation Invariant: Enforce the Two-Tier Drafting Architecture. Pure computational payloads are validated as JSON, while chapter consolidation enforces the complete monograph (.docx + .md).",
       "target_agents": [
         "academic-orchestrator"
       ],
@@ -627,11 +627,11 @@
       "tool_match": "run_command",
       "file_pattern": ".*",
       "check_type": "regex_ban",
-      "pattern": "--validate-json-only",
-      "violation_message": "Atomic Micro-Stage Triad Synthesis Invariant violation: Cannot validate fragmented JSON-only states.",
-      "remedy": "Ensure the pipeline sequentially and atomically generates the complete synchronized triad (.docx, .md, .json) before validation.",
+      "pattern": "--bypass-stage-gates|--skip-monograph-assembly",
+      "violation_message": "Bypassing stage validation or skipping chapter monograph assembly is prohibited.",
+      "remedy": "Ensure stage deliverables conform to the Two-Tier Drafting Architecture before validation.",
       "enabled": true,
-      "updated_at": "2026-09-30T16:59:40.146615+00:00"
+      "updated_at": "2026-09-30T18:21:00.778041+00:00"
     },
     "CAND-2026-SEM-SINGLE-INDICATOR-001": {
       "item_id": "CAND-2026-SEM-SINGLE-INDICATOR-001",
@@ -982,7 +982,7 @@
     "AP-2026-DECOUPLED-PAYLOAD-TRIAD-FRAGMENTATION": {
       "item_id": "AP-2026-DECOUPLED-PAYLOAD-TRIAD-FRAGMENTATION",
       "category": "Anti-Pattern",
-      "statement": "Micro-stage execution must sequentially and completely synthesize all three components (.json, .md, .docx) within the same micro-stage phase before triggering directory-wide validation gates or declaring the micro-stage complete.",
+      "statement": "Two-Tier Drafting Invariant: Stage execution must synthesize required deliverables according to stage type (data stages: .json; narrative stages: .md; empirical micro-stages: .json + .md; chapter consolidation: .docx + .md).",
       "target_agents": [
         "academic-orchestrator"
       ],
@@ -991,11 +991,11 @@
       "tool_match": "write_to_file|replace_file_content|patch|edit_file",
       "file_pattern": ".*\\.py",
       "check_type": "regex_ban",
-      "pattern": "(?s)trigger_validation.*\\.json.*(?!(?:\\.md|\\.docx))",
-      "violation_message": "Generating isolated JSON statistical payloads in micro-stages without synchronously synthesizing and emitting the corresponding Markdown (.md) and Word (.docx) deliverables before triggering validation or declaring completion.",
-      "remedy": "Micro-stage execution must sequentially and completely synthesize all three components (.json, .md, .docx) within the same micro-stage phase before triggering directory-wide validation gates or declaring the micro-stage complete.",
+      "pattern": "(?s)bypass_monograph_assembly.*\\.docx",
+      "violation_message": "Stage execution missing required deliverables on disk.",
+      "remedy": "Synthesize the declared stage deliverables before triggering validation or declaring completion.",
       "enabled": true,
-      "updated_at": "2026-09-30T17:09:43.924407+00:00"
+      "updated_at": "2026-09-30T18:21:00.778041+00:00"
     },
     "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE": {
       "item_id": "AP-2026-DISCORDANT-HARNESSED-SAMPLE-SIZE",
@@ -1110,7 +1110,7 @@
     "AP-2026-MISSING-TRIAD-JSON-001": {
       "item_id": "AP-2026-MISSING-TRIAD-JSON-001",
       "category": "Anti-Pattern",
-      "statement": "Atomically generate .json, .md, and .docx files with correct canonical file names for every micro-stage. Ensure parameter files like gate3 report are fully populated.",
+      "statement": "Canonical Stage Payload Naming Invariant: Generate required deliverables with correct canonical file names for every stage. Ensure parameter files are fully populated.",
       "target_agents": [
         "academic-writer",
         "statistics-agent"
@@ -1121,10 +1121,10 @@
       "file_pattern": ".*\\.json",
       "check_type": "regex_ban",
       "pattern": "(?m)^.*_mediation_analysis\\.json$",
-      "violation_message": "Generating .md and .docx files for micro-stages but omitting or improperly naming the underlying .json data payloads.",
-      "remedy": "Atomically generate .json, .md, and .docx files with correct canonical file names for every micro-stage. Ensure parameter files like gate3 report are fully populated.",
+      "violation_message": "Stage deliverables missing required data payloads or improperly named.",
+      "remedy": "Generate required deliverables with correct canonical names for every micro-stage.",
       "enabled": true,
-      "updated_at": "2026-09-30T17:09:43.924428+00:00"
+      "updated_at": "2026-09-30T18:21:00.778041+00:00"
     },
     "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION": {
       "item_id": "AP-2026-OPENXML-NUMPR-LITERAL-PREFIX-HALLUCINATION",

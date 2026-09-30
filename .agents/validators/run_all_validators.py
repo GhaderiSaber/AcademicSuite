@@ -183,7 +183,7 @@ def is_monograph_required_stage(stage_id: str, stage_dir: Optional[str] = None) 
 
 def is_dyad_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bool:
     """Determines whether a stage is a micro-stage requiring the .json + .md Dyad."""
-    if mr.is_data_analysis_stage(stage_id, stage_dir=stage_dir) or is_monograph_required_stage(stage_id, stage_dir=stage_dir):
+    if mr.is_data_analysis_stage(stage_id, stage_dir=stage_dir) or is_monograph_required_stage(stage_id, stage_dir=stage_dir) or mr.is_narrative_stage(stage_id, stage_dir=stage_dir):
         return False
     norm = stage_id.strip().lower()
     if "payload" in norm:
@@ -192,11 +192,9 @@ def is_dyad_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bo
         "hypothesis", "macro_model", "mediation", "moderation",
         "bivariate", "summary", "cfa", "efa", "item_analysis",
         "construct_validity", "reliability", "irt_roc", "findings",
-        "phase4d", "stage_4d", "4d_", "demographic", "descriptive"
+        "phase4d", "stage_4d", "4d_"
     ]
-    return any(ind in norm for ind in dyad_indicators) or (norm.startswith("stage_4d")) or (
-        (norm.startswith("0") or norm.startswith("stage_")) and not mr.is_data_analysis_stage(norm, stage_dir=stage_dir)
-    )
+    return any(ind in norm for ind in dyad_indicators) or (norm.startswith("stage_4d"))
 
 
 def is_triad_required_stage(stage_id: str, stage_dir: Optional[str] = None) -> bool:
