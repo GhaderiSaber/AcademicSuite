@@ -217,3 +217,10 @@ Run the suite at any time:
 ```bash
 python3 tests/test_lifecycle_hooks.py
 ```
+
+---
+
+## 7. Continuous Learning, Graduation & Remediation Lifecycle
+
+For detailed specification of the 4 lifecycle states (`NO_DEFECT`, `LEARNING_REQUIRED`, `PENDING_GRADUATION`, `REMEDIATION_PHASE`), turn-boundary continuity, anti-phantom detection filtering, and protojson schema compliance, see:
+- [`docs/architecture/LEARNING_AND_REMEDIATION_LIFECYCLE.md`](file:///home/saber-ghaderi/Desktop/AcademicSuite/docs/architecture/LEARNING_AND_REMEDIATION_LIFECYCLE.md)

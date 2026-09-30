@@ -47,7 +47,8 @@ User Task
    │
    ▼
 8. Resolve Failures / Synthesize► PASS: Advance stage in academic-state/ & emit report
-                                 FAIL: Trigger diagnostic retry loop (max 3 attempts)
+                                 FAIL: Trigger Continuous Learning Cascade & Remediation Phase
+                                       (See docs/architecture/LEARNING_AND_REMEDIATION_LIFECYCLE.md)
 ```
 
 ---
