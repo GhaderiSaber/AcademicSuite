@@ -146,7 +146,6 @@ def build_openxml_document(title, items, out_docx_path):
                     '    <w:p>\n'
                     '      <w:pPr>\n'
                     '        <w:bidi w:val="1"/>\n        <w:jc w:val="both"/>\n'
-                    '        <w:jc w:val="both"/>\n'
                     '        <w:spacing w:before="60" w:after="180"/>\n'
                     '      </w:pPr>\n'
                     '      <w:r>\n'
@@ -165,7 +164,6 @@ def build_openxml_document(title, items, out_docx_path):
                     '    <w:p>\n'
                     '      <w:pPr>\n'
                     '        <w:bidi w:val="1"/>\n        <w:jc w:val="both"/>\n'
-                    '        <w:jc w:val="both"/>\n'
                     '        <w:spacing w:before="0" w:after="120" w:line="276" w:lineRule="auto"/>\n'
                     '      </w:pPr>\n'
                     '      <w:r>\n'
@@ -182,9 +180,9 @@ def build_openxml_document(title, items, out_docx_path):
             tbl_xml = [
                 '    <w:tbl>',
                 '      <w:tblPr>',
+                '        <w:bidiVisual w:val="1"/>',
                 '        <w:tblW w:w="0" w:type="auto"/>',
                 '        <w:jc w:val="center"/>',
-                '        <w:bidiVisual w:val="1"/>',
                 '        <w:tblBorders>',
                 '          <w:top w:val="single" w:sz="12" w:space="0" w:color="000000"/>',
                 '          <w:bottom w:val="single" w:sz="12" w:space="0" w:color="000000"/>',
