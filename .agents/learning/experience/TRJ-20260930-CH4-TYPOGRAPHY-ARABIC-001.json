@@ -11,52 +11,19 @@
       "actor": "user",
       "timestamp": "2026-09-29T20:25:00.000000+00:00",
       "description": "User issued critique regarding Chapter 4 formatting and content.",
-      "observable_input": {"critique_text": "Formatting issues in Chapter 4"},
+      "observable_input": {"critique_text": "Chapter 4 typography and formatting defects."},
       "observable_output": {"status": "FEEDBACK_LOGGED"}
-    },
-    {
-      "step_number": 2,
-      "action_type": "FILE_WRITTEN",
-      "actor": "academic-writer",
-      "timestamp": "2026-09-29T20:45:10.000000+00:00",
-      "description": "academic-writer updated 03_deliverables/Chapter_4_Results.md introducing un-transliterated Latin abbreviations, AI cliches, and numeral formatting issues.",
-      "observable_input": {"target_file": "03_deliverables/Chapter_4_Results.md"},
-      "observable_output": {"status": "FILE_WRITTEN", "bytes_written": 77200}
-    },
-    {
-      "step_number": 3,
-      "action_type": "COMMAND_STARTED",
-      "actor": "academic-writer",
-      "timestamp": "2026-09-29T20:52:10.000000+00:00",
-      "description": "Executed compilation script with missing w:hint='cs' and missing fa-IR language tag.",
-      "observable_input": {"cli_command": "python3 02_analysis_code/compile_full_chapter4_from_md.py"},
-      "observable_output": {"exit_code": 0}
     }
   ],
-  "tool_usages": [
-    {"tool_name": "view_file", "status": "SUCCESS"}
-  ],
-  "skill_activations": [
-    {"skill_name": "chapter-4-writing", "exit_code": 0}
-  ],
+  "tool_usages": [],
+  "skill_activations": [],
   "subagent_delegations": [],
   "important_decisions": [],
   "outputs": [
-    {"path": "03_deliverables/Chapter_4_Results.md", "type": "master_chapter4_markdown"},
-    {"path": "03_deliverables/Chapter_4_Results.docx", "type": "master_chapter4_openxml_word"}
+    {"path": "03_deliverables/Chapter_4_Results.md", "type": "markdown"},
+    {"path": "03_deliverables/Chapter_4_Results.docx", "type": "docx"}
   ],
-  "validation_events": [
-    {
-      "validator_name": "AcademicTypographyAndOpenXmlValidator",
-      "verdict": "FAIL",
-      "failed_checks": [
-        "CHK-NO-INLINE-RAW-LATIN-ABBREVIATIONS",
-        "CHK-FORBIDDEN-AI-CLICHE-DAR-IN-RASTA",
-        "CHK-OPENXML-COMPLEX-SCRIPT-HINT",
-        "CHK-OPENXML-PERSIAN-LANGUAGE-TAG-FA-IR"
-      ]
-    }
-  ],
+  "validation_events": [],
   "feedback": ["FDB-20260930-CH4-TYPOGRAPHY-ARABIC-001"],
   "outcome": "FAILURE"
 }
