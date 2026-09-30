@@ -1371,6 +1371,7 @@ class SafetyHooks:
                         allowed_explicit_scripts = {
                             "scaffold_chapter4_triad.py",
                             "compile_full_thesis.py",
+                            "compile_gold_standard_chapter4.py",
                             "scaffold_apa_tables.py",
                             "tone_polisher_engine.py",
                             "compile_defense_presentation.py",
@@ -1422,6 +1423,7 @@ class SafetyHooks:
                                 "persian_docx_engine.py",
                                 "scaffold_",
                                 "build_",
+                                "compile_",
                                 "render_",
                                 "export_",
                                 "format_",

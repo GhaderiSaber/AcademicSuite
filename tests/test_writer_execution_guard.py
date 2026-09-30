@@ -102,6 +102,8 @@ class TestAcademicWriterExecutionGuard(unittest.TestCase):
             "python3 scripts/structured_docx_generator.py --input template.json",
             "python3 scripts/persian_docx_engine.py --md input.md --docx output.docx",
             "python3 scripts/build_hypothesis_triad_docx.py",
+            "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+            "python3 02_analysis_code/compile_chapter4_results.py",
             "pandoc document.md -o document.docx",
             "mkdir -p projects/study_act/06_hypothesis_1",
             "cp template.docx projects/study_act/stage.docx",
