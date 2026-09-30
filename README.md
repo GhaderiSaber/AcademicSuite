@@ -180,7 +180,7 @@ AcademicSuite/
 │   └── verification/                      # MSAI Anomaly Detector & Committee Viva Voce Simulator
 ├── docs/                                  # Centralized Documentation, Contracts & Architecture Blueprints
 │   ├── ARCHITECTURE_TAXONOMY_AND_TRUTH.md # Ground Truth vs. Historical vs. Target Architecture
-│   ├── CURRENT_ARCHITECTURE.md            # Authoritative As-Built System Architecture
+│   ├── architecture/CURRENT_ARCHITECTURE.md # Authoritative As-Built System Architecture
 │   ├── AGENT_INVENTORY.md                 # 28-Agent Cognitive Role Inventory
 │   ├── SKILL_INVENTORY.md                 # 45-Skill Execution Tools Catalog
 │   ├── LEGACY_INVENTORY.md                # Technical Debt & Deprecation Audit
