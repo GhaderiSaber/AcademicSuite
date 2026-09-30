@@ -710,7 +710,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                             for c_dir in cand_dirs:
                                 for root, _, files in os.walk(c_dir):
                                     rel = os.path.relpath(root, ws) if ws else root
-                                    if any(p in ("01_raw_inputs", "02_analysis_code", "04_references_and_lit", "scratch") or p.startswith(".") for p in rel.split(os.sep)):
+                                    if any(p in ("01_raw_inputs", "02_analysis_code", "04_references_and_lit", "scratch") or (p != "." and p.startswith(".")) for p in rel.split(os.sep)):
                                         continue
                                     for f in files:
                                         if f.lower().endswith(".docx") and any(k in f.lower() for k in ("chapter_5", "chapter5", "ch5", "discussion")):
@@ -742,7 +742,7 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         for c_dir in cand_dirs:
                             for root, _, files in os.walk(c_dir):
                                 rel = os.path.relpath(root, ws) if ws else root
-                                if any(p in ("01_raw_inputs", "02_analysis_code", "04_references_and_lit", "scratch") or p.startswith(".") for p in rel.split(os.sep)):
+                                if any(p in ("01_raw_inputs", "02_analysis_code", "04_references_and_lit", "scratch") or (p != "." and p.startswith(".")) for p in rel.split(os.sep)):
                                     continue
                                 for f in files:
                                     if f.lower().endswith(".docx"):

@@ -643,7 +643,7 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
     (contracts/agents/agent_capabilities.yaml) if caller is explicitly provided.
     Returns denial dict if tool is forbidden for this agent, else None.
     """
-    if not caller:
+    if not caller or caller in ("default", "main", "developer", "coding", "cli-developer", "ide-developer", "unknown"):
         return None
     try:
         from contracts.agents.capability_policy import load_capability_policy
@@ -856,10 +856,15 @@ class SafetyHooks:
         workspaces = payload.get("workspacePaths", [])
 
         caller = ""
+        is_main = False
         if resolve_hook_identity:
             identity = resolve_hook_identity(payload)
-            caller = identity.agent_name.lower().strip() if (identity and identity.agent_name != "unknown") else ""
-        if not caller:
+            if identity and identity.is_main_developer:
+                is_main = True
+                caller = "default"
+            elif identity and identity.agent_name != "unknown":
+                caller = identity.agent_name.lower().strip()
+        if not caller and not is_main:
             caller = (
                 payload.get("agentName") or
                 payload.get("agentRole") or
@@ -868,7 +873,8 @@ class SafetyHooks:
             ).lower().strip()
 
         # Secondary Enforcement: Check canonical capability policy if explicit caller provided
-        if caller:
+        # Main Developer Agent (Track 1) is strictly exempt from academic capability stripping
+        if caller and not is_main:
             policy_denial = check_caller_policy(caller, name, args)
             if policy_denial:
                 return policy_denial

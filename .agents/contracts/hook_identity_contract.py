@@ -297,11 +297,16 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
         for line_str in lines[:30]:
             try:
                 step = json.loads(line_str)
+                # CRITICAL: Never inspect tool output or model tool calls for system identity
+                if step.get("type") in ("GENERIC", "TOOL_RETURNED") or step.get("source") == "MODEL":
+                    continue
                 content = step.get("content") or ""
                 if "<identity>" in content:
                     id_match = re.search(r"<identity>([\s\S]*?)</identity>", content)
                     if id_match:
                         id_text = id_match.group(1)
+                        if "You are Antigravity, a powerful agentic AI coding assistant" in id_text:
+                            return "default", "track_1_developer", "high"
                         if "academic-orchestrator" in id_text or "Master Academic Orchestrator" in id_text:
                             return "academic-orchestrator", "track_2_academic", "high"
                         if "digital-saber" in id_text:
@@ -311,15 +316,16 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
                         for ac in get_canonical_academic_agents():
                             if ac in id_text.lower():
                                 return ac, "track_2_academic", "high"
-                        if "You are Antigravity, a powerful agentic AI coding assistant" in id_text:
-                            return "default", "track_1_developer", "high"
             except Exception:
                 continue
 
-        # Pass 1.5: Check prompt / task assignment in early steps
+        # Pass 1.5: Check prompt / task assignment in early steps (strictly exclude hook-injected ephemeral messages)
         for line_str in lines[:10]:
             try:
                 step = json.loads(line_str)
+                # CRITICAL: Never inspect hook-injected ephemeral messages, system reminders, or tool outputs
+                if step.get("source") == "SYSTEM_SDK" or step.get("type") in ("EPHEMERAL_MESSAGE", "GENERIC", "TOOL_RETURNED"):
+                    continue
                 content = step.get("content") or ""
                 m_worker = re.search(r'["\'](?:worker_agent|target_worker|TypeName)["\']\s*:\s*["\']([a-zA-Z0-9_-]+)["\']', content)
                 if m_worker:
@@ -383,6 +389,28 @@ def inspect_transcript_for_identity(transcript_path: str) -> Optional[Tuple[str,
             return "default", "track_1_developer", "high"
         if has_orchestrator_signature:
             return "academic-orchestrator", "track_2_academic", "high"
+
+        # Pass 3: Initial User Prompt Intent Analysis for top-level interactive chats
+        # If the user explicitly asks for code development, audits, git, tests, or bug fixing:
+        for line_str in lines[:5]:
+            try:
+                step = json.loads(line_str)
+                if step.get("source") == "USER_EXPLICIT" and step.get("type") == "USER_INPUT":
+                    u_text = (step.get("content") or "").lower()
+                    dev_keywords = (
+                        "god file", "god files", "audit repo", "audit the repo", "scan the", "test", "tests",
+                        "pytest", "bug", "fix", "git", "commit", "refactor", "hook", "dispatcher", "code"
+                    )
+                    academic_keywords = (
+                        "academic-orchestrator", "orchestrate", "thesis", "dissertation", "chapter 4", "chapter 5",
+                        "fصل", "پرسشنامه", "structural equation", "sem", "scale validation", "cfa"
+                    )
+                    if any(ak in u_text for ak in academic_keywords):
+                        return "academic-orchestrator", "track_2_academic", "high"
+                    if any(dk in u_text for dk in dev_keywords):
+                        return "default", "track_1_developer", "high"
+            except Exception:
+                continue
     except Exception:
         return None
 
@@ -675,11 +703,26 @@ def _resolve_hook_identity_core(payload: Dict[str, Any], env: Optional[Dict[str,
             )
 
     # -------------------------------------------------------------
-    # Signal 3.5: Contextual Academic Workspace & Delegation Signature
+    # Signal 3.5: Contextual Tool Call & Privilege Signature
     # -------------------------------------------------------------
     if not is_subagent:
         tool_call = payload.get("toolCall", {})
         tool_name = (tool_call.get("name") or "").strip().lower()
+        # Directive 20: academic-orchestrator is strictly non-executing. Proposing developer execution tools
+        # in a root session affirmatively establishes Track 1 Developer Agent status.
+        if tool_name in ("run_command", "replace_file_content", "write_to_file", "edit_file", "apply_diff"):
+            return HookIdentity(
+                agent_name="default",
+                agent_role="developer",
+                track="track_1_developer",
+                is_main_developer=True,
+                is_subagent=False,
+                parent_conversation_id=None,
+                interface=interface,
+                confidence="high",
+                resolution_source="tool_call_signature",
+                details={"developer_tool_call": tool_name}
+            )
         if tool_name == "invoke_subagent":
             args = tool_call.get("args", {})
             subs = args.get("Subagents", [])

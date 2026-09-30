@@ -922,6 +922,44 @@ class LearningHooks:
 
             return {"injectSteps": [{"ephemeralMessage": "\n\n".join(sub_blocks)}]}
 
+        # Resolve caller identity authoritatively
+        if not caller or caller in ("unspecified", "default", "main"):
+            try:
+                from contracts.hook_identity_contract import resolve_hook_identity
+                ident = resolve_hook_identity(payload)
+                if ident and ident.is_main_developer:
+                    return {}
+                if ident and ident.agent_name and ident.agent_name != "unknown":
+                    caller = ident.agent_name.lower().strip()
+            except Exception:
+                pass
+
+        # Resolve transcript path for context analysis
+        transcript_path = resolve_transcript_path(payload)
+
+        is_orchestrator = caller in ("academic-orchestrator", "orchestrator")
+        if not is_orchestrator:
+            # Check if user message explicitly requests academic orchestration or thesis pipelines
+            u_msg = str(payload.get("userMessage") or payload.get("prompt") or payload.get("message") or "")
+            if not u_msg and transcript_path and os.path.isfile(transcript_path):
+                records = load_transcript(transcript_path)
+                for r in reversed(records):
+                    if r.get("type") == "USER_INPUT" and r.get("content"):
+                        u_msg = r.get("content", "").strip()
+                        break
+            u_lower = u_msg.lower()
+            academic_orch_triggers = (
+                "academic-orchestrator", "orchestrate", "thesis", "dissertation",
+                "chapter 4", "chapter 5", "فصل پنجم", "فصل چهارم", "structural equation",
+                "scale validation", "cfa", "sem", "repeated measures", "rm-anova"
+            )
+            if any(k in u_lower for k in academic_orch_triggers):
+                is_orchestrator = True
+
+        # Non-orchestrator root sessions (Track 1 Developer Agent) are strictly exempt from academic injections
+        if not is_orchestrator:
+            return {}
+
         critique_info = LearningHooks.capture_user_correction(payload)
 
         reminder = (
@@ -986,16 +1024,9 @@ class LearningHooks:
             )
             ephemeral_blocks.append(val_block)
 
-        # Resolve transcript path for context analysis
-        transcript_path = resolve_transcript_path(payload)
-
         # Model B: Deterministic Preflight Capability Routing for Academic Orchestrator
         # Executes academic_task_router.py offline/in-hook ("The Hands") to compile academic-state/routing_plan.json
         # and inject the deterministic capability plan into the orchestrator context.
-        is_orchestrator = (
-            caller in ("academic-orchestrator", "orchestrator")
-            or not caller
-        )
         if is_orchestrator:
             try:
                 user_text = (

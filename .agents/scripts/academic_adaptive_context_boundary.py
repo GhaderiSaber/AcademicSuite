@@ -132,7 +132,10 @@ BYPASS_PATTERNS: List[str] = [
     r"^\s*git\s+(?:status|commit|push|add|diff|checkout|branch|log)\b",
     r"^\s*(?:clean\s+working\s+tree|git\s+lifecycle)\b",
     r"^\s*(?:hello|hi|hey|thanks|thank\s+you|ok|okay|yes|proceed|continue|agree|approved)\b",
-    r"^\s*(?:view_file|read_file|ls|pwd|whoami)\b"
+    r"^\s*(?:view_file|read_file|ls|pwd|whoami)\b",
+    r"\b(?:god\s+files?|repo\s+audit|audit\s+(?:the\s+)?repo(?:sitory)?|scan\s+(?:the\s+)?god\s+files?)\b",
+    r"\b(?:pytest|unit\s*tests?|test\s+suite|run_command|fix\s+bug|refactor|compile|lint)\b",
+    r"\b(?:software\s+engineer|coding\s+agent|developer\s+agent|track\s*1)\b"
 ]
 
 ROLE_DEFAULT_CAPABILITY_MAP: Dict[str, Dict[str, str]] = {
@@ -209,10 +212,11 @@ class AcademicAdaptiveContextBoundary:
                     }
 
         academic_keywords = [
-            "hypothesis", "variable", "scale", "dataset", "table", "apa", "p-value",
-            "effect size", "thesis", "dissertation", "lesson", "knowledge", "anti-pattern",
-            "audit", "findings", "results", "simulation", "simulated", "proposal", "methodology",
-            "subagent", "agent", "shahram", "chapter", "r-lavaan", "spss", "excel", "questionnaire"
+            "hypothesis", "variable", "scale", "dataset", "apa", "p-value",
+            "effect size", "thesis", "dissertation", "anti-pattern",
+            "findings", "results", "simulation", "simulated", "proposal", "methodology",
+            "shahram", "chapter", "r-lavaan", "spss", "excel", "questionnaire",
+            "statistical_audit", "methodology_audit", "academic-orchestrator"
         ]
         if any(w in clean_text for w in academic_keywords):
             return {
