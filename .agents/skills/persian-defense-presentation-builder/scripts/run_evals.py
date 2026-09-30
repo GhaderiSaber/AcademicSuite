@@ -8,6 +8,7 @@ import importlib.util
 import json
 import math
 import subprocess
+import os
 import sys
 # Dynamic discovery of local virtualenv site-packages (.venv / venv)
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))

@@ -7,6 +7,7 @@ dynamic font resolution with Iranian fallbacks, strict defense legibility scales
 (>=20 pt body text), and authentic Persian text normalization.
 """
 
+import os
 import sys
 # Dynamic discovery of local virtualenv site-packages (.venv / venv)
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
