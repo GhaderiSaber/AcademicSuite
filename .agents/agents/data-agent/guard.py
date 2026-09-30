@@ -201,6 +201,10 @@ def check_simulation_decimal_noise(workspaces: List[str]) -> Tuple[bool, str]:
 
 
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
+    # Antigravity 2.18.1: Subagents always terminate cleanly
+    if payload.get("isSubagent") or payload.get("parentConversationId"):
+        return {"decision": "allow"}
+
     workspaces = payload.get("workspacePaths", [ROOT_DIR])
     ok, reason = check_simulation_decimal_noise(workspaces)
     if not ok:

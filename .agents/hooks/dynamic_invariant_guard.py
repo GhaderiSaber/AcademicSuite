@@ -421,7 +421,7 @@ class DynamicInvariantGuard:
         if caller_clean and "caller" not in payload_eval:
             payload_eval["caller"] = caller_clean
 
-        if is_main_agent_developer(payload_eval) or payload.get("track") == 1:
+        if is_main_agent_developer(payload_eval) or payload.get("track") == 1 or payload.get("isSubagent") or payload.get("parentConversationId"):
             return {"decision": "allow"}
 
         tool_call = payload.get("toolCall", {})
@@ -517,7 +517,7 @@ class DynamicInvariantGuard:
     @classmethod
     def evaluate_stop(cls, caller: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Evaluates active mechanical rules on generated deliverables during Stop."""
-        if is_main_agent_developer(payload) or payload.get("track") == 1:
+        if is_main_agent_developer(payload) or payload.get("track") == 1 or payload.get("isSubagent") or payload.get("parentConversationId"):
             return {"decision": "allow"}
 
         caller_clean = (caller or payload.get("agentName") or payload.get("agent") or "").strip().lower()

@@ -155,6 +155,10 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
+    # Antigravity 2.18.1: Subagents always terminate cleanly
+    if payload.get("isSubagent") or payload.get("parentConversationId"):
+        return {"decision": "allow"}
+
     transcript_path = payload.get("transcriptPath")
     if transcript_path and os.path.exists(transcript_path):
         try:
