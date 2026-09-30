@@ -438,11 +438,19 @@ class AcademicGraduationCompiler:
                     eff_pattern = pattern or ""
                     eff_check = check_type or ("regex_ban" if eff_pattern else "")
                     if eff_pattern or eff_check:
+                        norm_targets = target_agents
+                        if hasattr(DynamicInvariantGuard, "normalize_target_agents"):
+                            norm_targets = DynamicInvariantGuard.normalize_target_agents(
+                                target_agents,
+                                file_pattern=file_pattern or ".*\\.(?:md|docx|txt)",
+                                target_skills=skills or [],
+                                statement=statement
+                            )
                         hook_registered = DynamicInvariantGuard.register_invariant(
                             item_id=item_id,
                             category=category,
                             statement=statement,
-                            target_agents=target_agents or ["*"],
+                            target_agents=norm_targets,
                             target_skills=skills or [],
                             event=event or "PreToolUse",
                             file_pattern=file_pattern or ".*\\.(?:md|docx|txt)",
@@ -816,11 +824,19 @@ class AcademicGraduationCompiler:
             if is_valid_pat or check_type in ("tool_ban", "file_not_found"):
                 try:
                     default_file_pattern = ".*\\.py" if is_script else ".*\\.(?:md|docx|txt|py|sh)"
+                    cand_targets = dh.get("target_agents") or data.get("target_agents")
+                    if hasattr(DynamicInvariantGuard, "normalize_target_agents"):
+                        cand_targets = DynamicInvariantGuard.normalize_target_agents(
+                            cand_targets,
+                            file_pattern=dh.get("file_pattern") or default_file_pattern,
+                            target_skills=dh.get("target_skills") or data.get("affected_capabilities") or [],
+                            statement=dh.get("violation_message") or rationale or candidate_id
+                        )
                     hook_registered = DynamicInvariantGuard.register_invariant(
                         item_id=candidate_id,
                         category="Learned Mechanical Rule",
                         statement=dh.get("violation_message") or rationale or candidate_id,
-                        target_agents=dh.get("target_agents") or data.get("target_agents") or ["*"],
+                        target_agents=cand_targets,
                         target_skills=dh.get("target_skills") or data.get("affected_capabilities") or [],
                         event=dh.get("event") or "PreToolUse",
                         tool_match=dh.get("tool_match") or "write_to_file|replace_file_content|patch|edit_file",

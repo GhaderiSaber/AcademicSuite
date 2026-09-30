@@ -86,6 +86,42 @@ def get_canonical_academic_agents() -> Set[str]:
             }
 
 
+LEARNING_SUBAGENTS: Tuple[str, ...] = (
+    "behavior-analyst",
+    "curriculum-builder",
+    "evaluation-agent",
+    "knowledge-curator",
+    "skill-evolver",
+    "trajectory-analyzer",
+)
+
+AUDITOR_SUBAGENTS: Tuple[str, ...] = (
+    "validation-agent",
+    "results-auditor",
+    "statistical-auditor",
+    "evidence-auditor",
+    "academic-challenger",
+    "final-judge",
+    "thesis-integrity-auditor",
+)
+
+
+def is_learning_subagent(caller: Optional[str]) -> bool:
+    """Detects whether caller matches any of the canonical continuous learning subagents."""
+    if not caller:
+        return False
+    c_lower = str(caller).lower().strip()
+    return any(la == c_lower or la in c_lower for la in LEARNING_SUBAGENTS)
+
+
+def is_auditor_agent(caller: Optional[str]) -> bool:
+    """Detects whether caller matches any of the canonical quality auditor subagents."""
+    if not caller:
+        return False
+    c_lower = str(caller).lower().strip()
+    return any(a in c_lower for a in ("validation", "auditor", "challenger", "judge", "inspector"))
+
+
 SURFACE_APP_DATA_DIRS = {
     "desktop_or_web": os.path.expanduser("~/.gemini/antigravity"),
     "cli": os.path.expanduser("~/.gemini/antigravity-cli"),
@@ -493,7 +529,7 @@ def _resolve_hook_identity_core(payload: Dict[str, Any], env: Optional[Dict[str,
                     details={"matched_canonical_agent": ac}
                 )
 
-        academic_keywords = ("orchestrator", "auditor", "expert", "challenger", "judge")
+        academic_keywords = ("academic", "orchestrator", "auditor", "expert", "challenger", "judge", "thesis", "writer")
         if any(k in agent_name_lower for k in academic_keywords):
             return HookIdentity(
                 agent_name=agent_name_raw,
