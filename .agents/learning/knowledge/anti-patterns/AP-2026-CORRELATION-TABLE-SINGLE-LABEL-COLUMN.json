@@ -2,26 +2,33 @@
   "contract_version": "1.0.0",
   "anti_pattern_id": "AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN",
   "category": "typography",
-  "defective_pattern": "Combining row number, variable name, and subscale into a single leading column in correlation tables.",
-  "why_defective": "Wastes cell width, conflates construct names with subscale dimensions, and prevents structured parsing.",
+  "defective_pattern": "Combining row number, variable name, and subscale into a single leading column in correlation or descriptive tables (e.g., flattening hierarchical variable data).",
+  "why_defective": "Wastes cell width, conflates construct names with subscale dimensions, prevents structured parsing, and violates APA 7th Edition hierarchical presentation standards.",
   "observed_symptoms": [
     "Correlation table column 1 containing '۱. رفتارهای خودآسیبی کلی' or '۴. خلق منفی'",
-    "Absence of distinct 'ردیف', 'متغیر', and 'خرده‌مقیاس' columns in correlation matrices"
+    "Absence of distinct 'ردیف', 'متغیر', and 'خرده‌مقیاس' (or 'مؤلفه') columns in correlation matrices",
+    "Merged single-column variable data (e.g., [\"متغیرها\"] or [\"متغیر/سازه\"]) in Table 4-13, 4-15, 4-16, and 4-19"
   ],
-  "corrective_remedy": "Expand the table to have 3 distinct columns before numbering: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'خرده‌مقیاس'.",
+  "corrective_remedy": "Expand the table to have 3 distinct prefix columns before numbering/data: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'مؤلفه' (or 'خرده‌مقیاس').",
   "detection_heuristic": {
-    "trigger_rule": "Detect correlation table whose columns before '۱' is less than 3.",
-    "diagnostic_check_id": "CHECK_CORRELATION_THREE_LEAD_COLUMNS"
+    "trigger_rule": "Detect markdown tables containing single merged headers like | متغیرها | or | متغیر/سازه | without separate ردیف and مؤلفه.",
+    "regex_patterns": [
+      "\\|\\s*(متغیرها|متغیر/سازه)\\s*\\|"
+    ],
+    "pattern": "\\|\\s*(متغیرها|متغیر/سازه)\\s*\\|",
+    "check_type": "markdown_table_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
   },
   "reusable": true,
-  "updated_at": "2026-09-22T09:58:00+03:30",
+  "updated_at": "2026-10-01T11:36:29Z",
   "target_agent": "academic-writer",
   "target_agents": [
     "academic-writer",
     "validation-agent"
   ],
   "is_active_behavior": true,
-  "graduation_status": "GRADUATED",
+  "graduation_status": "PENDING_GRADUATION",
   "graduated_at": "2026-09-25T18:08:23.453011+00:00",
   "graduated_targets": [
     "${WORKSPACE_ROOT}/.agents/plugins/academic-suite/rules/AGENTS.md"
