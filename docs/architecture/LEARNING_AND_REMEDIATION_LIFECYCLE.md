@@ -136,7 +136,7 @@ sequenceDiagram
   - Filters out `EPHEMERAL_MESSAGE`, `SYSTEM_SDK`, and code preview (`File Path: \`file:///`) records so viewing failing reports does not trigger false defects.
 
 ### 5.3 Protojson Schema Safety (Zero `"message"` Field)
-- **Location**: [`.agents/hooks/track2_academic_dispatcher.py`](../../.agents/hooks/track2_academic_dispatcher.py) & [`.agents/hooks/safety_hooks.py`](../../.agents/hooks/safety_hooks.py)
+- **Location**: [`.agents/hooks/academic_lifecycle_dispatcher.py`](../../.agents/hooks/academic_lifecycle_dispatcher.py) & [`.agents/hooks/safety_hooks.py`](../../.agents/hooks/safety_hooks.py)
 - **Mechanism**:
   - Antigravity's HookResult protobuf schema defines `decision`, `reason`, etc., but strictly lacks a `message` field.
   - All hooks and dispatchers strictly emit:

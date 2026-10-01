@@ -40,8 +40,8 @@ try:
     )
     from integrity_hooks import IntegrityHooks, load_transcript
     from learning_hooks import LearningHooks
-    from track1_developer_dispatcher import dispatch_track1_event
-    from track2_academic_dispatcher import dispatch_track2_event
+    from workspace_safety_dispatcher import dispatch_workspace_safety_event
+    from academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
     from contracts.hook_identity_contract import is_main_agent_developer
 except ImportError:
     from .safety_hooks import (
@@ -58,8 +58,8 @@ except ImportError:
     )
     from .integrity_hooks import IntegrityHooks, load_transcript
     from .learning_hooks import LearningHooks
-    from .track1_developer_dispatcher import dispatch_track1_event
-    from .track2_academic_dispatcher import dispatch_track2_event
+    from .workspace_safety_dispatcher import dispatch_workspace_safety_event
+    from .academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
     from .contracts.hook_identity_contract import is_main_agent_developer
 
 
@@ -123,9 +123,9 @@ def main():
 
     event = args.event or payload.get("event", "Stop")
     if is_main_agent_developer(payload):
-        result = dispatch_track1_event(event=event, payload=payload)
+        result = dispatch_workspace_safety_event(event=event, payload=payload)
     else:
-        result = dispatch_track2_event(event=event, payload=payload)
+        result = dispatch_academic_lifecycle_event(event=event, payload=payload)
     print(json.dumps(result, ensure_ascii=False))
 
 

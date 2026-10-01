@@ -49,17 +49,30 @@ class HookIdentity:
     agent_name: str
     agent_role: str
     track: str                     # "track_1_developer", "track_2_academic", "unknown"
-    is_main_developer: bool        # True only if affirmatively proven to be Track 1 Main Developer
+    is_main_developer: bool        # True only if affirmatively proven to be Native Developer
     is_subagent: bool
     parent_conversation_id: Optional[str]
     interface: str                 # "cli", "ide", "desktop_or_web", "unknown"
     confidence: str                # "high", "moderate", "low", "fail_closed_default"
     resolution_source: str         # "explicit_payload", "environment_variable", "transcript_analysis", "path_signature", "fail_closed_default"
     details: Dict[str, Any] = field(default_factory=dict)
+    execution_plane: str = field(default="host_environment")   # "host_environment" vs "academic_plugin"
+    is_native_developer: bool = field(default=True)
+    is_academic_orchestrator: bool = field(default=False)
+    is_academic_subagent: bool = field(default=False)
 
     def __post_init__(self):
         if self.is_subagent and self.is_main_developer:
             object.__setattr__(self, "is_main_developer", False)
+        object.__setattr__(self, "is_native_developer", self.is_main_developer)
+        if self.track == "track_2_academic" or not self.is_main_developer:
+            object.__setattr__(self, "execution_plane", "academic_plugin")
+        else:
+            object.__setattr__(self, "execution_plane", "host_environment")
+        if self.agent_name == "academic-orchestrator":
+            object.__setattr__(self, "is_academic_orchestrator", True)
+        elif self.is_subagent:
+            object.__setattr__(self, "is_academic_subagent", True)
 
 
 def get_canonical_academic_agents() -> Set[str]:
@@ -850,3 +863,6 @@ def validate_hook_payload_schema(payload: Dict[str, Any]) -> Tuple[bool, List[st
 def is_main_agent_developer(payload: Dict[str, Any]) -> bool:
     """Convenience helper delegating to the authoritative resolve_hook_identity engine."""
     return resolve_hook_identity(payload).is_main_developer
+
+
+is_native_developer = is_main_agent_developer

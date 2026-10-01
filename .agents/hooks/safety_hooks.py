@@ -20,9 +20,9 @@ import stat
 import json
 from typing import Dict, Any, List, Optional, Tuple, Set
 
-HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
-AGENTS_DIR = os.path.abspath(os.path.join(HOOKS_DIR, ".."))
+HOOKS_DIR = os.path.dirname(os.path.realpath(__file__))
+AGENTS_DIR = os.path.dirname(HOOKS_DIR)
+ROOT_DIR = os.path.dirname(AGENTS_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 if AGENTS_DIR not in sys.path:

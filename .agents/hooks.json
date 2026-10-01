@@ -1,30 +1,30 @@
 {
-  "track1-developer-safety-gate": {
+  "workspace-safety-gate": {
     "enabled": true,
-    "description": "Antigravity Developer Safety Gate: Protects raw data immutability, blocks catastrophic commands, and enforces ASCII filenames.",
+    "description": "Antigravity Workspace Safety Gate: Protects raw data immutability, blocks catastrophic commands, clean root, and enforces ASCII filenames.",
     "PreToolUse": [
       {
         "matcher": "apply_diff|batch_replace|edit_file|multi_file_edit|multi_replace_file_content|patch|replace_file_content|run_command|write_to_file",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='.agents/scripts/security_firewall.py' if os.path.exists('.agents/scripts/security_firewall.py') else 'scripts/security_firewall.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\"",
+            "command": "python3 -c \"import os,sys; f='.agents/hooks/workspace_safety_dispatcher.py' if os.path.exists('.agents/hooks/workspace_safety_dispatcher.py') else 'hooks/workspace_safety_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
             "timeout": 15
           }
         ]
       }
     ]
   },
-  "track2-academic-orchestrator-guard": {
+  "academic-lifecycle-guard": {
     "enabled": true,
-    "description": "Antigravity Track 2 Academic Governance Guard: Enforces academic invariants, CDE contracts, Triad artifacts, and stage validation.",
+    "description": "Antigravity Academic Lifecycle Guard: Enforces academic invariants, Directive 20 zero-hands, CDE delegation contracts, Triad artifacts, and stage validation.",
     "PreToolUse": [
       {
         "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
+            "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
             "timeout": 15
           }
         ]
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostToolUse",
+            "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostToolUse",
             "timeout": 15
           }
         ]
@@ -45,22 +45,34 @@
     "PreInvocation": [
       {
         "type": "command",
-        "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreInvocation",
+        "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreInvocation",
         "timeout": 15
       }
     ],
     "PostInvocation": [
       {
         "type": "command",
-        "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostInvocation",
+        "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostInvocation",
         "timeout": 15
       }
     ],
     "Stop": [
       {
         "type": "command",
-        "command": "python3 -c \"import os,sys; f='.agents/hooks/track2_academic_dispatcher.py' if os.path.exists('.agents/hooks/track2_academic_dispatcher.py') else 'hooks/track2_academic_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event Stop",
+        "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event Stop",
         "timeout": 20
+      }
+    ]
+  },
+  "track2-academic-orchestrator-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_diff|batch_replace|call_mcp_tool|define_subagent|edit_file|invoke_subagent|manage_subagents|manage_task|multi_file_edit|multi_replace_file_content|patch|read_resource|read_url_content|replace_file_content|run_command|schedule|send_message|view_file|write_to_file"
       }
     ]
   }

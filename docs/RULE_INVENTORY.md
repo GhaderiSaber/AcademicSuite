@@ -95,9 +95,9 @@ flowchart TD
         HookConfig --> GuardScript
     end
 
-    subgraph DualTrack [".agents/hooks.json (Track 1 & Track 2 Separation)"]
-        Track1["Track 1 Developer Safety Gate\n(Bypasses academic gates for coding agent)"]
-        Track2["Track 2 Academic Governance\n(Enforces CDE, Triad, & Validation)"]
+    subgraph PluginArchitecture [".agents/hooks.json (Plugin Lifecycle & Safety Guards)"]
+        SafetyGate["Workspace Safety Gate\n(workspace_safety_dispatcher.py)"]
+        AcademicGuard["Academic Lifecycle Guard\n(academic_lifecycle_dispatcher.py)"]
     end
 ```
 
@@ -105,6 +105,6 @@ flowchart TD
 - **Atomic Self-Contained Agent Modules (ASAM)**: All 31 subagent directories (`.agents/agents/<name>/`) contain `agent.md`, `contract.md`, `guard.py`, and `hooks.json`.
 - **Canonical Full Paths (`hooks: - .agents/agents/<name>/hooks.json`)**: Declared directly in frontmatter without relative shortpaths or symlinks.
 - **Direct Command Execution**: Hook commands invoke `python3 .agents/agents/<name>/guard.py --event <Event>` directly from project root.
-- **Dual-Track Decoupled Gate**: Global `.agents/hooks.json` cleanly separates Track 1 (Main Developer Agent safety) and Track 2 (Academic Orchestrator and specialist subagent governance).
+- **Plugin Architecture Gate**: Global `.agents/hooks.json` cleanly establishes the `workspace-safety-gate` (workspace filesystem and execution safety) and `academic-lifecycle-guard` (Academic Orchestrator and specialist subagent governance).
 - **Zero Symlinks & Zero Broken Links**: Direct filesystem resolution eliminates brittle symlink dependencies and guarantees clean VCS lifecycle.
 - **Fail-Closed Mechanical Gate**: Ensures zero execution runaway, zero synthetic statistics, and 100% verified disk deliverables.

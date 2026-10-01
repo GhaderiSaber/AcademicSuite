@@ -103,7 +103,7 @@ In `02_analysis_code/compile_gold_standard_chapter4.py` lines 678–691:
 def build_gold_standard_chapter4():
     print("[1/6] Loading source document preamble (Sections 1-4 to 3-4)...")
     preamble_path = "03_deliverables/Chapter_4_Preamble_Source.docx"
-    backup_path = "/home/saber-ghaderi/My Work/.stversions/Mohtasham Valiyanpur/03_deliverables/Chapter_4_Results~20260929-235350.docx"
+    backup_path = "<workspaceRoot>/.stversions/Mohtasham Valiyanpur/03_deliverables/Chapter_4_Results~20260929-235350.docx"
     if os.path.exists(preamble_path):
         src_path = preamble_path
     elif os.path.exists(backup_path):

@@ -19,9 +19,10 @@ import re
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-AGENTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-for p in (ROOT_DIR, AGENTS_DIR):
+HOOKS_DIR = os.path.dirname(os.path.realpath(__file__))
+AGENTS_DIR = os.path.dirname(HOOKS_DIR)
+ROOT_DIR = os.path.dirname(AGENTS_DIR)
+for p in (ROOT_DIR, AGENTS_DIR, HOOKS_DIR):
     if p not in sys.path:
         sys.path.insert(0, p)
 

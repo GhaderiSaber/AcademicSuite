@@ -32,8 +32,8 @@ from contracts.hook_identity_contract import (
     resolve_hook_identity,
     is_main_agent_developer,
 )
-from hooks.track1_developer_dispatcher import dispatch_track1_event
-from hooks.track2_academic_dispatcher import dispatch_track2_event
+from hooks.workspace_safety_dispatcher import dispatch_workspace_safety_event
+from hooks.academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
 from hooks.learning_hooks import handle_pre_invocation
 from hooks.dynamic_invariant_guard import DynamicInvariantGuard
 from hooks.safety_hooks import SafetyHooks
@@ -84,8 +84,8 @@ class TestSubagentIdentityAndDualTrackSeparation:
         assert identity.is_main_developer is False
         assert identity.is_subagent is True
 
-    def test_main_developer_payload_retains_full_track1_immunity(self):
-        """Track 1 Main Developer payload must resolve to Track 1 with full execution privileges."""
+    def test_main_developer_payload_retains_full_developer_immunity(self):
+        """Native Developer payload must resolve to host_environment with full execution privileges."""
         dev_payload = {
             "conversationId": "main-dev-conv-789",
             "stepIdx": 10,
@@ -105,7 +105,7 @@ class TestSubagentIdentityAndDualTrackSeparation:
         assert identity.track == "track_1_developer"
 
         # Dispatcher must immediately allow without interference
-        result = dispatch_track1_event("PreToolUse", dev_payload)
+        result = dispatch_workspace_safety_event("PreToolUse", dev_payload)
         assert result.get("decision") == "allow"
 
 

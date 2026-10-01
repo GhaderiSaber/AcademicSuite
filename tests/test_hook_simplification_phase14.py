@@ -53,14 +53,14 @@ from safety_hooks import (
 )
 from integrity_hooks import IntegrityHooks
 from learning_hooks import LearningHooks
-from track1_developer_dispatcher import dispatch_track1_event
-from track2_academic_dispatcher import dispatch_track2_event
+from workspace_safety_dispatcher import dispatch_workspace_safety_event
+from academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
 from contracts.hook_identity_contract import is_main_agent_developer
 
 def dispatch_event(event: str, payload: dict) -> dict:
     if is_main_agent_developer(payload) or payload.get("track") == 1:
-        return dispatch_track1_event(event, payload)
-    return dispatch_track2_event(event, payload)
+        return dispatch_workspace_safety_event(event, payload)
+    return dispatch_academic_lifecycle_event(event, payload)
 
 import transcript_and_rule_guard as legacy_guard
 
