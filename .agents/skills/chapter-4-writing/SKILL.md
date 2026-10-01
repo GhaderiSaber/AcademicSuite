@@ -110,6 +110,10 @@ In regression ANOVA tables with multiple criterion variables:
 - When drafting narrative deliverables (.md, .docx) for hypotheses from statistical JSON payloads, the writer MUST explicitly extract and embed the primary test statistics (B, SE, beta, t, z, p-values) directly into the continuous scholarly prose.
 - Generating narrative text that vaguely describes findings without explicitly reporting the specific numeric coefficients from the companion JSON is strictly prohibited and will cause validation failures.
 
+### 6.7 Preamble Integrity & Safe Leading-Zero Regex Invariant
+- **Preamble Preservation**: Strictly preserve the canonical Level-1 heading `# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش` and the exhaustive 4-stage methodological roadmap. Do NOT truncate or replace methodological context with minimal stubs.
+- **Safe Regex for Decimals**: When normalizing Persian leading zeros via regex (e.g., in Python scripts or formatting steps), explicitly use negative lookbehind assertions `(?<![0-9\u06F0-\u06F9])\.(\d+)` to target only standalone decimals. Naive substitutions that corrupt existing numbers are strictly prohibited.
+
 ---
 
 ## 7. CLI EXECUTION & SCAFFOLDING
