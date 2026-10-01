@@ -439,15 +439,29 @@ def is_deliverables_script_target(path: str) -> Tuple[bool, str]:
     return False, ""
 
 
+def _token_jaccard_similarity(text1: Any, text2: Any) -> float:
+    """Computes Jaccard similarity over word tokens for anti-duplication checks."""
+    if not text1 or not text2:
+        return 0.0
+    t1 = set(re.findall(r"[A-Za-z0-9_]+", str(text1).lower()))
+    t2 = set(re.findall(r"[A-Za-z0-9_]+", str(text2).lower()))
+    if not t1 or not t2:
+        return 0.0
+    return len(t1 & t2) / len(t1 | t2)
+
+
 def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Directive 19 / Directive 12 / Knowledge Store Integrity Guard:
+    Directive 19 / Directive 12 / Knowledge Store Integrity & Anti-Duplication Guard (Directive 26):
     Validates mutations targeting knowledge store files (.agents/learning/knowledge/).
     Enforces:
     1. Valid JSON syntax.
     2. Mandatory 'target_agent' (string) and 'target_agents' (non-empty list of strings).
     3. Strict schema conformity against contracts/evolution/*.schema.json.
     4. Promotion boundary guard (is_active_behavior: true requires status: VALIDATED or PROMOTED).
+    5. Naming standardization (LSN-<slug>.json, AP-<slug>.json).
+    6. Directive 26 Anti-Duplication Invariant: Blocks creating new lesson/anti-pattern files if semantically
+       equivalent active knowledge already exists (token similarity >= 0.70).
     """
     if not target or not isinstance(target, str):
         return None
@@ -462,6 +476,35 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
     # Skip index files or edge graph files
     if target_base in ("index.json", "index.jsonl", "graph_edges.jsonl", "manifest.json"):
         return None
+
+    is_lesson = "/lessons/" in target_norm or target_base.startswith("LSN-")
+    is_anti_pattern = "/anti-patterns/" in target_norm or target_base.startswith("AP-")
+    is_exemplar = "/exemplars/" in target_norm or target_base.startswith("EXM-")
+    is_knowledge = (
+        "/principles/" in target_norm
+        or "/patterns/" in target_norm
+        or target_base.startswith(("PRN-", "PAT-", "KNW-"))
+    )
+
+    # Naming convention enforcement (Directive 6 / 19)
+    if is_lesson and not re.match(r'^LSN-[A-Za-z0-9_-]+\.json$', target_base):
+        return {
+            "decision": "deny",
+            "reason": (
+                f"CONSTITUTIONAL VIOLATION (Directive 6 & Directive 19 - Knowledge Naming Invariant): "
+                f"Lesson filename '{target_base}' must conform to standard pattern 'LSN-<slug>.json'. "
+                f"Arbitrary or loose filenames (e.g. 'table_bidi_visual_lesson.json') are strictly forbidden."
+            )
+        }
+    if is_anti_pattern and not re.match(r'^AP-[A-Za-z0-9_-]+\.json$', target_base):
+        return {
+            "decision": "deny",
+            "reason": (
+                f"CONSTITUTIONAL VIOLATION (Directive 6 & Directive 19 - Knowledge Naming Invariant): "
+                f"Anti-pattern filename '{target_base}' must conform to standard pattern 'AP-<slug>.json'. "
+                f"Arbitrary or loose filenames are strictly forbidden."
+            )
+        }
 
     content_str = None
     if tool_name == "write_to_file":
@@ -503,14 +546,103 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
             )
         }
 
-    is_lesson = "/lessons/" in target_norm or target_base.startswith("LSN-")
-    is_anti_pattern = "/anti-patterns/" in target_norm or target_base.startswith("AP-")
-    is_exemplar = "/exemplars/" in target_norm or target_base.startswith("EXM-")
-    is_knowledge = (
-        "/principles/" in target_norm
-        or "/patterns/" in target_norm
-        or target_base.startswith(("PRN-", "PAT-", "KNW-"))
-    )
+    # Directive 26: Pre-Creation Knowledge Search & Anti-Duplication Invariant
+    # If writing a NEW lesson or anti-pattern (not modifying an existing file on disk),
+    # verify that no semantically equivalent file already exists in the same directory.
+    if is_lesson and not os.path.exists(target):
+        target_dir = os.path.dirname(target)
+        if os.path.isdir(target_dir):
+            in_desired = data.get("desired_behavior", "") or data.get("statement", "")
+            in_agent = data.get("target_agent", "")
+            in_diag = data.get("diagnosis", {}) if isinstance(data.get("diagnosis"), dict) else {}
+            in_wh = data.get("what_happened") or in_diag.get("what_happened", "")
+            in_defect = data.get("defect") or data.get("observed_failure", {}).get("defect_type", "")
+
+            for existing_fn in os.listdir(target_dir):
+                if not existing_fn.endswith(".json") or existing_fn == target_base or existing_fn.startswith("."):
+                    continue
+                existing_fp = os.path.join(target_dir, existing_fn)
+                try:
+                    with open(existing_fp, "r", encoding="utf-8") as ef:
+                        edata = json.load(ef)
+                    e_agent = edata.get("target_agent", "")
+                    if in_agent and e_agent and in_agent != e_agent:
+                        continue
+                    e_desired = edata.get("desired_behavior", "") or edata.get("statement", "")
+                    e_diag = edata.get("diagnosis", {}) if isinstance(edata.get("diagnosis"), dict) else {}
+                    e_wh = edata.get("what_happened") or e_diag.get("what_happened", "")
+                    e_defect = edata.get("defect") or edata.get("observed_failure", {}).get("defect_type", "")
+
+                    is_dup = False
+                    dup_detail = ""
+                    if in_desired and e_desired:
+                        sim_des = _token_jaccard_similarity(in_desired, e_desired)
+                        if sim_des >= 0.70 or in_desired.strip().lower() == e_desired.strip().lower():
+                            is_dup = True
+                            dup_detail = f"desired_behavior token similarity {sim_des:.2f}"
+                    if not is_dup and in_defect and e_defect:
+                        sim_def = _token_jaccard_similarity(in_defect, e_defect)
+                        if sim_def >= 0.75 or in_defect.strip().lower() == e_defect.strip().lower():
+                            is_dup = True
+                            dup_detail = f"defect specification similarity {sim_def:.2f}"
+                    if not is_dup and in_wh and e_wh:
+                        sim_wh = _token_jaccard_similarity(in_wh, e_wh)
+                        if sim_wh >= 0.75:
+                            is_dup = True
+                            dup_detail = f"diagnosis symptom similarity {sim_wh:.2f}"
+
+                    if is_dup:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 26 - Anti-Duplication Knowledge Invariant): "
+                                f"Lesson '{target_base}' semantically duplicates existing active lesson '{existing_fn}' ({dup_detail}). "
+                                f"Creating redundant lesson files is strictly forbidden. "
+                                f"You must augment the existing lesson '{existing_fn}' or reference its lesson_id instead."
+                            )
+                        }
+                except Exception:
+                    pass
+
+    elif is_anti_pattern and not os.path.exists(target):
+        target_dir = os.path.dirname(target)
+        if os.path.isdir(target_dir):
+            in_pattern = data.get("defective_pattern", "")
+            in_cat = data.get("category", "")
+            in_trigger = str(data.get("detection_heuristic", {}).get("trigger_rule", ""))
+
+            for existing_fn in os.listdir(target_dir):
+                if not existing_fn.endswith(".json") or existing_fn == target_base or existing_fn.startswith("."):
+                    continue
+                existing_fp = os.path.join(target_dir, existing_fn)
+                try:
+                    with open(existing_fp, "r", encoding="utf-8") as ef:
+                        edata = json.load(ef)
+                    if in_cat and edata.get("category") and in_cat != edata.get("category"):
+                        continue
+                    e_pattern = edata.get("defective_pattern", "")
+                    e_trigger = str(edata.get("detection_heuristic", {}).get("trigger_rule", ""))
+
+                    is_dup = False
+                    if in_trigger and e_trigger and in_trigger.strip() == e_trigger.strip():
+                        is_dup = True
+                    elif in_pattern and e_pattern:
+                        sim_pat = _token_jaccard_similarity(in_pattern, e_pattern)
+                        if sim_pat >= 0.70:
+                            is_dup = True
+
+                    if is_dup:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 26 - Anti-Duplication Anti-Pattern Invariant): "
+                                f"Anti-pattern '{target_base}' semantically duplicates existing anti-pattern '{existing_fn}'. "
+                                f"Creating redundant anti-pattern files is strictly forbidden. "
+                                f"You must augment the existing file '{existing_fn}' instead."
+                            )
+                        }
+                except Exception:
+                    pass
 
     # Invariant: No direct promotion of DRAFT or unvalidated candidates to active production defaults
     status_str = str(data.get("status") or "").upper()
@@ -633,6 +765,210 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
                     f"Knowledge item '{target_base}' violates contracts/evolution/knowledge_item.schema.json: {errs}"
                 )
             }
+
+    return None
+
+
+def validate_candidate_mutation(target: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Directive 26 / Directive 19 / Directive 6: Candidate Store Integrity & Anti-Duplication Guard:
+    Validates mutations targeting candidate files (.agents/learning/candidates/).
+    Enforces:
+    1. Valid filename pattern (CAND-<slug>.json or CAN-<slug>.json).
+    2. Valid JSON object.
+    3. Mandatory candidate fields (candidate_id, target_component, mutation).
+    4. Anti-Duplication Invariant: Blocks creating new candidate files when an active candidate
+       targeting the same component with matching mutation/rule already exists. Requires updating in-place.
+    """
+    if not target or not isinstance(target, str):
+        return None
+
+    target_norm = os.path.normpath(target).replace("\\", "/")
+    target_base = os.path.basename(target_norm)
+
+    if not (("learning/candidates" in target_norm or ".agents/learning/candidates" in target_norm) and target_norm.endswith(".json")):
+        return None
+
+    if target_base in ("index.json", "index.jsonl", ".gitkeep"):
+        return None
+
+    if not re.match(r'^(?:CAND|CAN)-[A-Za-z0-9_-]+\.json$', target_base):
+        return {
+            "decision": "deny",
+            "reason": (
+                f"CONSTITUTIONAL VIOLATION (Directive 6 & Directive 19 - Candidate Naming Invariant): "
+                f"Candidate filename '{target_base}' must conform to standard pattern 'CAND-<slug>.json'. "
+                f"Arbitrary filenames are strictly forbidden."
+            )
+        }
+
+    content_str = None
+    if tool_name == "write_to_file":
+        content_str = args.get("CodeContent") or args.get("codeContent") or args.get("content") or args.get("text")
+    elif tool_name == "replace_file_content":
+        tgt = args.get("TargetContent", "")
+        repl = args.get("ReplacementContent", "")
+        if os.path.exists(target):
+            try:
+                with open(target, "r", encoding="utf-8") as f:
+                    content_str = f.read().replace(tgt, repl)
+            except Exception:
+                content_str = None
+
+    if content_str is None:
+        return None
+
+    try:
+        data = json.loads(content_str)
+    except Exception as e:
+        return {
+            "decision": "deny",
+            "reason": f"CONSTITUTIONAL VIOLATION (Candidate JSON Syntax Error): '{target_base}' contains invalid JSON: {e}"
+        }
+
+    if not isinstance(data, dict):
+        return {
+            "decision": "deny",
+            "reason": f"CONSTITUTIONAL VIOLATION: Candidate file '{target_base}' must contain a JSON object."
+        }
+
+    # Deduplication check for NEW candidate files
+    if not os.path.exists(target):
+        cand_dir = os.path.dirname(target)
+        if os.path.isdir(cand_dir):
+            in_comp = str(data.get("target_component", "")).strip()
+            in_mut = data.get("mutation", {})
+            in_mut_content = str(in_mut.get("content", "")) if isinstance(in_mut, dict) else str(in_mut)
+            in_rule = data.get("mechanical_rule", {})
+            in_rule_pat = str(in_rule.get("pattern", "")) if isinstance(in_rule, dict) else ""
+
+            for existing_fn in os.listdir(cand_dir):
+                if not existing_fn.endswith(".json") or existing_fn == target_base or existing_fn.startswith("."):
+                    continue
+                existing_fp = os.path.join(cand_dir, existing_fn)
+                try:
+                    with open(existing_fp, "r", encoding="utf-8") as ef:
+                        edata = json.load(ef)
+                    e_comp = str(edata.get("target_component", "")).strip()
+                    if in_comp and e_comp and in_comp == e_comp:
+                        e_mut = edata.get("mutation", {})
+                        e_mut_content = str(e_mut.get("content", "")) if isinstance(e_mut, dict) else str(e_mut)
+                        e_rule = edata.get("mechanical_rule", {})
+                        e_rule_pat = str(e_rule.get("pattern", "")) if isinstance(e_rule, dict) else ""
+
+                        is_dup = False
+                        if in_rule_pat and e_rule_pat and in_rule_pat == e_rule_pat:
+                            is_dup = True
+                        elif in_mut_content and e_mut_content:
+                            sim_mut = _token_jaccard_similarity(in_mut_content, e_mut_content)
+                            if sim_mut >= 0.70:
+                                is_dup = True
+
+                        if is_dup:
+                            return {
+                                "decision": "deny",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 26 - Anti-Duplication Candidate Invariant): "
+                                    f"Candidate '{target_base}' duplicates active candidate '{existing_fn}' targeting '{in_comp}'. "
+                                    f"Creating redundant candidate files is strictly forbidden. "
+                                    f"Update the existing candidate '{existing_fn}' or increment its revision in-place."
+                                )
+                            }
+                except Exception:
+                    pass
+
+    return None
+
+
+def validate_evaluation_mutation(target: str, tool_name: str, args: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Directive 26 / Directive 19 / Directive 6: Evaluation Store Integrity & Anti-Duplication Guard:
+    Validates mutations targeting evaluation files (.agents/learning/evaluations/).
+    Enforces:
+    1. Valid filename pattern (EVAL-*.json / .md or INDEP-EVL-*).
+    2. Valid JSON object (for .json files).
+    3. Anti-Duplication Invariant: Blocks creating new evaluation files for a candidate
+       that already has an existing evaluation file in the store. Requires updating in place.
+    """
+    if not target or not isinstance(target, str):
+        return None
+
+    target_norm = os.path.normpath(target).replace("\\", "/")
+    target_base = os.path.basename(target_norm)
+
+    if not (("learning/evaluations" in target_norm or ".agents/learning/evaluations" in target_norm) and (target_norm.endswith(".json") or target_norm.endswith(".md"))):
+        return None
+
+    if target_base in ("index.json", "index.jsonl", ".gitkeep", "README.md"):
+        return None
+
+    # Skip subdirectories (e.g. adversarial, heldout, regression, curriculum, three_way)
+    parent_dir_name = os.path.basename(os.path.dirname(target_norm))
+    if parent_dir_name in ("adversarial", "heldout", "regression", "curriculum", "three_way", "reports", "results", "development", "independent"):
+        return None
+
+    if not re.match(r'^(?:EVAL|INDEP-EVL|EVR)-[A-Za-z0-9_-]+\.(?:json|md)$', target_base):
+        return {
+            "decision": "deny",
+            "reason": (
+                f"CONSTITUTIONAL VIOLATION (Directive 6 & Directive 19 - Evaluation Naming Invariant): "
+                f"Evaluation filename '{target_base}' must conform to standard pattern 'EVAL-<slug>.(json|md)'. "
+                f"Arbitrary filenames are strictly forbidden."
+            )
+        }
+
+    if target_norm.endswith(".json"):
+        content_str = None
+        if tool_name == "write_to_file":
+            content_str = args.get("CodeContent") or args.get("codeContent") or args.get("content") or args.get("text")
+        elif tool_name == "replace_file_content":
+            tgt = args.get("TargetContent", "")
+            repl = args.get("ReplacementContent", "")
+            if os.path.exists(target):
+                try:
+                    with open(target, "r", encoding="utf-8") as f:
+                        content_str = f.read().replace(tgt, repl)
+                except Exception:
+                    content_str = None
+
+        if content_str is not None:
+            try:
+                data = json.loads(content_str)
+            except Exception as e:
+                return {
+                    "decision": "deny",
+                    "reason": f"CONSTITUTIONAL VIOLATION (Evaluation JSON Syntax Error): '{target_base}' contains invalid JSON: {e}"
+                }
+            if not isinstance(data, dict):
+                return {
+                    "decision": "deny",
+                    "reason": f"CONSTITUTIONAL VIOLATION: Evaluation file '{target_base}' must contain a JSON object."
+                }
+
+            if not os.path.exists(target):
+                eval_dir = os.path.dirname(target)
+                cand_id = data.get("candidate_id") or data.get("target_candidate")
+                if cand_id and os.path.isdir(eval_dir):
+                    for existing_fn in os.listdir(eval_dir):
+                        if not existing_fn.endswith(".json") or existing_fn == target_base or existing_fn.startswith("."):
+                            continue
+                        existing_fp = os.path.join(eval_dir, existing_fn)
+                        try:
+                            with open(existing_fp, "r", encoding="utf-8") as ef:
+                                edata = json.load(ef)
+                            e_cand_id = edata.get("candidate_id") or edata.get("target_candidate")
+                            if e_cand_id and e_cand_id == cand_id:
+                                return {
+                                    "decision": "deny",
+                                    "reason": (
+                                        f"CONSTITUTIONAL VIOLATION (Directive 26 - Anti-Duplication Evaluation Invariant): "
+                                        f"An evaluation report '{existing_fn}' already exists for candidate '{cand_id}'. "
+                                        f"Creating duplicate evaluation files is strictly forbidden. "
+                                        f"Update the existing evaluation report '{existing_fn}' in-place."
+                                    )
+                                }
+                        except Exception:
+                            pass
 
     return None
 
@@ -1186,6 +1522,16 @@ class SafetyHooks:
                 knw_denial = validate_knowledge_mutation(target, name, args)
                 if knw_denial:
                     return knw_denial
+
+                # Candidate Store Integrity & Anti-Duplication Guard (Directive 26 / Directive 19)
+                cand_denial = validate_candidate_mutation(target, name, args)
+                if cand_denial:
+                    return cand_denial
+
+                # Evaluation Store Integrity & Anti-Duplication Guard (Directive 26 / Directive 19)
+                eval_denial = validate_evaluation_mutation(target, name, args)
+                if eval_denial:
+                    return eval_denial
 
         # 3. Dangerous Shell Command & Orchestrator Direct Execution Protection
         if name == "run_command":
