@@ -4,21 +4,23 @@
   "trigger_source": "USER_FEEDBACK",
   "source_experience_id": "EXP-2026-HIERARCHICAL-TABLES-001",
   "diagnosis": {
-    "what_happened": "Tables with variable and subscale columns either repeated variable names flatly across all rows or aggregated all totals together at the top, orphaning subscales below.",
-    "behavior_caused_outcome": "Treating hierarchical psychometric constructs as flat 2D arrays destroyed parent-child semantic relationships and cluttered the table.",
-    "what_should_have_happened": "Tables must write one row dedicated to the parent variable, followed by rows in column two for its constituent subscales. Once the subscales are finished, the next parent variable is written.",
+    "what_happened": "Tables with variable and subscale columns either repeated variable names flatly across all rows, aggregated all totals together at the top, or merged row numbers and variables into a single column.",
+    "behavior_caused_outcome": "Treating hierarchical psychometric constructs as flat 2D arrays destroyed parent-child semantic relationships and cluttered the table. Merged columns lead to structural presentation defects (MERGED_VARIABLE_SUBSCALE_COLUMN).",
+    "what_should_have_happened": "Tables must enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه') for all descriptive, correlational, and inferential tables. Write one row dedicated to the parent variable, followed by rows in column two for its constituent subscales.",
     "rationale_why": "Hierarchical grouping maps psychometric topology directly onto table architecture, maximizing the data-ink ratio and visual chunking under APA 7 standards."
   },
-  "desired_behavior": "In two-column variable-and-subscale tables, always output: Row(Parent Variable) -> subsequent Rows(blank Col 0, Subscale in Col 1) -> Row(Next Parent Variable).",
+  "desired_behavior": "In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).",
   "generalization": "Hierarchical Table Layout Invariant for all academic empirical tables with multi-tier constructs.",
   "scope": "CROSS_PROJECT_UNIVERSAL",
   "generalization_stage": "LOCAL_LESSON",
   "confidence": 0.99,
   "evidence": {
     "metric_or_check": "HIERARCHICAL_LAYOUT",
-    "observed_value": "Flat or ungrouped variables",
-    "threshold_value": "Strict parent-child hierarchical grouping",
-    "supporting_report_ids": [],
+    "observed_value": "Flat or ungrouped variables, MERGED_VARIABLE_SUBSCALE_COLUMN",
+    "threshold_value": "Strict parent-child hierarchical grouping with 3 prefix columns",
+    "supporting_report_ids": [
+      "BAN-20261001-TABLE-VARIABLE-SUBSCALE-COLUMNS-001"
+    ],
     "supporting_artifact_paths": []
   },
   "related_skills": [
@@ -35,7 +37,7 @@
     "academic-writer",
     "results-auditor"
   ],
-  "graduation_status": "GRADUATED",
+  "graduation_status": "PENDING_GRADUATION",
   "graduated_at": "2026-09-25T18:07:31.359983+00:00",
   "graduated_targets": [
     "${WORKSPACE_ROOT}/.agents/skills/apa-reporting/SKILL.md",

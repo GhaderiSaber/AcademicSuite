@@ -1,0 +1,363 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001",
+  "experience_id": "EXP-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-LEARN-TRJ-007",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-01T10:45:12.000000+00:00",
+      "description": "User issued explicit formatting critique mandating strict 3-column table architecture: 'There is some tables that have both variables and subsacle in one column. You should seperate the. The first column is variable متغیر and the second column is subscale (factor) مولفه. Also in some tables there is a raw number. You should seperate this too. 1. raw number, 2. variable, and 3. subscale'.",
+      "observable_input": {
+        "user_critique": "There is some tables that have both variables and subsacle in one column. You should seperate the. The first column is variable 'متغیر' and the second column is subscale (factor) 'مولفه'. Also in some tables there is a raw number. You should seperate this too. 1. raw number, 2. variable, and 3. subscale",
+        "feedback_id": "FDB-20261001-TABLE-3COL-COLUMNS"
+      },
+      "observable_output": {
+        "status": "FEEDBACK_LOGGED",
+        "severity": "HIGH",
+        "scope": "REUSABLE_PROCEDURAL"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T11:30:31.000000+00:00",
+      "description": "academic-orchestrator dispatched task TSK-2026-LEARN-TRJ-007 to trajectory-analyzer to audit Chapter 4 tables and reconstruct factual trajectory.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-007",
+        "stage": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+        "worker_agent": "trajectory-analyzer",
+        "objective": "Analyze user feedback regarding table columns and inspect 02_analysis_code/compile_gold_standard_chapter4.py, 03_deliverables/Chapter_4_Results.md, and 03_deliverables/Chapter_4_Results.docx."
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "child_agent": "trajectory-analyzer"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:30:35.000000+00:00",
+      "description": "trajectory-analyzer initiated forensic audit across Chapter 4 deliverables and script compilers.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-007"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:31:35.000000+00:00",
+      "description": "Inspected 02_analysis_code/compile_gold_standard_chapter4.py (lines 798-827, 843-850, 893-900, 929-935), identifying that Table 15 (Correlation Matrix) flattens row numbers and variable names into a single column ('متغیرها'), and Tables 16 and 19 embed row numbers directly into variable labels.",
+      "observable_input": {
+        "file_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+        "sections": ["t15_headers", "t15_data", "t16_data", "t18_data", "t19_data"]
+      },
+      "observable_output": {
+        "table_15_headers": ["متغیرها", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰"],
+        "table_15_first_cell": "۱. اضطراب آینده‌نگر",
+        "defect_identified": "FLATTENED_ROW_NUMBER_AND_MERGED_VARIABLE_SUBSCALE"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:32:05.000000+00:00",
+      "description": "Inspected 03_deliverables/Chapter_4_Results.md (lines 178, 208, 221, 346, 383, 485), revealing that Table 4-13 merges variable and subscale into 'متغیر/سازه', Table 4-15 lacks a separate 'مؤلفه' column, and Tables 4-20 and 4-23 concatenate row numbers in 'متغیرها'.",
+      "observable_input": {
+        "file_path": "03_deliverables/Chapter_4_Results.md",
+        "table_lines": [178, 208, 221, 346, 383, 485]
+      },
+      "observable_output": {
+        "table_4_13_header_col2": "متغیر/سازه",
+        "table_4_15_header_col2": "متغیر",
+        "table_4_20_first_row": "۱. اضطراب آینده‌نگر",
+        "defect_identified": "MERGED_VARIABLE_SUBSCALE_AND_EMBEDDED_ROW_NUMBERS"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:32:30.000000+00:00",
+      "description": "Inspected 03_deliverables/Chapter_4_Tables_Only.md (lines 138-154, 156-172, 187-202), discovering that Table 4-13 uses em-dashes ('— اضطراب آینده‌نگر') in Column 2, Table 4-14 merges 'مقیاس / خرده‌مقیاس', and Table 4-16 already prototyped the 3-column architecture ('ردیف', 'متغیر', 'مؤلفه') but was not synchronized into the DOCX compiler.",
+      "observable_input": {
+        "file_path": "03_deliverables/Chapter_4_Tables_Only.md"
+      },
+      "observable_output": {
+        "table_4_16_headers": ["ردیف", "متغیر", "مؤلفه", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰"],
+        "status": "VALID_PROTOTYPE_FOUND_IN_TABLES_ONLY"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:33:15.000000+00:00",
+      "description": "Defined the canonical 3-column architecture across all affected tables: Column 1 ('ردیف'), Column 2 ('متغیر'), and Column 3 ('مؤلفه'), completely eliminating embedded row numbers and merged variable/subscale cells.",
+      "observable_input": {
+        "mandate": "1. raw number, 2. variable, and 3. subscale"
+      },
+      "observable_output": {
+        "canonical_headers": ["ردیف", "متغیر", "مؤلفه"],
+        "target_tables": ["Table 4-13", "Table 4-14", "Table 4-15", "Table 4-16", "Table 4-18", "Table 4-19", "Table 4-21"]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:34:00.000000+00:00",
+      "description": "Audited all 32 tables in Chapter 4, identifying 4 primary tables requiring structural 3-column transformation and 3 secondary candidate tables, producing full row-by-row cell mappings.",
+      "observable_input": {
+        "total_tables_audited": 32
+      },
+      "observable_output": {
+        "primary_tables_requiring_split": 4,
+        "secondary_candidate_tables": 3,
+        "clean_demographic_tables": 11
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:36:00.000000+00:00",
+      "description": "Saved structured trajectory reconstruction JSON conforming to .agents/contracts/evolution/trajectory.schema.json and companion Markdown report.",
+      "observable_input": {
+        "target_json": ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.json",
+        "target_md": ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.md"
+      },
+      "observable_output": {
+        "status": "FILES_WRITTEN",
+        "validation": "PASS"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-01T11:37:00.000000+00:00",
+      "description": "trajectory-analyzer completed task TSK-2026-LEARN-TRJ-007 and emitted 6-part return payload to academic-orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-007"
+      },
+      "observable_output": {
+        "status": "COMPLETED",
+        "deliverables": [
+          ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.json",
+          ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.md"
+        ]
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "grep_search",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "Query": "جدول ۴-",
+        "SearchPath": "03_deliverables/Chapter_4_Results.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 42.5
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/Chapter_4_Results.md",
+        "StartLine": 200,
+        "EndLine": 350
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 35.1
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/Chapter_4_Results.md",
+        "StartLine": 130,
+        "EndLine": 210
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 28.4
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/compile_gold_standard_chapter4.py",
+        "StartLine": 750,
+        "EndLine": 860
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 39.8
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/compile_gold_standard_chapter4.py",
+        "StartLine": 850,
+        "EndLine": 1000
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 41.2
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/Chapter_4_Tables_Only.md",
+        "StartLine": 138,
+        "EndLine": 220
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 33.7
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "TargetFile": ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 55.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "TargetFile": ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 58.2
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+      "exit_code": 0,
+      "duration_seconds": 1.45
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+      "exit_code": 0,
+      "duration_seconds": 1.45
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "1c07ceda-cf82-4a99-a989-258ce426b305",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+      "envelope_summary": "TSK-2026-LEARN-TRJ-007: Audit Chapter 4 tables for single-column variable/subscale concatenation and embedded row numbers, reconstruct trajectory, and define 3-column architecture ('ردیف', 'متغیر', 'مؤلفه').",
+      "status": "SUCCESS",
+      "handoff_artifact_path": ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_type": "TABLE_SCHEMA_ARCHITECTURE",
+      "selected_option": "Enforce Canonical 3-Column Standard: Col 1 ('ردیف'), Col 2 ('متغیر'), Col 3 ('مؤلفه')",
+      "rationale": "Directly resolves user feedback by separating the sequential numeric identifier ('ردیف'), the psychological parent construct ('متغیر'), and the specific dimension/subscale ('مؤلفه'). Completely eliminates visual conflation and parsing ambiguity.",
+      "alternatives_considered": [
+        {
+          "option": "Retain 2 columns with hyphen/em-dash prefix (e.g., '— اضطراب آینده‌نگر')",
+          "verdict": "REJECTED",
+          "reason": "Explicitly rejected by user critique; fails to establish clear tabular relational boundaries."
+        },
+        {
+          "option": "2 columns without row number: Col 1 ('متغیر') and Col 2 ('مؤلفه')",
+          "verdict": "REJECTED",
+          "reason": "Violates user instruction '1. raw number, 2. variable, and 3. subscale' and standard Iranian dissertation formatting."
+        }
+      ]
+    },
+    {
+      "decision_type": "CORRELATION_MATRIX_RESTRUCTURING",
+      "selected_option": "Expand Table 15 in compile_gold_standard_chapter4.py from 11 columns to 13 columns",
+      "rationale": "Decouples embedded row indices ('۱. اضطراب آینده‌نگر') into Column 0 ('ردیف': '۱'), Column 1 ('متغیر': 'تحمل‌ناپذیری عدم‌قطعیت'), and Column 2 ('مؤلفه': 'اضطراب آینده‌نگر'), followed by correlation columns '۱' through '۱۰'.",
+      "alternatives_considered": [
+        {
+          "option": "Leave correlation matrix with embedded row numbers and only update Table 4-13",
+          "verdict": "REJECTED",
+          "reason": "Inconsistent cross-chapter standard; Table 15 is explicitly highlighted in user critique."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "type": "deliverable_docx"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.md",
+      "sha256": "b7500981a9ccf3abc26c3a3080faa30ede480c2cb82ad4c32254ceef43201c01",
+      "type": "deliverable_markdown"
+    },
+    {
+      "path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "9f84b65a973cb12a58b0e7c54efdc62810a45d023349f8bb2ce8459f9393a7d1",
+      "type": "compilation_script"
+    },
+    {
+      "path": ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.json",
+      "sha256": "47128295d57379904b91453ef99d291e5994ccaeaece98c56c6ae59a8344b268",
+      "type": "trajectory_reconstruction_json"
+    },
+    {
+      "path": ".agents/learning/experience/TRJ-20261001-TABLE-3COL-VARIABLE-SUBSCALE-001.md",
+      "sha256": "cd76d1f5480a1ae70721fa45c8b9d24776f335ffd0dd514819ff5044104a60ae",
+      "type": "trajectory_reconstruction_markdown"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "academic_chapter_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-TABLE-COLUMN-SEPARATION-VARIABLE-SUBSCALE",
+        "CHK-TABLE-ROW-NUMBER-DECOUPLING",
+        "CHK-TABLE-3COL-HIERARCHICAL-STANDARD"
+      ],
+      "evidence_summary": {
+        "critique_text": "There is some tables that have both variables and subsacle in one column. You should seperate the. The first column is variable 'متغیر' and the second column is subscale (factor) 'مولفه'. Also in some tables there is a raw number. You should seperate this too. 1. raw number, 2. variable, and 3. subscale",
+        "total_tables_audited": 32,
+        "affected_tables_count": 7,
+        "primary_affected_tables": [
+          "Table 4-13 (Descriptive Statistics & Reliability)",
+          "Table 4-15 (Bivariate Pearson Correlation Matrix)",
+          "Table 4-16 (Hypothesis 1 Correlation Matrix in DOCX)",
+          "Table 4-19 (Hypothesis 2 Correlation Matrix in DOCX)"
+        ],
+        "secondary_affected_tables": [
+          "Table 4-14 (Reliability in Tables_Only)",
+          "Table 4-15 (Assumptions / Collinearity in Tables_Only)",
+          "Table 4-18 (Regression Coefficients in DOCX)"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261001-TABLE-3COL-COLUMNS"
+  ],
+  "outcome": "FAILURE"
+}

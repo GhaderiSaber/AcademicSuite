@@ -1,9 +1,19 @@
 {
+  "contract_version": "1.0.0",
   "analysis_id": "BAN-20261001-TABLE-VARIABLE-SUBSCALE-COLUMNS-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261001-TABLE-001",
   "target_agent": "academic-writer",
   "target_skill": "chapter-4-writing",
-  "observable_failure_step": "DOCX compilation and Markdown deliverable generation",
-  "failure_signature": "MERGED_VARIABLE_SUBSCALE_COLUMN",
-  "root_cause_diagnosis": "The script compile_gold_standard_chapter4.py and markdown deliverables flatten hierarchical variable data (row numbers, parent variables, and subscales) into a single column, leading to structural presentation defects. In Table 4-15, row numbers are embedded directly into the variable names, and parent variables are omitted or merged with subscales. This violates the hierarchical table structure needed for clarity and APA 7th Edition compliance, specifically AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES.",
-  "prescribed_behavior": "Enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه') for all descriptive, correlational, and inferential tables. Specifically, in compile_gold_standard_chapter4.py, increase the column count for Table 4-15 to 13 and define headers as ['ردیف', 'متغیر', 'مؤلفه', '۱', '۲', ...]. Update Tables 4-16, 4-19, and 4-13 similarly. In markdown deliverables, separate 'متغیر' and 'مؤلفه' into distinct columns and ensure row numbers ('ردیف') are separated from variable names."
+  "capability": "CHAPTER4",
+  "trajectory_id": "TRJ-20261001-TABLE-VARIABLE-SUBSCALE-COLUMNS-001",
+  "observable_failure_step": {
+    "step_number": 3,
+    "action_type": "INSPECT_COMPILE_GOLD_STANDARD_CHAPTER4_PY",
+    "description": "Code generator scripts embedded row numbers into strings and merged variable/subscale columns without taxonomic separation."
+  },
+  "failure_signature": "AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES",
+  "root_cause_diagnosis": "The generation agent and compilation scripts failed to maintain structural separation for taxonomic hierarchy in tables. By embedding row numbers into text and concatenating parent variables with subscales into single columns ('متغیر/سازه' or 'متغیرها'), the agent produced visually flattened tables lacking the required multi-column architecture.",
+  "prescribed_behavior": "Strictly enforce a mandatory 3-column prefix layout for all relevant Chapter 4 tables (Descriptives, Reliability, Correlations). Specifically: Column 1 must be 'ردیف' (row number), Column 2 must be 'متغیر' (Parent Construct), and Column 3 must be 'مؤلفه' (Subscale). Never embed numbers into variable names. Update 'compile_gold_standard_chapter4.py' to expand table dimensions accordingly (e.g., Table 4-15 from 11 to 13 columns) to separate these entities.",
+  "created_at": "2026-10-01T11:45:00Z"
 }

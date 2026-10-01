@@ -28,9 +28,9 @@
     "validation-agent"
   ],
   "is_active_behavior": true,
-  "graduation_status": "PENDING_GRADUATION",
-  "graduated_at": "2026-09-25T18:08:23.453011+00:00",
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-10-01T11:37:57.447592+00:00",
   "graduated_targets": [
-    "${WORKSPACE_ROOT}/.agents/plugins/academic-suite/rules/AGENTS.md"
+    ".agents/plugins/academic-suite/rules/AGENTS.md"
   ]
 }
