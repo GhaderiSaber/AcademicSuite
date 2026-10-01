@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261001-VAL-FAIL-001",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "VAL-AUDIT-20261001041106",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "compile_gold_standard_chapter4",
+  "trajectory_id": "TRJ-20261001-VAL-FAIL-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "description": "academic-writer compiled and wrote 03_deliverables/Chapter_4_Results.docx containing structural schema sequencing defects, heuristic classification failures for justification, and un-sanitized English tokens in table cells."
+  },
+  "failure_signature": "OPENXML_SCHEMA_CHILD_ORDER_VIOLATION, BRITTLE_HEADING_HEURISTIC_JUSTIFICATION_STRIP, UNTRANSLATED_TABLE_CELL_LEXICON",
+  "root_cause_diagnosis": "The agent authored compile_gold_standard_chapter4.py with multiple logic defects. First, apply_table_apa7_and_bidi appended <w:bidiVisual/> to the end of <w:tblPr> instead of inserting it before <w:tblW>, violating strict OpenXML sequencing. Second, post_process_openxml employed a brittle string-prefix heuristic (e.g., matching 'جدول') that falsely classified narrative table captions as headings, incorrectly stripping their full justification. Third, the agent explicitly hardcoded English statistical abbreviations into data tuples without translation and failed to scrub verbatim English terms copied from the preamble.",
+  "prescribed_behavior": "The agent must rewrite compiler functions to strictly adhere to OpenXML schema ordering by inserting <w:bidiVisual/> before <w:tblW>. It must abandon brittle prefix string-matching for paragraph classification in favor of robust structural/style checks, ensuring all Persian narrative paragraphs and lengthy captions receive <w:jc w:val='both'/>. Finally, it must enforce complete translation of all statistical terms (e.g., 'Adj', 'Constant', 'Chi', 'Square') within generated tuples and implement exhaustive sanitization passes for copied preamble elements.",
+  "created_at": "2026-10-01T05:00:00Z"
+}

@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-09-30T18:21:00.778041+00:00",
+  "updated_at": "2026-10-01T04:31:04.771491+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1354,6 +1354,48 @@
       "remedy": "Omit the w:jc node entirely when using w:bidi=1.",
       "enabled": true,
       "updated_at": "2026-09-30T17:09:43.924462+00:00"
+    },
+    "CAND-20261001-OPENXML-TBLPR-AND-CELL-LEAKAGE-001": {
+      "item_id": "CAND-20261001-OPENXML-TBLPR-AND-CELL-LEAKAGE-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Untranslated statistical abbreviations (Adj, Constant, Chi-Square, Skewness, Kurtosis) are strictly prohibited in Persian table data.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "chapter-4-writing",
+        "apa-reporting"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?i)\\\\b(Adj|Constant|Chi|Square|Skewness|Kurtosis)\\\\b",
+      "violation_message": "Untranslated statistical abbreviations (Adj, Constant, Chi-Square, Skewness, Kurtosis) are strictly prohibited in Persian table data.",
+      "remedy": "Enforce explicit translation inside tuple generation or post-processing replace heuristics.",
+      "enabled": true,
+      "updated_at": "2026-10-01T04:24:43.854376+00:00"
+    },
+    "CAND-20261001-OPENXML-BIDI-ORDER-AND-JUSTIFICATION-002": {
+      "item_id": "CAND-20261001-OPENXML-BIDI-ORDER-AND-JUSTIFICATION-002",
+      "category": "Learned Mechanical Rule",
+      "statement": "<w:bidiVisual/> MUST precede <w:tblW> for APA7 tables. Cannot append bidiVisual after tblW.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "openxml_validation",
+        "document_generation"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "tblW\\[0\\]\\.append\\(bidi\\)|tblW\\[0\\]\\.addnext\\(bidi\\)",
+      "violation_message": "<w:bidiVisual/> MUST precede <w:tblW> for APA7 tables. Cannot append bidiVisual after tblW.",
+      "remedy": "Use tblW[0].addprevious(bidi) and ensure all existing bidiVisual elements are removed before insertion.",
+      "enabled": true,
+      "updated_at": "2026-10-01T04:31:04.771467+00:00"
     }
   }
 }
