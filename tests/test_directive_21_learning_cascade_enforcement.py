@@ -26,7 +26,7 @@ for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents"), os.path.join(ROOT_DIR, ".
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from track2_academic_dispatcher import dispatch_track2_event
+from academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
 from integrity_hooks import IntegrityHooks
 import importlib.util
 _guard_spec = importlib.util.spec_from_file_location("orch_guard", os.path.join(ROOT_DIR, ".agents", "agents", "academic-orchestrator", "guard.py"))
@@ -78,7 +78,7 @@ class TestDirective21LearningCascadeEnforcement(unittest.TestCase):
             "toolCall": delivery_call
         }
 
-        res = dispatch_track2_event("PreToolUse", payload)
+        res = dispatch_academic_lifecycle_event("PreToolUse", payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Directive 21.1", res.get("reason", ""))
         self.assertNotIn("message", res)
@@ -111,7 +111,7 @@ class TestDirective21LearningCascadeEnforcement(unittest.TestCase):
             "toolCall": learning_call
         }
 
-        res = dispatch_track2_event("PreToolUse", payload)
+        res = dispatch_academic_lifecycle_event("PreToolUse", payload)
         self.assertEqual(res.get("decision"), "allow")
 
     def test_03_critique_blocks_stop_without_learning_cascade(self):
@@ -128,7 +128,7 @@ class TestDirective21LearningCascadeEnforcement(unittest.TestCase):
             "transcriptPath": self.transcript_path
         }
 
-        res = dispatch_track2_event("Stop", payload)
+        res = dispatch_academic_lifecycle_event("Stop", payload)
         self.assertEqual(res.get("decision"), "continue")
         self.assertIn("Directive 21", res.get("reason", ""))
         self.assertNotIn("message", res)
@@ -168,7 +168,7 @@ class TestDirective21LearningCascadeEnforcement(unittest.TestCase):
             "transcriptPath": self.transcript_path
         }
 
-        res = dispatch_track2_event("Stop", payload)
+        res = dispatch_academic_lifecycle_event("Stop", payload)
         self.assertEqual(res.get("decision"), "allow")
 
     def test_05_hooks_json_structure_conforms_to_antigravity_spec(self):
@@ -208,8 +208,8 @@ class TestDirective21LearningCascadeEnforcement(unittest.TestCase):
                         self.assertNotIn("hooks", h, f"'PostInvocation' in {hpath} must be flat")
                         self.assertIn("command", h, f"'PostInvocation' handler in {hpath} missing 'command' field")
 
-                # Track 2 Academic Orchestrator PreToolUse matcher must include invoke_subagent
-                if "orchestrator" in guard_key.lower() and "PreToolUse" in guard_data:
+                # Academic Lifecycle / Orchestrator PreToolUse matcher must include invoke_subagent
+                if ("orchestrator" in guard_key.lower() or "lifecycle" in guard_key.lower()) and "PreToolUse" in guard_data:
                     for group in guard_data["PreToolUse"]:
                         matcher = group.get("matcher", "")
                         self.assertIn("invoke_subagent", matcher, f"'PreToolUse' matcher in {guard_key} ({hpath}) missing invoke_subagent")

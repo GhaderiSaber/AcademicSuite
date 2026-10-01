@@ -34,13 +34,13 @@ for p in (agents_path, hooks_path):
         sys.path.insert(0, p)
 
 from contracts.hook_identity_contract import is_main_agent_developer
-from track1_developer_dispatcher import dispatch_track1_event
-from track2_academic_dispatcher import dispatch_track2_event
+from workspace_safety_dispatcher import dispatch_workspace_safety_event
+from academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
 
 def dispatch_event(event_name: str, payload: dict) -> dict:
     if is_main_agent_developer(payload) or payload.get("track") == 1:
-        return dispatch_track1_event(event_name, payload)
-    return dispatch_track2_event(event_name, payload)
+        return dispatch_workspace_safety_event(event_name, payload)
+    return dispatch_academic_lifecycle_event(event_name, payload)
 from scripts.permission_manager import (
     PermissionManager,
     CAT_RAW_DATA,
@@ -384,7 +384,7 @@ class TestHookArchitecture(unittest.TestCase):
         with open(hooks_path, "r") as f:
             data = json.load(f)
 
-        guard = data.get("track2-academic-orchestrator-guard") or data.get("constitutional-guard", {})
+        guard = data.get("academic-lifecycle-guard") or data.get("track2-academic-orchestrator-guard") or data.get("constitutional-guard", {})
         self.assertTrue(guard.get("enabled", False))
 
         # Check all 5 official events exist

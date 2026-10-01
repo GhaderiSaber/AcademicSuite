@@ -42,13 +42,13 @@ from contracts.hook_identity_contract import (
     resolve_transcript_path,
     SURFACE_APP_DATA_DIRS
 )
-from hooks.track1_developer_dispatcher import dispatch_track1_event
-from hooks.track2_academic_dispatcher import dispatch_track2_event
+from hooks.workspace_safety_dispatcher import dispatch_workspace_safety_event
+from hooks.academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
 
 def dispatch_event(event: str, payload: dict) -> dict:
     if is_main_agent_developer(payload) or payload.get("track") == 1:
-        return dispatch_track1_event(event, payload)
-    return dispatch_track2_event(event, payload)
+        return dispatch_workspace_safety_event(event, payload)
+    return dispatch_academic_lifecycle_event(event, payload)
 
 dispatcher_is_main = is_main_agent_developer
 

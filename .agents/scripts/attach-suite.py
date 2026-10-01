@@ -120,7 +120,7 @@ DEFAULT_SUITES = {
         "name": "EpsilonStat WebApp Suite",
         "aliases": ["webapp", "epsilon"],
         "path": str(Path.home() / "Desktop" / "EpsilonStat"),
-        "repo_url": "",
+        "repo_url": "https://github.com/EpsilonStat/EpsilonStat.git",
         "description": "Full-stack React/Node statistical analysis web application"
     },
     "zarcloud": {
@@ -146,6 +146,16 @@ DEFAULT_SUITES = {
     }
 }
 
+# User project directories that must NEVER be attached, detached, or removed
+PROTECTED_PROJECT_DIRS = {
+    "01_raw_inputs",
+    "02_analysis_code",
+    "03_deliverables",
+    "04_references_and_lit",
+    "02_processed_data",
+    "state",
+}
+
 # Items in the master suite repository that must NEVER be attached to user project folders
 EXCLUDED_SUITE_ITEMS = {
     ".git",
@@ -163,6 +173,54 @@ EXCLUDED_SUITE_ITEMS = {
     ".pytest_cache",
     ".DS_Store",
     "Thumbs.db",
+    "01_raw_inputs",
+    "02_analysis_code",
+    "03_deliverables",
+    "04_references_and_lit",
+    "02_processed_data",
+    "state",
+}
+
+# Exhaustive catalog of top-level files and directories created or provided by each suite
+SUITE_CANDIDATES = {
+    "academic": [
+        ".agents", ".gemini", ".github", ".gitignore", "AGENTS.md",
+        "ANTIGRAVITY_ARCHITECTURE_GUIDE.md", "README.md", "SETUP_GUIDE.md",
+        "digital_saber.py", "docs", "evals", "requirements.txt",
+        "scripts", "tests", "webapp", "contracts", "validators",
+        "academic-state", "run_tests.py", "Questionnaires.xlsx",
+        "capabilities.yaml", ".pytest_cache", "tmp_docx"
+    ],
+    "epsilonstat": [
+        ".agent", ".agents", ".github", ".gitignore", ".jscpd",
+        "AGENTS.md", "Prompts.md", "README.md", "api", "backend",
+        "bun.lock", "dist", "docs", "eslint.config.js", "frontend",
+        "metadata.json", "node_modules", "package.json", "package-lock.json",
+        "reports", "scripts", "shared", "supabase", "tsconfig.json", "vercel.json"
+    ],
+    "brokerage": [
+        ".agents", "AGENTS.md", "digital_broker.py", "manifests", "orders",
+        "carrier_contracts", "requirements.txt", "scripts", "tests", "docs"
+    ],
+    "zarcloud": [
+        ".agents", "AGENTS.md", "README.md", "src", "public", "package.json",
+        "scripts", "docs", "contracts"
+    ],
+    "duzen": [
+        ".agents", "AGENTS.md", "README.md", "workflows", "scripts", "templates",
+        "requirements.txt"
+    ],
+    "leveltrader": [
+        ".agents", "AGENTS.md", "README.md", "strategies", "data", "models",
+        "scripts", "requirements.txt"
+    ]
+}
+
+# Directories that are 100% exclusive to suite frameworks and never contain user data
+SUITE_EXCLUSIVE_DIRS = {
+    ".agents", ".agent", ".gemini", ".github", ".jscpd",
+    "webapp", "evals", "contracts", "validators", "academic-state",
+    ".pytest_cache", "tmp_docx", "frontend", "backend", "supabase", "api"
 }
 
 
@@ -403,14 +461,66 @@ def is_link_path(p: Path) -> bool:
     return False
 
 
-def is_attached_agents_md(p: Path) -> bool:
+def is_attached_agents_md(p: Path, master_suite_path: Path = None) -> bool:
     """Checks if an AGENTS.md file was placed by a suite."""
     if not p.is_file():
         return False
+    if master_suite_path and (master_suite_path / "AGENTS.md").exists():
+        try:
+            if p.read_bytes() == (master_suite_path / "AGENTS.md").read_bytes():
+                return True
+        except Exception:
+            pass
     try:
         with open(p, "r", encoding="utf-8", errors="ignore") as f:
-            header = f.read(500)
-            return "AGENTS.md — " in header or "Digital Saber" in header or "Cognitive Architecture" in header or "Freight Brokerage" in header
+            header = f.read(1500)
+            signatures = [
+                "agents.md", "digital saber", "cognitive architecture",
+                "freight brokerage", "academic thesis", "academicsuite",
+                "epsilonstat", "antigravity agent", "autonomous agent",
+                "agent guidelines", "dual-track", "subagent"
+            ]
+            if any(sig in header.lower() for sig in signatures):
+                return True
+            if header.strip().lower().startswith("# agents"):
+                return True
+    except Exception:
+        return False
+    return False
+
+
+def is_attached_readme_md(p: Path, master_suite_path: Path = None) -> bool:
+    """Checks if a README.md file belongs to an attached suite."""
+    if not p.is_file():
+        return False
+    if master_suite_path and (master_suite_path / "README.md").exists():
+        try:
+            if p.read_bytes() == (master_suite_path / "README.md").read_bytes():
+                return True
+        except Exception:
+            pass
+    try:
+        with open(p, "r", encoding="utf-8", errors="ignore") as f:
+            header = f.read(1500).lower()
+            return "academicsuite" in header or "epsilonstat" in header or "freight brokerage" in header or "digital saber" in header
+    except Exception:
+        return False
+
+
+def is_attached_gitignore(p: Path, master_suite_path: Path = None) -> bool:
+    """Checks if a .gitignore file belongs to an attached suite."""
+    if not p.is_file():
+        return False
+    if master_suite_path and (master_suite_path / ".gitignore").exists():
+        try:
+            if p.read_bytes() == (master_suite_path / ".gitignore").read_bytes():
+                return True
+        except Exception:
+            pass
+    try:
+        with open(p, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read(500)
+            return "/*" in content and (".agents" in content or "Antigravity" in content)
     except Exception:
         return False
 
@@ -852,6 +962,329 @@ def cmd_fix(args):
     cmd_attach(args)
 
 
+def _normalize_repo_target(target: str) -> str:
+    """Normalizes a git URL or directory path for comparison."""
+    if not target:
+        return ""
+    t = str(target).strip().lower()
+    if t.endswith(".git"):
+        t = t[:-4]
+    t = t.rstrip("/\\")
+    return t
+
+
+def is_remote_suite_match(remote_url: str, suite_key: str, suite_info: dict) -> bool:
+    """Accurately checks if a git remote URL matches a known suite."""
+    if not remote_url:
+        return False
+    norm_remote = _normalize_repo_target(remote_url)
+    remote_base = norm_remote.split("/")[-1].split("\\")[-1]
+
+    # Check key and aliases
+    aliases = [suite_key] + suite_info.get("aliases", [])
+    for a in aliases:
+        a_norm = a.lower().replace("_", "").replace("-", "")
+        if remote_base.replace("_", "").replace("-", "") == a_norm:
+            return True
+
+    # Check configured repo_url
+    s_url = suite_info.get("repo_url", "")
+    if s_url and _normalize_repo_target(s_url) == norm_remote:
+        return True
+
+    # Check configured local path
+    s_path = suite_info.get("path", "")
+    if s_path:
+        norm_path = _normalize_repo_target(s_path)
+        if norm_path == norm_remote or Path(s_path).name.lower() == remote_base:
+            return True
+
+    return False
+
+
+def detect_suite_in_dir(cwd: Path, suites: dict) -> str:
+    """Detects which suite is attached in cwd based on metadata, git remote, or signature files."""
+    meta_file = cwd / ".attached_suite.json"
+    if meta_file.exists():
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+                s = meta.get("suite")
+                if s:
+                    return s
+        except Exception:
+            pass
+
+    # Check git remote
+    git_dir = cwd / ".git"
+    if git_dir.exists():
+        try:
+            res_remote = subprocess.run(["git", "-C", str(cwd), "remote", "get-url", "origin"], capture_output=True, text=True)
+            if res_remote.returncode == 0 and res_remote.stdout.strip():
+                remote_url = res_remote.stdout.strip()
+                for key, info in suites.items():
+                    if is_remote_suite_match(remote_url, key, info):
+                        return key
+                if "academicsuite" in remote_url.lower():
+                    return "academic"
+                if "epsilonstat" in remote_url.lower():
+                    return "epsilonstat"
+                if "freight" in remote_url.lower() or "brokerage" in remote_url.lower():
+                    return "brokerage"
+        except Exception:
+            pass
+
+    # Check file and directory signatures
+    if (cwd / "digital_saber.py").exists() or (cwd / ".agents" / "identity" / "researcher_constitution.json").exists():
+        return "academic"
+    if (cwd / "academic-state").exists() or (cwd / ".agents" / "skills" / "chapter-4-writing").exists():
+        return "academic"
+    if (cwd / "digital_broker.py").exists():
+        return "brokerage"
+    if (cwd / "frontend").is_dir() and (cwd / "backend").is_dir() and ((cwd / "bun.lock").exists() or (cwd / "Prompts.md").exists()):
+        return "epsilonstat"
+    if is_attached_agents_md(cwd / "AGENTS.md"):
+        try:
+            content = (cwd / "AGENTS.md").read_text(encoding="utf-8", errors="ignore")[:1000]
+            if "Digital Saber" in content or "Academic Thesis" in content or "AcademicSuite" in content:
+                return "academic"
+            if "Freight Brokerage" in content:
+                return "brokerage"
+            if "EpsilonStat" in content:
+                return "epsilonstat"
+        except Exception:
+            pass
+
+    if (cwd / ".agents").exists():
+        return "academic"
+
+    # Signature in tests/docs/webapp
+    if (cwd / "webapp" / "src").is_dir() or (cwd / "tests" / "test_attach_suite.py").exists():
+        return "academic"
+
+    return ""
+
+
+def get_suite_repo_items(suite_key: str, suites: dict) -> set:
+    """Returns the set of top-level items belonging to the suite repository."""
+    items = set(SUITE_CANDIDATES.get(suite_key, []))
+    info = suites.get(suite_key)
+    if info and info.get("path"):
+        p = Path(info["path"]).resolve()
+        if p.exists() and p.is_dir():
+            try:
+                for child in p.iterdir():
+                    if child.name not in EXCLUDED_SUITE_ITEMS and child.name not in PROTECTED_PROJECT_DIRS:
+                        items.add(child.name)
+            except Exception:
+                pass
+    return items
+
+
+def clean_suite_directory(cwd: Path, dir_name: str, master_suite_path: Path = None, has_git: bool = False) -> str:
+    """
+    Cleans suite files from a directory inside cwd.
+    If directory is 100% suite exclusive, deletes it entirely.
+    If directory contains untracked user files, removes ONLY suite files and preserves user files.
+    Returns status string for reporting, or empty string if nothing removed.
+    """
+    target_dir = cwd / dir_name
+    if not target_dir.exists() or not target_dir.is_dir():
+        return ""
+
+    if dir_name in PROTECTED_PROJECT_DIRS:
+        return ""
+
+    if is_link_path(target_dir):
+        remove_link(target_dir, allow_delete_dir=True)
+        return f"{dir_name}/ (link)"
+
+    # If 100% suite-exclusive directory:
+    if dir_name in SUITE_EXCLUSIVE_DIRS:
+        try:
+            shutil.rmtree(target_dir)
+            return f"{dir_name}/ (directory)"
+        except Exception as e:
+            return f"{dir_name}/ (error removing directory: {e})"
+
+    # If has Git repository:
+    if has_git:
+        try:
+            actual_files = [f for f in target_dir.rglob("*") if f.is_file() or f.is_symlink()]
+            res_tracked = subprocess.run(["git", "-C", str(cwd), "ls-files", dir_name], capture_output=True, text=True)
+            tracked_rel_paths = set(line.strip() for line in res_tracked.stdout.splitlines() if line.strip())
+
+            if not tracked_rel_paths:
+                # No files tracked in git in this directory
+                return ""
+
+            user_files = [f for f in actual_files if str(f.relative_to(cwd)) not in tracked_rel_paths]
+            if not user_files:
+                # All files in directory are tracked suite files: safe to rmtree
+                try:
+                    shutil.rmtree(target_dir)
+                    return f"{dir_name}/ (directory)"
+                except Exception as e:
+                    return f"{dir_name}/ (error removing directory: {e})"
+            else:
+                # Remove only tracked suite files
+                removed_count = 0
+                for tf in tracked_rel_paths:
+                    tf_p = cwd / tf
+                    if tf_p.is_file() or tf_p.is_symlink():
+                        try:
+                            tf_p.unlink()
+                            removed_count += 1
+                        except Exception:
+                            pass
+                # Clean empty dirs
+                for root, dirs, files in os.walk(str(target_dir), topdown=False):
+                    try:
+                        os.rmdir(root)
+                    except OSError:
+                        pass
+                if not target_dir.exists():
+                    return f"{dir_name}/ (directory)"
+                return f"{dir_name}/ (cleaned {removed_count} suite file(s), preserved {len(user_files)} user file(s))"
+        except Exception:
+            pass
+
+    # If has NO Git repository (e.g. cloud sync / Syncthing / unversioned):
+    if master_suite_path and (master_suite_path / dir_name).exists():
+        master_dir = master_suite_path / dir_name
+        master_files = {f.relative_to(master_dir) for f in master_dir.rglob("*") if f.is_file()}
+
+        # Include historical files from git log if master suite is a git repo
+        if (master_suite_path / ".git").exists():
+            try:
+                res_hist = subprocess.run(
+                    ["git", "-C", str(master_suite_path), "log", "--pretty=format:", "--name-only", "--", dir_name],
+                    capture_output=True, text=True
+                )
+                if res_hist.returncode == 0 and res_hist.stdout.strip():
+                    for line in res_hist.stdout.splitlines():
+                        line = line.strip()
+                        if line and (line.startswith(dir_name + "/") or line.startswith(dir_name + "\\")):
+                            rel_p = Path(line[len(dir_name) + 1:])
+                            master_files.add(rel_p)
+            except Exception:
+                pass
+
+        actual_files = [f for f in target_dir.rglob("*") if f.is_file() or f.is_symlink()]
+        suite_files_to_remove = []
+        user_files_to_preserve = []
+
+        for f in actual_files:
+            rel = f.relative_to(target_dir)
+            if rel in master_files:
+                suite_files_to_remove.append(f)
+            else:
+                user_files_to_preserve.append(f)
+
+        if not user_files_to_preserve:
+            try:
+                shutil.rmtree(target_dir)
+                return f"{dir_name}/ (directory)"
+            except Exception:
+                pass
+        else:
+            for f in suite_files_to_remove:
+                try:
+                    f.unlink()
+                except Exception:
+                    pass
+
+            for root, dirs, files in os.walk(str(target_dir), topdown=False):
+                try:
+                    os.rmdir(root)
+                except OSError:
+                    pass
+
+            if not target_dir.exists():
+                return f"{dir_name}/ (directory)"
+            elif suite_files_to_remove:
+                return f"{dir_name}/ (cleaned {len(suite_files_to_remove)} suite file(s), preserved {len(user_files_to_preserve)} user file(s))"
+            return ""
+
+    # Fallback if no git and no master suite path (or if master suite dir was deleted):
+    # If directory has no items inside, remove it:
+    try:
+        if not any(target_dir.iterdir()):
+            target_dir.rmdir()
+            return f"{dir_name}/ (directory)"
+    except Exception:
+        pass
+
+    # For tests directory where all files are test_*.py or conftest.py:
+    if dir_name == "tests":
+        files = list(target_dir.rglob("*"))
+        if not files or all(f.is_dir() or f.name.startswith("test_") or f.name in ["conftest.py", "__init__.py"] for f in files):
+            try:
+                shutil.rmtree(target_dir)
+                return f"{dir_name}/ (directory)"
+            except Exception:
+                pass
+
+    return ""
+
+
+def is_suite_file_to_remove(cwd: Path, filename: str, master_suite_path: Path = None, suite_key: str = "academic") -> bool:
+    """Determines whether a file in cwd belongs to the suite and should be removed."""
+    p = cwd / filename
+    if not p.exists() and not is_link_path(p):
+        return False
+    if is_link_path(p):
+        return True
+
+    # Protected user project files
+    if filename in ["project_meta.json", "scoring.md"] or filename.endswith(".docx") or filename.endswith(".pdf") or filename.endswith(".ipynb"):
+        return False
+
+    unique_suite_files = {
+        "digital_saber.py", "digital_broker.py",
+        "ANTIGRAVITY_ARCHITECTURE_GUIDE.md", "SETUP_GUIDE.md",
+        "run_tests.py", "capabilities.yaml"
+    }
+    if filename in unique_suite_files:
+        return True
+
+    if filename == "AGENTS.md":
+        return is_attached_agents_md(p, master_suite_path)
+
+    if filename == "README.md":
+        return is_attached_readme_md(p, master_suite_path)
+
+    if filename == ".gitignore":
+        return is_attached_gitignore(p, master_suite_path)
+
+    if filename == "requirements.txt":
+        if master_suite_path and (master_suite_path / "requirements.txt").exists():
+            try:
+                if p.read_bytes() == (master_suite_path / "requirements.txt").read_bytes():
+                    return True
+            except Exception:
+                pass
+        try:
+            content = p.read_text(encoding="utf-8", errors="ignore").lower()
+            if "python-docx" in content or "scipy" in content or "statsmodels" in content:
+                return True
+        except Exception:
+            pass
+
+    if master_suite_path and (master_suite_path / filename).is_file():
+        try:
+            if p.read_bytes() == (master_suite_path / filename).read_bytes():
+                return True
+        except Exception:
+            pass
+
+    candidates = SUITE_CANDIDATES.get(suite_key, [])
+    if filename in candidates:
+        return True
+
+    return False
+
+
 def cmd_detach(args):
     target_path = getattr(args, "path", ".") or "."
     cwd = get_cwd(target_path)
@@ -883,24 +1316,31 @@ def cmd_detach(args):
     created_git = meta_info.get("created_git", True)
     previous_origin = meta_info.get("previous_origin", None)
 
+    # Detect suite
+    explicit_suite = getattr(args, "suite", "") or ""
+    detected_suite = explicit_suite or meta_info.get("suite") or detect_suite_in_dir(cwd, suites) or "academic"
+    suite_info = suites.get(detected_suite, {})
+    master_suite_path = Path(suite_info["path"]).resolve() if suite_info.get("path") and Path(suite_info["path"]).exists() else None
+
     git_dir = cwd / ".git"
     has_git = git_dir.exists()
 
     git_tracked_items = []
     is_suite_git = False
+    remote_url = None
     if has_git:
         try:
             res_remote = subprocess.run(["git", "-C", str(cwd), "remote", "get-url", "origin"], capture_output=True, text=True)
             if res_remote.returncode == 0 and res_remote.stdout.strip():
                 remote_url = res_remote.stdout.strip()
                 for s_key, s_info in suites.items():
-                    s_url = s_info.get("repo_url", "")
-                    s_path = s_info.get("path", "")
-                    if s_url and (remote_url == s_url or remote_url.rstrip("/").endswith("/" + s_key) or remote_url.rstrip("/").endswith(Path(s_path).name)):
+                    if is_remote_suite_match(remote_url, s_key, s_info):
                         is_suite_git = True
-                        break
-                    if s_path and Path(remote_url).resolve() == Path(s_path).resolve():
-                        is_suite_git = True
+                        if not explicit_suite:
+                            detected_suite = s_key
+                            suite_info = s_info
+                            if suite_info.get("path") and Path(suite_info["path"]).exists():
+                                master_suite_path = Path(suite_info["path"]).resolve()
                         break
                 if not is_suite_git and "academicsuite" in remote_url.lower():
                     is_suite_git = True
@@ -911,34 +1351,47 @@ def cmd_detach(args):
         except Exception:
             pass
 
-    # Items to check and detach
-    items_to_detach = set(attached_items_from_meta)
-    if is_suite_git or has_meta:
-        items_to_detach.update(git_tracked_items)
+    # Build comprehensive items to detach
+    items_to_detach = set()
 
-    default_candidates = [
-        ".agents", "AGENTS.md", "ANTIGRAVITY_ARCHITECTURE_GUIDE.md",
-        "Questionnaires.xlsx", "digital_saber.py", "digital_broker.py",
-        "agents", "data", "docs", "evals", "factory", "recovery",
-        "scripts", "tests", "validators", "webapp", "requirements.txt",
-        "run_tests.py", "SETUP_GUIDE.md", "README.md", ".github", ".gemini", ".gitignore"
-    ]
+    # 1. From metadata if available
+    for item in attached_items_from_meta:
+        if item not in PROTECTED_PROJECT_DIRS:
+            items_to_detach.add(item)
 
-    if has_meta or is_suite_git or (cwd / ".agents").exists():
-        for candidate in default_candidates:
-            if candidate in git_tracked_items or candidate in attached_items_from_meta:
-                items_to_detach.add(candidate)
-            elif not has_git and (cwd / candidate).exists():
-                p = cwd / candidate
-                if is_link_path(p):
-                    items_to_detach.add(candidate)
-                elif candidate in [".agents", "AGENTS.md", "ANTIGRAVITY_ARCHITECTURE_GUIDE.md"]:
-                    items_to_detach.add(candidate)
+    # 2. From git if attached as git repo
+    if is_suite_git or has_meta or created_git:
+        for item in git_tracked_items:
+            if item not in PROTECTED_PROJECT_DIRS:
+                items_to_detach.add(item)
+
+    # 3. From master suite repository if available on disk
+    suite_repo_items = get_suite_repo_items(detected_suite, suites)
+    for candidate in suite_repo_items:
+        if candidate not in PROTECTED_PROJECT_DIRS and ((cwd / candidate).exists() or is_link_path(cwd / candidate)):
+            items_to_detach.add(candidate)
+
+    # 4. From candidate lists of all known suites if signature files match
+    for s_name in [detected_suite, "academic", "epsilonstat", "brokerage"]:
+        for c in SUITE_CANDIDATES.get(s_name, []):
+            if c not in PROTECTED_PROJECT_DIRS and ((cwd / c).exists() or is_link_path(cwd / c)):
+                p = cwd / c
+                if p.is_dir():
+                    if c in SUITE_EXCLUSIVE_DIRS or (master_suite_path and (master_suite_path / c).exists()):
+                        items_to_detach.add(c)
+                elif is_suite_file_to_remove(cwd, c, master_suite_path, detected_suite):
+                    items_to_detach.add(c)
+
+    # Strictly protect project directories
+    items_to_detach.difference_update(PROTECTED_PROJECT_DIRS)
+    items_to_detach.discard(".git")
+    items_to_detach.discard(".")
+    items_to_detach.discard("..")
 
     removed = []
 
     for item_name in sorted(items_to_detach):
-        if item_name in [".git", ".", ".."]:
+        if item_name in PROTECTED_PROJECT_DIRS or item_name in [".git", ".", ".."]:
             continue
 
         p = cwd / item_name
@@ -949,69 +1402,21 @@ def cmd_detach(args):
             remove_link(p, allow_delete_dir=p.is_dir())
             removed.append(f"{item_name} (link)")
         elif p.is_dir():
-            if item_name in [".agents", ".gemini", ".github"]:
+            res_dir = clean_suite_directory(cwd, item_name, master_suite_path, has_git)
+            if res_dir:
+                removed.append(res_dir)
+        elif p.is_file():
+            if is_suite_file_to_remove(cwd, item_name, master_suite_path, detected_suite):
                 try:
-                    shutil.rmtree(p)
-                    removed.append(f"{item_name}/ (directory)")
+                    p.unlink()
+                    removed.append(f"{item_name} (file)")
                 except Exception as e:
-                    print(f"{YELLOW}Could not remove directory {item_name}: {e}{RESET}")
-            else:
-                # Check if directory has untracked user files
-                untracked_user_files = []
-                if has_git:
-                    try:
-                        res_untracked = subprocess.run(
-                            ["git", "-C", str(cwd), "ls-files", "--others", "--exclude-standard", item_name],
-                            capture_output=True, text=True
-                        )
-                        if res_untracked.returncode == 0 and res_untracked.stdout.strip():
-                            untracked_user_files = res_untracked.stdout.strip().splitlines()
-                    except Exception:
-                        pass
-
-                if untracked_user_files:
-                    # Directory contains user-created untracked files: only remove tracked suite files
-                    try:
-                        res_tracked = subprocess.run(
-                            ["git", "-C", str(cwd), "ls-files", item_name],
-                            capture_output=True, text=True
-                        )
-                        if res_tracked.returncode == 0 and res_tracked.stdout.strip():
-                            for tf in res_tracked.stdout.strip().splitlines():
-                                tf_path = cwd / tf.strip()
-                                if tf_path.is_symlink() or tf_path.is_file():
-                                    try:
-                                        tf_path.unlink()
-                                    except Exception:
-                                        pass
-                        # Clean up any newly empty subdirectories left
-                        for dirpath, dirnames, filenames in os.walk(str(p), topdown=False):
-                            if not dirnames and not filenames:
-                                try:
-                                    os.rmdir(dirpath)
-                                except OSError:
-                                    pass
-                        removed.append(f"{item_name}/ (cleaned suite files, preserved {len(untracked_user_files)} user file(s))")
-                    except Exception as e:
-                        print(f"{YELLOW}Could not clean suite files in {item_name}: {e}{RESET}")
-                else:
-                    # Directory contains only suite files: safe to rmtree
-                    try:
-                        shutil.rmtree(p)
-                        removed.append(f"{item_name}/ (directory)")
-                    except Exception as e:
-                        print(f"{YELLOW}Could not remove directory {item_name}: {e}{RESET}")
-        elif p.is_file() or p.is_symlink():
-            try:
-                p.unlink()
-                removed.append(f"{item_name} (file)")
-            except Exception as e:
-                print(f"{YELLOW}Could not remove file {item_name}: {e}{RESET}")
+                    print(f"{YELLOW}Could not remove file {item_name}: {e}{RESET}")
 
     # Detach Git repository
     keep_git = getattr(args, "keep_git", False)
     if has_git and not keep_git:
-        if created_git or is_suite_git:
+        if created_git or is_suite_git or (remote_url and is_remote_suite_match(remote_url, detected_suite, suite_info)):
             if previous_origin and not created_git:
                 try:
                     subprocess.run(["git", "-C", str(cwd), "remote", "set-url", "origin", previous_origin], check=True)
@@ -1218,6 +1623,8 @@ def cmd_attach(args):
         ]
         attached_items = [name for name in fallback_candidates if (cwd / name).exists()]
 
+    attached_items = [i for i in attached_items if i not in PROTECTED_PROJECT_DIRS and i not in [".git", ".", ".."]]
+
     meta = {
         "suite": suite_key or "academic",
         "name": suite_title,
@@ -1415,6 +1822,7 @@ def main():
     # detach command
     p_detach = subparsers.add_parser("detach", help="Detach the current suite from the directory")
     p_detach.add_argument("path", nargs="?", default=".", help="Directory to detach suite from (default: current directory)")
+    p_detach.add_argument("--suite", default="", help="Explicitly specify suite name to detach (e.g. academic, epsilonstat)")
     p_detach.add_argument("--keep-git", action="store_true", help="Do not remove or decouple the .git directory when detaching")
 
     # clean command

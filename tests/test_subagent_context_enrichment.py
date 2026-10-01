@@ -25,7 +25,7 @@ for p in [ROOT_DIR, AGENTS_DIR]:
 from scripts.academic_adaptive_context_boundary import AcademicAdaptiveContextBoundary
 from scripts.academic_context_token_budgeter import AcademicContextTokenBudgeter
 from hooks.learning_hooks import LearningHooks
-from hooks.track2_academic_dispatcher import dispatch_track2_event as dispatch_event
+from hooks.academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event as dispatch_event
 
 
 class TestSubagentContextEnrichment(unittest.TestCase):

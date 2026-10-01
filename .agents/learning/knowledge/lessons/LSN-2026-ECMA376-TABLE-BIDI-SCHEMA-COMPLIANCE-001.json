@@ -1,0 +1,45 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-ECMA376-TABLE-BIDI-SCHEMA-COMPLIANCE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261001-001",
+  "diagnosis": {
+    "what_happened": "Tables generated or merged in docx documents rendered as LTR in ONLYOFFICE because <w:bidiVisual> was appended to the end of <w:tblPr>.",
+    "behavior_caused_outcome": "Appending to the end places the tag after <w:tblW> or <w:tblBorders>, which violates the strict ECMA-376 schema ordering for CT_TblPr. Strict parsers ignore out-of-order tags.",
+    "what_should_have_happened": "<w:bidiVisual> must be inserted in the correct sequence before <w:tblW> and <w:jc> in <w:tblPr>.",
+    "rationale_why": "ECMA-376 XML schema strictly enforces the sequence of elements within complex types like CT_TblPr."
+  },
+  "desired_behavior": "Mandate schema-ordered <w:bidiVisual/> insertion before <w:tblW> in all table creation, and implement a universal table bidi enforcement sweep in all assembly and remediation scripts.",
+  "generalization": "All OpenXML manipulations must strictly adhere to ECMA-376 sequence requirements, not just presence of tags.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "OPENXML_SCHEMA_COMPLIANCE",
+    "observed_value": "Tables rendering LTR in ONLYOFFICE",
+    "threshold_value": "Zero out-of-order OpenXML tags",
+    "supporting_report_ids": [
+      "BAN-20261001-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "persian-thesis-builder"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-01T08:32:15Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-thesis-builder",
+    "apa-reporting"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-10-01T08:33:39.603188+00:00",
+  "graduated_targets": []
+}

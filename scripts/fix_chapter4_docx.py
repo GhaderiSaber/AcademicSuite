@@ -142,5 +142,5 @@ def fix_chapter4_docx(docx_path: str):
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/Chapter_4_Results.docx"
+    target = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.getcwd(), "03_deliverables", "Chapter_4_Results.docx")
     fix_chapter4_docx(target)

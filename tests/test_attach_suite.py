@@ -324,6 +324,210 @@ class TestAttachSuite(unittest.TestCase):
             finally:
                 attach_suite.get_cwd = orig_get_cwd
 
+    def test_detach_without_git_removes_all_suite_files(self):
+        """Verifies that detaching when .git is absent (e.g. Syncthing/cloud sync) cleanly removes all suite files."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project_dir = Path(tmp_dir) / "gitless_synced_project"
+            project_dir.mkdir()
+
+            # Simulate files copied without .git (like cloud sync)
+            (project_dir / ".agents").mkdir()
+            (project_dir / ".agents" / "rules").mkdir()
+            (project_dir / ".agents" / "rules" / "test.md").write_text("# Rules")
+            (project_dir / "AGENTS.md").write_text("# AGENTS")
+            (project_dir / "digital_saber.py").write_text("# Digital Saber")
+            (project_dir / "webapp").mkdir()
+            (project_dir / "webapp" / "index.html").write_text("<html></html>")
+            (project_dir / "evals").mkdir()
+            (project_dir / "evals" / "benchmarks.py").write_text("# Evals")
+            (project_dir / "requirements.txt").write_text("pytest\n")
+            (project_dir / "SETUP_GUIDE.md").write_text("# Setup")
+
+            # Metadata file present
+            meta = {
+                "suite": "academic",
+                "name": "Academic Suite",
+                "created_git": False,
+                "attached_items": [".agents", "AGENTS.md", "digital_saber.py", "webapp", "evals", "requirements.txt", "SETUP_GUIDE.md"]
+            }
+            (project_dir / ".attached_suite.json").write_text(json.dumps(meta))
+
+            # User file that MUST be preserved
+            user_doc = project_dir / "Dissertation_Draft.docx"
+            user_doc.write_text("Word document binary content")
+
+            orig_get_cwd = attach_suite.get_cwd
+            attach_suite.get_cwd = lambda target_path=".": project_dir
+
+            try:
+                class DetachArgs:
+                    path = str(project_dir)
+                    keep_git = False
+                    suite = ""
+
+                attach_suite.cmd_detach(DetachArgs())
+
+                # Suite files must all be gone
+                self.assertFalse((project_dir / ".agents").exists())
+                self.assertFalse((project_dir / "AGENTS.md").exists())
+                self.assertFalse((project_dir / "digital_saber.py").exists())
+                self.assertFalse((project_dir / "webapp").exists())
+                self.assertFalse((project_dir / "evals").exists())
+                self.assertFalse((project_dir / "requirements.txt").exists())
+                self.assertFalse((project_dir / "SETUP_GUIDE.md").exists())
+                self.assertFalse((project_dir / ".attached_suite.json").exists())
+
+                # User file must be preserved
+                self.assertTrue(user_doc.exists())
+                self.assertEqual(user_doc.read_text(), "Word document binary content")
+            finally:
+                attach_suite.get_cwd = orig_get_cwd
+
+    def test_detach_preserves_custom_user_scripts_in_shared_dir(self):
+        """Verifies that user scripts in shared scripts/ directory are preserved while suite scripts are removed."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project_dir = Path(tmp_dir) / "shared_scripts_project"
+            project_dir.mkdir()
+
+            scripts_dir = project_dir / "scripts"
+            scripts_dir.mkdir()
+
+            # A file that exists in AcademicSuite master repo scripts/
+            master_suite_scripts = REPO_ROOT / "scripts"
+            sample_suite_script_name = "test_marker.py"
+            if master_suite_scripts.exists():
+                for f in master_suite_scripts.iterdir():
+                    if f.is_file():
+                        sample_suite_script_name = f.name
+                        break
+            (scripts_dir / sample_suite_script_name).write_text("# Suite script")
+
+            # Custom user script
+            user_script = scripts_dir / "my_custom_analysis.py"
+            user_script.write_text("print('Custom thesis analysis')")
+
+            (project_dir / "digital_saber.py").write_text("# Digital Saber")
+            (project_dir / ".agents").mkdir()
+
+            meta = {
+                "suite": "academic",
+                "attached_items": [".agents", "digital_saber.py", "scripts"]
+            }
+            (project_dir / ".attached_suite.json").write_text(json.dumps(meta))
+
+            orig_get_cwd = attach_suite.get_cwd
+            attach_suite.get_cwd = lambda target_path=".": project_dir
+
+            try:
+                class DetachArgs:
+                    path = str(project_dir)
+                    keep_git = False
+                    suite = ""
+
+                attach_suite.cmd_detach(DetachArgs())
+
+                # User script must be intact
+                self.assertTrue(user_script.exists())
+                self.assertEqual(user_script.read_text(), "print('Custom thesis analysis')")
+
+                # Suite items removed
+                self.assertFalse((project_dir / "digital_saber.py").exists())
+                self.assertFalse((project_dir / ".agents").exists())
+                # If master repo has that script, it was removed; user script remains so scripts/ still exists
+                self.assertTrue(scripts_dir.exists())
+            finally:
+                attach_suite.get_cwd = orig_get_cwd
+
+    def test_detach_rerun_after_partial_removal(self):
+        """Verifies that re-running detach after .agents was deleted still cleans leftover suite files."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project_dir = Path(tmp_dir) / "partial_detached_project"
+            project_dir.mkdir()
+
+            # Leftovers after partial manual or previous detach: NO .agents, NO .attached_suite.json, NO .git
+            (project_dir / "digital_saber.py").write_text("# Digital Saber")
+            (project_dir / "webapp").mkdir()
+            (project_dir / "webapp" / "app.py").write_text("# Webapp")
+            (project_dir / "tests").mkdir()
+            # If tests has a file that exists in master repo tests/
+            (project_dir / "tests" / "test_attach_suite.py").write_text("# suite test")
+            (project_dir / "requirements.txt").write_text("pytest\n")
+
+            user_file = project_dir / "thesis_proposal.pdf"
+            user_file.write_text("%PDF-1.4 mock")
+
+            orig_get_cwd = attach_suite.get_cwd
+            attach_suite.get_cwd = lambda target_path=".": project_dir
+
+            try:
+                class DetachArgs:
+                    path = str(project_dir)
+                    keep_git = False
+                    suite = "academic"
+
+                attach_suite.cmd_detach(DetachArgs())
+
+                # Leftover suite files must be removed
+                self.assertFalse((project_dir / "digital_saber.py").exists())
+                self.assertFalse((project_dir / "webapp").exists())
+                self.assertFalse((project_dir / "requirements.txt").exists())
+
+                # User file must be preserved
+                self.assertTrue(user_file.exists())
+            finally:
+                attach_suite.get_cwd = orig_get_cwd
+
+    def test_protected_project_dirs_never_removed(self):
+        """Verifies that 01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit are NEVER deleted."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project_dir = Path(tmp_dir) / "protected_dirs_project"
+            project_dir.mkdir()
+
+            # Protected directories with user data
+            (project_dir / "01_raw_inputs").mkdir()
+            (project_dir / "01_raw_inputs" / "dataset.xlsx").write_text("raw data")
+            (project_dir / "02_analysis_code").mkdir()
+            (project_dir / "02_analysis_code" / "analysis.R").write_text("library(lavaan)")
+            (project_dir / "03_deliverables").mkdir()
+            (project_dir / "03_deliverables" / "Chapter4.docx").write_text("findings")
+            (project_dir / "04_references_and_lit").mkdir()
+            (project_dir / "04_references_and_lit" / "papers.bib").write_text("@article{...}")
+
+            # Suite files
+            (project_dir / ".agents").mkdir()
+            (project_dir / "digital_saber.py").write_text("# Suite file")
+
+            # Fraudulent/buggy metadata that includes 03_deliverables in attached_items
+            meta = {
+                "suite": "academic",
+                "attached_items": [".agents", "digital_saber.py", "03_deliverables", "01_raw_inputs"]
+            }
+            (project_dir / ".attached_suite.json").write_text(json.dumps(meta))
+
+            orig_get_cwd = attach_suite.get_cwd
+            attach_suite.get_cwd = lambda target_path=".": project_dir
+
+            try:
+                class DetachArgs:
+                    path = str(project_dir)
+                    keep_git = False
+                    suite = ""
+
+                attach_suite.cmd_detach(DetachArgs())
+
+                # Suite items removed
+                self.assertFalse((project_dir / ".agents").exists())
+                self.assertFalse((project_dir / "digital_saber.py").exists())
+                self.assertFalse((project_dir / ".attached_suite.json").exists())
+
+                # ALL PROTECTED DIRS AND USER DATA MUST BE 100% INTACT
+                self.assertTrue((project_dir / "01_raw_inputs" / "dataset.xlsx").exists())
+                self.assertTrue((project_dir / "02_analysis_code" / "analysis.R").exists())
+                self.assertTrue((project_dir / "03_deliverables" / "Chapter4.docx").exists())
+                self.assertTrue((project_dir / "04_references_and_lit" / "papers.bib").exists())
+            finally:
+                attach_suite.get_cwd = orig_get_cwd
+
 
 if __name__ == "__main__":
     unittest.main()

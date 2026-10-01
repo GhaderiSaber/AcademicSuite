@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-tests/test_hook_separation_option_a.py — Physical Hook Separation Test Suite
+tests/test_hook_separation_option_a.py — Physical Hook Architecture Test Suite
 
-Verifies Option A:
-1. Track 1 Developer Safety Gate (track1_developer_dispatcher.py)
-   - Allows code mutations, tests, commands for Main Developer Agent.
+Verifies Antigravity Plugin Hook Architecture:
+1. Workspace Safety Gate (workspace_safety_dispatcher.py)
+   - Allows code mutations, tests, commands for Native Developer Agent.
    - Strictly blocks raw-data mutations (01_raw_inputs) and destructive bash commands.
    - Enforces clean workspace root (Directive 23) and English ASCII filenames (Directive 6).
-   - Fast-paths and completely exempts Main Agent from academic stop-gates and thesis validation.
-2. Track 2 Academic Governance Guard (track2_academic_dispatcher.py)
+   - Fast-paths and completely exempts Native Developer Agent from academic stop-gates and thesis validation.
+2. Academic Lifecycle Guard (academic_lifecycle_dispatcher.py)
    - Strips mutation and execution tools from academic-orchestrator (Directive 20).
    - Enforces Contractual Delegation Envelopes (CDE) on subagent invocations.
    - Enforces on-disk Triad artifacts (.docx, .md, .json) and fail-closed validation reports on Stop (Directives 3, 22).
-   - Bypasses Main Developer Agent in < 2ms.
-3. Track Dispatchers & Native Agent Hooks
-   - Permanent removal of legacy hook_dispatcher.py in favor of native agent-scoped hooks.
+   - Bypasses Native Developer Agent in < 2ms.
+3. Clean Dispatcher Architecture
+   - Permanent removal of legacy track dispatchers in favor of workspace safety & academic lifecycle guards.
 4. Hook Schema (.agents/hooks.json)
-   - Validates independent registration of track1-developer-safety-gate and track2-academic-orchestrator-guard.
+   - Validates independent registration of workspace-safety-gate and academic-lifecycle-guard.
 """
 
 import os
@@ -25,6 +25,7 @@ import sys
 import json
 import unittest
 import subprocess
+import tempfile
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 HOOKS_DIR = os.path.join(ROOT_DIR, ".agents", "hooks")
@@ -33,21 +34,19 @@ for p in (ROOT_DIR, HOOKS_DIR, agents_path):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from track1_developer_dispatcher import dispatch_track1_event
-from track2_academic_dispatcher import dispatch_track2_event
+from workspace_safety_dispatcher import dispatch_workspace_safety_event
+from academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event
 from contracts.hook_identity_contract import is_main_agent_developer
 
+
 def dispatch_event(event: str, payload: dict) -> dict:
-    if is_main_agent_developer(payload) or payload.get("track") == 1:
-        return dispatch_track1_event(event, payload)
-    return dispatch_track2_event(event, payload)
+    if is_main_agent_developer(payload):
+        return dispatch_workspace_safety_event(event, payload)
+    return dispatch_academic_lifecycle_event(event, payload)
 
 
-import tempfile
-
-
-class TestTrack1DeveloperSafetyGate(unittest.TestCase):
-    """Verifies Track 1 Developer Safety Gate behaviors for Built-in Main Agent."""
+class TestWorkspaceSafetyGate(unittest.TestCase):
+    """Verifies Workspace Safety Gate behaviors across all callers."""
 
     def setUp(self):
         self.main_agent_payload = {
@@ -63,9 +62,9 @@ class TestTrack1DeveloperSafetyGate(unittest.TestCase):
             }
         }
 
-    def test_track1_allows_code_mutation_tools(self):
-        """Main Developer Agent can freely use write_to_file and run_command on test/source files."""
-        res = dispatch_track1_event("PreToolUse", self.main_agent_payload)
+    def test_workspace_safety_allows_code_mutation_tools(self):
+        """Native Developer Agent can freely use write_to_file and run_command on test/source files."""
+        res = dispatch_workspace_safety_event("PreToolUse", self.main_agent_payload)
         self.assertEqual(res.get("decision"), "allow")
 
         # Test run_command for safe command (pytest)
@@ -74,11 +73,11 @@ class TestTrack1DeveloperSafetyGate(unittest.TestCase):
             "name": "run_command",
             "args": {"CommandLine": "pytest tests/test_something.py", "Cwd": ROOT_DIR}
         }
-        res_cmd = dispatch_track1_event("PreToolUse", cmd_payload)
+        res_cmd = dispatch_workspace_safety_event("PreToolUse", cmd_payload)
         self.assertEqual(res_cmd.get("decision"), "allow")
 
-    def test_track1_blocks_raw_data_mutation(self):
-        """Main Agent is strictly blocked from modifying or overwriting 01_raw_inputs/ datasets."""
+    def test_workspace_safety_blocks_raw_data_mutation(self):
+        """Agents are strictly blocked from modifying or overwriting 01_raw_inputs/ datasets."""
         raw_payload = dict(self.main_agent_payload)
         raw_payload["toolCall"] = {
             "name": "write_to_file",
@@ -88,22 +87,22 @@ class TestTrack1DeveloperSafetyGate(unittest.TestCase):
                 "Overwrite": True
             }
         }
-        res = dispatch_track1_event("PreToolUse", raw_payload)
+        res = dispatch_workspace_safety_event("PreToolUse", raw_payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Raw-Data Immutability Guard", res.get("reason", ""))
 
-    def test_track1_blocks_dangerous_bash_commands(self):
-        """Main Agent is blocked from catastrophic system commands (e.g. rm -rf .git, git push --force)."""
+    def test_workspace_safety_blocks_dangerous_bash_commands(self):
+        """Agents are blocked from catastrophic system commands (e.g. rm -rf .git, git push --force)."""
         dangerous_payload = dict(self.main_agent_payload)
         dangerous_payload["toolCall"] = {
             "name": "run_command",
             "args": {"CommandLine": "rm -rf .git", "Cwd": ROOT_DIR}
         }
-        res = dispatch_track1_event("PreToolUse", dangerous_payload)
+        res = dispatch_workspace_safety_event("PreToolUse", dangerous_payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Destruction of .agents or .git", res.get("reason", ""))
 
-    def test_track1_blocks_root_script_execution(self):
+    def test_workspace_safety_blocks_root_script_execution(self):
         """Enforces Directive 23: writing executable scripts directly to repository root is blocked."""
         root_script_payload = dict(self.main_agent_payload)
         root_script_payload["toolCall"] = {
@@ -114,40 +113,29 @@ class TestTrack1DeveloperSafetyGate(unittest.TestCase):
                 "Overwrite": True
             }
         }
-        res = dispatch_track1_event("PreToolUse", root_script_payload)
+        res = dispatch_workspace_safety_event("PreToolUse", root_script_payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Directive 23", res.get("reason", ""))
 
-    def test_track1_bypasses_academic_stop_gates(self):
-        """Main Agent finishes turns (Stop) without demanding thesis triads or validation reports."""
+    def test_workspace_safety_bypasses_academic_stop_gates(self):
+        """Native Developer finishes turns (Stop) without demanding thesis triads or validation reports."""
         stop_payload = {
             "agentName": "main",
             "workspacePaths": [ROOT_DIR],
             "conversation_id": "test-dev-session-001"
         }
-        res = dispatch_track1_event("Stop", stop_payload)
-        self.assertEqual(res.get("decision"), "allow")
-
-    def test_track1_yields_for_academic_agents(self):
-        """If caller is an academic agent, track1 dispatcher yields immediately."""
-        academic_payload = {
-            "agentName": "academic-orchestrator",
-            "workspacePaths": [ROOT_DIR],
-            "toolCall": {"name": "run_command", "args": {"CommandLine": "ls"}}
-        }
-        res = dispatch_track1_event("PreToolUse", academic_payload)
-        # Yields allow so Track 2 dispatcher can govern
+        res = dispatch_workspace_safety_event("Stop", stop_payload)
         self.assertEqual(res.get("decision"), "allow")
 
 
-class TestTrack2AcademicGovernanceGuard(unittest.TestCase):
-    """Verifies Track 2 Academic Governance behaviors."""
+class TestAcademicLifecycleGuard(unittest.TestCase):
+    """Verifies Academic Lifecycle Governance behaviors."""
 
-    def test_track2_fast_paths_main_developer_agent(self):
-        """Track 2 dispatcher immediately allows Main Developer Agent in < 2ms across all events."""
+    def test_academic_lifecycle_fast_paths_native_developer_agent(self):
+        """Academic dispatcher immediately allows Native Developer Agent in < 2ms across all events."""
         main_payload = {"agentName": "main", "workspacePaths": [ROOT_DIR]}
         for event in ("PreToolUse", "PostToolUse", "PreInvocation", "PostInvocation", "Stop"):
-            res = dispatch_track2_event(event, main_payload)
+            res = dispatch_academic_lifecycle_event(event, main_payload)
             if event in ("PreInvocation", "PostToolUse"):
                 self.assertEqual(res, {})
             elif event == "PostInvocation":
@@ -155,7 +143,7 @@ class TestTrack2AcademicGovernanceGuard(unittest.TestCase):
             else:
                 self.assertEqual(res.get("decision"), "allow")
 
-    def test_track2_blocks_orchestrator_mutation_tools(self):
+    def test_academic_lifecycle_blocks_orchestrator_mutation_tools(self):
         """academic-orchestrator is strictly forbidden from mutation and execution tools (Directive 20)."""
         forbidden_tools = [
             ("write_to_file", {"TargetFile": "/tmp/test.txt", "CodeContent": "x"}),
@@ -169,11 +157,11 @@ class TestTrack2AcademicGovernanceGuard(unittest.TestCase):
                 "toolCall": {"name": tool_name, "args": args},
                 "workspacePaths": [ROOT_DIR]
             }
-            res = dispatch_track2_event("PreToolUse", orch_payload)
+            res = dispatch_academic_lifecycle_event("PreToolUse", orch_payload)
             self.assertEqual(res.get("decision"), "deny", f"Tool {tool_name} was not denied for academic-orchestrator")
             self.assertIn("Orchestrator", res.get("reason", ""))
 
-    def test_track2_enforces_cde_on_orchestrator_delegations(self):
+    def test_academic_lifecycle_enforces_cde_on_orchestrator_delegations(self):
         """Delegations from academic-orchestrator must contain a structured Contractual Delegation Envelope."""
         invalid_delegation_payload = {
             "agentName": "academic-orchestrator",
@@ -192,11 +180,11 @@ class TestTrack2AcademicGovernanceGuard(unittest.TestCase):
             },
             "workspacePaths": [ROOT_DIR]
         }
-        res = dispatch_track2_event("PreToolUse", invalid_delegation_payload)
+        res = dispatch_academic_lifecycle_event("PreToolUse", invalid_delegation_payload)
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Contractual Delegation Invariant", res.get("reason", ""))
 
-    def test_track2_enforces_triad_and_validation_gate_on_stop(self):
+    def test_academic_lifecycle_enforces_triad_and_validation_gate_on_stop(self):
         """Stop gate for academic agents denies unverified turns lacking required triads or validation reports."""
         with tempfile.TemporaryDirectory() as tmpdir:
             transcript_file = os.path.join(tmpdir, "transcript.jsonl")
@@ -214,21 +202,26 @@ class TestTrack2AcademicGovernanceGuard(unittest.TestCase):
                 "transcriptPath": transcript_file,
                 "conversation_id": "test-orch-session-001"
             }
-            res = dispatch_track2_event("Stop", academic_stop_payload)
+            res = dispatch_academic_lifecycle_event("Stop", academic_stop_payload)
             self.assertEqual(res.get("decision"), "continue")
             self.assertIn("Directive 0 & Directive 12", res.get("reason", ""))
 
 
-class TestTrackDispatchersAndSubprocess(unittest.TestCase):
-    """Verifies track dispatchers routing and subprocess CLI invocations without legacy facade."""
+class TestDispatchersAndSubprocess(unittest.TestCase):
+    """Verifies dispatchers routing and subprocess CLI invocations."""
 
     def test_hook_dispatcher_permanently_removed(self):
-        """Verifies hook_dispatcher.py is deleted and replaced by native agent-scoped hooks."""
+        """Verifies legacy hook_dispatcher.py is deleted."""
         dispatcher_path = os.path.join(HOOKS_DIR, "hook_dispatcher.py")
         self.assertFalse(os.path.exists(dispatcher_path), "hook_dispatcher.py must be permanently deleted")
 
-    def test_facade_routes_main_agent_to_track1(self):
-        """dispatch_event cleanly routes Main Agent payloads to Track 1."""
+    def test_legacy_track_dispatchers_permanently_removed(self):
+        """Verifies track1_developer_dispatcher.py and track2_academic_dispatcher.py are deleted."""
+        self.assertFalse(os.path.exists(os.path.join(HOOKS_DIR, "track1_developer_dispatcher.py")))
+        self.assertFalse(os.path.exists(os.path.join(HOOKS_DIR, "track2_academic_dispatcher.py")))
+
+    def test_facade_routes_main_agent_to_workspace_safety(self):
+        """dispatch_event cleanly routes Main Agent payloads to workspace safety."""
         main_payload = {
             "agentName": "main",
             "workspacePaths": [ROOT_DIR],
@@ -244,8 +237,8 @@ class TestTrackDispatchersAndSubprocess(unittest.TestCase):
         res = dispatch_event("PreToolUse", main_payload)
         self.assertEqual(res.get("decision"), "allow")
 
-    def test_facade_routes_orchestrator_to_track2(self):
-        """dispatch_event cleanly routes academic-orchestrator payloads to Track 2."""
+    def test_facade_routes_orchestrator_to_academic_lifecycle(self):
+        """dispatch_event cleanly routes academic-orchestrator payloads to academic lifecycle."""
         orch_payload = {
             "agentName": "academic-orchestrator",
             "caller": "academic-orchestrator",
@@ -259,9 +252,9 @@ class TestTrackDispatchersAndSubprocess(unittest.TestCase):
         self.assertEqual(res.get("decision"), "deny")
         self.assertIn("Orchestrator", res.get("reason", ""))
 
-    def test_track1_dispatcher_subprocess_cli(self):
-        """track1_developer_dispatcher.py CLI executes cleanly and returns JSON."""
-        script_path = os.path.join(HOOKS_DIR, "track1_developer_dispatcher.py")
+    def test_workspace_safety_dispatcher_subprocess_cli(self):
+        """workspace_safety_dispatcher.py CLI executes cleanly and returns JSON."""
+        script_path = os.path.join(HOOKS_DIR, "workspace_safety_dispatcher.py")
         payload = {
             "agentName": "main",
             "workspacePaths": [ROOT_DIR],
@@ -280,9 +273,9 @@ class TestTrackDispatchersAndSubprocess(unittest.TestCase):
         out = json.loads(proc.stdout.strip())
         self.assertEqual(out.get("decision"), "allow")
 
-    def test_track2_dispatcher_subprocess_cli(self):
-        """track2_academic_dispatcher.py CLI executes cleanly and denies Directive 20 violation."""
-        script_path = os.path.join(HOOKS_DIR, "track2_academic_dispatcher.py")
+    def test_academic_lifecycle_dispatcher_subprocess_cli(self):
+        """academic_lifecycle_dispatcher.py CLI executes cleanly and denies Directive 20 violation."""
+        script_path = os.path.join(HOOKS_DIR, "academic_lifecycle_dispatcher.py")
         payload = {
             "agentName": "academic-orchestrator",
             "caller": "academic-orchestrator",
@@ -306,23 +299,23 @@ class TestTrackDispatchersAndSubprocess(unittest.TestCase):
 class TestHooksJsonConfiguration(unittest.TestCase):
     """Verifies .agents/hooks.json schema configuration."""
 
-    def test_hooks_json_has_both_tracks_configured(self):
+    def test_hooks_json_has_workspace_safety_and_academic_guard(self):
         hooks_path = os.path.join(ROOT_DIR, ".agents", "hooks.json")
         self.assertTrue(os.path.exists(hooks_path))
         with open(hooks_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        self.assertIn("track1-developer-safety-gate", data)
-        self.assertIn("track2-academic-orchestrator-guard", data)
+        self.assertIn("workspace-safety-gate", data)
+        self.assertIn("academic-lifecycle-guard", data)
 
-        track1 = data["track1-developer-safety-gate"]
-        self.assertTrue(track1.get("enabled", False))
-        self.assertIn("PreToolUse", track1)
+        safety = data["workspace-safety-gate"]
+        self.assertTrue(safety.get("enabled", False))
+        self.assertIn("PreToolUse", safety)
 
-        track2 = data["track2-academic-orchestrator-guard"]
-        self.assertTrue(track2.get("enabled", False))
+        guard = data["academic-lifecycle-guard"]
+        self.assertTrue(guard.get("enabled", False))
         for event in ("PreToolUse", "PostToolUse", "PreInvocation", "PostInvocation", "Stop"):
-            self.assertIn(event, track2)
+            self.assertIn(event, guard)
 
 
 if __name__ == "__main__":

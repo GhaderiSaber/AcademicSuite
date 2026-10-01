@@ -44,7 +44,7 @@ from scripts.academic_experience_recorder import (
 )
 from contracts.contract_validator import validate_trajectory
 from learning_hooks import LearningHooks
-from track2_academic_dispatcher import dispatch_track2_event as dispatch_event
+from academic_lifecycle_dispatcher import dispatch_academic_lifecycle_event as dispatch_event
 
 
 class TestTrajectoryRecordingPhase15(unittest.TestCase):
@@ -273,8 +273,8 @@ class TestTrajectoryRecordingPhase15(unittest.TestCase):
                 details={"thinking": "illegal reasoning"}
             )
 
-    def test_07_track2_dispatcher_pre_and_post_tool_use_events(self):
-        """Track 2 dispatcher must emit TOOL_CALLED and TOOL_RETURNED via LearningHooks."""
+    def test_07_academic_dispatcher_pre_and_post_tool_use_events(self):
+        """Academic lifecycle dispatcher must emit TOOL_CALLED and TOOL_RETURNED via LearningHooks."""
         payload_pre = {
             "conversationId": "convo-hook-test",
             "workspacePaths": [self.temp_dir],
