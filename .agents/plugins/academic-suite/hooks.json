@@ -1,6 +1,6 @@
 {
   "track2-academic-orchestrator-guard": {
-    "enabled": true,
+    "enabled": false,
     "description": "Track 2 Academic Governance Guard: Enforces Directive 20 tool stripping, CDE contracts, Triad artifacts, and stage validation for Academic Orchestrator and specialist subagents.",
     "PreToolUse": [
       {
