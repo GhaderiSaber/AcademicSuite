@@ -2,7 +2,7 @@
   "contract_version": "1.0.0",
   "lesson_id": "LSN-2026-OPENXML-TBLPR-SCHEMA-AND-CELL-LEAKAGE-001",
   "lesson_type": "WHAT_NOT_TO_DO",
-  "trigger_source": "QC_FAILURE",
+  "trigger_source": "VALIDATOR_FAILURE",
   "source_experience_id": "BAN-20261001-VAL-FAIL-001",
   "diagnosis": {
     "what_happened": "academic-writer generated a gold standard chapter 4 with OpenXML sequence violations, justification stripping due to brittle string heuristics, and untranslated English statistical terms.",

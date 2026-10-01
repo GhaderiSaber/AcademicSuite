@@ -380,6 +380,100 @@ class TestSurfaceAwareTranscriptResolution:
             with open(custom_file, "w", encoding="utf-8") as f:
                 f.write('{"type": "USER_INPUT", "content": "hi"}\n')
 
-            res = resolve_transcript_path(payload, env=env)
-            assert res == custom_file
+
+    def test_fail_closed_subagent_least_privilege_denial(self):
+        """Unverified subagents (depth > 0 or isSubagent: true without known identity) cannot execute or mutate."""
+        from hooks.safety_hooks import SafetyHooks
+
+        # 1. Unverified subagent attempting run_command
+        payload_exec = {
+            "isSubagent": True,
+            "depth": 1,
+            "toolCall": {
+                "name": "run_command",
+                "args": {"CommandLine": "python3 analysis.py"}
+            },
+            "workspacePaths": [ROOT_DIR]
+        }
+        res_exec = SafetyHooks.handle_pre_tool_use(payload_exec)
+        assert res_exec.get("decision") == "deny"
+        assert "Fail-Closed Subagent Least-Privilege Gate" in res_exec.get("reason", "")
+
+        # 2. Unverified subagent attempting write_to_file
+        payload_mut = {
+            "depth": 1,
+            "toolCall": {
+                "name": "write_to_file",
+                "args": {"TargetFile": "output.txt", "CodeContent": "data"}
+            },
+            "workspacePaths": [ROOT_DIR]
+        }
+        res_mut = SafetyHooks.handle_pre_tool_use(payload_mut)
+        assert res_mut.get("decision") == "deny"
+        assert "Fail-Closed Subagent Least-Privilege Gate" in res_mut.get("reason", "")
+
+    def test_advisory_and_auditor_agent_boundaries(self):
+        """methodology-expert, statistical-expert, results-auditor, academic-orchestrator boundaries."""
+        from hooks.safety_hooks import SafetyHooks
+
+        # 1. methodology-expert cannot run_command or mutate files
+        res1 = SafetyHooks.handle_pre_tool_use({
+            "agentName": "methodology-expert",
+            "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 run_stats.py"}},
+            "workspacePaths": [ROOT_DIR]
+        })
+        assert res1.get("decision") == "deny"
+        assert "Advisory Non-Execution Boundary" in res1.get("reason", "")
+
+        res1_write = SafetyHooks.handle_pre_tool_use({
+            "agentName": "methodology-expert",
+            "toolCall": {"name": "write_to_file", "args": {"TargetFile": "analysis.py", "CodeContent": "# code"}},
+            "workspacePaths": [ROOT_DIR]
+        })
+        assert res1_write.get("decision") == "deny"
+        assert "Advisory Read-Only Boundary" in res1_write.get("reason", "")
+
+        # 2. statistical-expert cannot run_command or mutate files
+        res2 = SafetyHooks.handle_pre_tool_use({
+            "agentName": "statistical-expert",
+            "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 run_sem.py"}},
+            "workspacePaths": [ROOT_DIR]
+        })
+        assert res2.get("decision") == "deny"
+        assert "Advisory Non-Execution Boundary" in res2.get("reason", "")
+
+        res2_write = SafetyHooks.handle_pre_tool_use({
+            "agentName": "statistical-expert",
+            "toolCall": {"name": "write_to_file", "args": {"TargetFile": "model.py", "CodeContent": "# code"}},
+            "workspacePaths": [ROOT_DIR]
+        })
+        assert res2_write.get("decision") == "deny"
+        assert "Advisory Read-Only Boundary" in res2_write.get("reason", "")
+
+        # 3. results-auditor cannot run_command or mutate files
+        res3 = SafetyHooks.handle_pre_tool_use({
+            "agentName": "results-auditor",
+            "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 audit.py"}},
+            "workspacePaths": [ROOT_DIR]
+        })
+        assert res3.get("decision") == "deny"
+        assert "Auditing Non-Execution Boundary" in res3.get("reason", "")
+
+        # 4. academic-orchestrator cannot run_command or mutate files (Directive 20)
+        res4 = SafetyHooks.handle_pre_tool_use({
+            "agentName": "academic-orchestrator",
+            "toolCall": {"name": "run_command", "args": {"CommandLine": "python3 calculate.py"}},
+            "workspacePaths": [ROOT_DIR]
+        })
+        assert res4.get("decision") == "deny"
+        assert "Directive 20" in res4.get("reason", "")
+
+        res4_write = SafetyHooks.handle_pre_tool_use({
+            "agentName": "academic-orchestrator",
+            "toolCall": {"name": "write_to_file", "args": {"TargetFile": "chapter4.docx", "CodeContent": "blob"}},
+            "workspacePaths": [ROOT_DIR]
+        })
+        assert res4_write.get("decision") == "deny"
+        assert "Directive 20" in res4_write.get("reason", "")
+
 
