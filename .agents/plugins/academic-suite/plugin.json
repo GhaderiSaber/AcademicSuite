@@ -1,4 +1,7 @@
 {
   "name": "academic-suite",
-  "description": "Digital Saber Academic Thesis and Statistical Consultancy Suite plugin bundling rules, skills, and lifecycle hooks."
+  "displayName": "Academic Suite",
+  "version": "2.0.0",
+  "description": "Digital Saber Academic Thesis and Statistical Consultancy Suite for Google Antigravity",
+  "author": "Saber Ghaderi"
 }

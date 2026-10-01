@@ -546,6 +546,68 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
             )
         }
 
+    # Contract imports
+    try:
+        from contracts.contract_validator import (
+            validate_lesson,
+            validate_anti_pattern,
+            validate_exemplar,
+            validate_knowledge_item
+        )
+    except ImportError:
+        try:
+            from .contracts.contract_validator import (
+                validate_lesson,
+                validate_anti_pattern,
+                validate_exemplar,
+                validate_knowledge_item
+            )
+        except ImportError:
+            validate_lesson = None
+            validate_anti_pattern = None
+            validate_exemplar = None
+            validate_knowledge_item = None
+
+    if is_lesson:
+        if "target_agent" not in data or not data["target_agent"]:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Lesson '{target_base}' is missing mandatory field 'target_agent'. "
+                    f"You must specify the primary specialized subagent responsible (e.g. 'academic-writer', 'statistics-agent', 'data-curator', 'results-auditor')."
+                )
+            }
+        if "target_agents" not in data or not isinstance(data.get("target_agents"), list) or len(data["target_agents"]) == 0:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Lesson '{target_base}' is missing mandatory field 'target_agents'. "
+                    f"You must provide a non-empty array of target subagents (e.g. ['academic-writer', 'results-auditor'])."
+                )
+            }
+    elif is_anti_pattern:
+        if "target_agent" not in data or not data["target_agent"]:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Anti-pattern '{target_base}' is missing mandatory field 'target_agent'. "
+                    f"You must specify the primary specialized subagent responsible (e.g. 'academic-writer', 'statistics-agent', 'data-curator', 'results-auditor')."
+                )
+            }
+        if "target_agents" not in data or not isinstance(data.get("target_agents"), list) or len(data["target_agents"]) == 0:
+            return {
+                "decision": "deny",
+                "reason": (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
+                    f"Anti-pattern '{target_base}' is missing mandatory field 'target_agents'. "
+                    f"You must provide a non-empty array of target subagents (e.g. ['academic-writer', 'results-auditor'])."
+                )
+            }
+
+
     # Directive 26: Pre-Creation Knowledge Search & Anti-Duplication Invariant
     # If writing a NEW lesson or anti-pattern (not modifying an existing file on disk),
     # verify that no semantically equivalent file already exists in the same directory.
@@ -657,91 +719,29 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
             )
         }
 
-    # Contract imports
-    try:
-        from contracts.contract_validator import (
-            validate_lesson,
-            validate_anti_pattern,
-            validate_exemplar,
-            validate_knowledge_item
-        )
-    except ImportError:
-        try:
-            from .contracts.contract_validator import (
-                validate_lesson,
-                validate_anti_pattern,
-                validate_exemplar,
-                validate_knowledge_item
-            )
-        except ImportError:
-            validate_lesson = None
-            validate_anti_pattern = None
-            validate_exemplar = None
-            validate_knowledge_item = None
-
-
-    if is_lesson:
-        if "target_agent" not in data or not data["target_agent"]:
+    # Full schema validation
+    if is_lesson and validate_lesson:
+        report = validate_lesson(data)
+        if not report.get("valid", False):
+            errs = "; ".join(report.get("errors", []))
             return {
                 "decision": "deny",
                 "reason": (
-                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
-                    f"Lesson '{target_base}' is missing mandatory field 'target_agent'. "
-                    f"You must specify the primary specialized subagent responsible (e.g. 'academic-writer', 'statistics-agent', 'data-curator', 'results-auditor')."
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Lesson Contract Invariant): "
+                    f"Lesson '{target_base}' violates contracts/evolution/lesson.schema.json: {errs}"
                 )
             }
-        if "target_agents" not in data or not isinstance(data.get("target_agents"), list) or len(data["target_agents"]) == 0:
+    elif is_anti_pattern and validate_anti_pattern:
+        report = validate_anti_pattern(data)
+        if not report.get("valid", False):
+            errs = "; ".join(report.get("errors", []))
             return {
                 "decision": "deny",
                 "reason": (
-                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
-                    f"Lesson '{target_base}' is missing mandatory field 'target_agents'. "
-                    f"You must provide a non-empty array of target subagents (e.g. ['academic-writer', 'results-auditor'])."
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Anti-Pattern Contract Invariant): "
+                    f"Anti-pattern '{target_base}' violates contracts/evolution/anti_pattern.schema.json: {errs}"
                 )
             }
-        if validate_lesson:
-            report = validate_lesson(data)
-            if not report.get("valid", False):
-                errs = "; ".join(report.get("errors", []))
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Directive 19 - Lesson Contract Invariant): "
-                        f"Lesson '{target_base}' violates contracts/evolution/lesson.schema.json: {errs}"
-                    )
-                }
-
-    elif is_anti_pattern:
-        if "target_agent" not in data or not data["target_agent"]:
-            return {
-                "decision": "deny",
-                "reason": (
-                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
-                    f"Anti-pattern '{target_base}' is missing mandatory field 'target_agent'. "
-                    f"You must specify the primary specialized subagent responsible (e.g. 'academic-writer', 'statistics-agent', 'data-curator', 'results-auditor')."
-                )
-            }
-        if "target_agents" not in data or not isinstance(data.get("target_agents"), list) or len(data["target_agents"]) == 0:
-            return {
-                "decision": "deny",
-                "reason": (
-                    f"CONSTITUTIONAL VIOLATION (Directive 19 - Subagent Role Isolation Invariant): "
-                    f"Anti-pattern '{target_base}' is missing mandatory field 'target_agents'. "
-                    f"You must provide a non-empty array of target subagents (e.g. ['academic-writer', 'results-auditor'])."
-                )
-            }
-        if validate_anti_pattern:
-            report = validate_anti_pattern(data)
-            if not report.get("valid", False):
-                errs = "; ".join(report.get("errors", []))
-                return {
-                    "decision": "deny",
-                    "reason": (
-                        f"CONSTITUTIONAL VIOLATION (Directive 19 - Anti-Pattern Contract Invariant): "
-                        f"Anti-pattern '{target_base}' violates contracts/evolution/anti_pattern.schema.json: {errs}"
-                    )
-                }
-
     elif is_exemplar and validate_exemplar:
         report = validate_exemplar(data)
         if not report.get("valid", False):
@@ -753,7 +753,6 @@ def validate_knowledge_mutation(target: str, tool_name: str, args: Dict[str, Any
                     f"Exemplar '{target_base}' violates contracts/evolution/exemplar.schema.json: {errs}"
                 )
             }
-
     elif is_knowledge and validate_knowledge_item:
         report = validate_knowledge_item(data)
         if not report.get("valid", False):
@@ -1021,8 +1020,8 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                 return {
                     "decision": "deny",
                     "reason": (
-                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Phase 18 Zero-Hands Contract / Orchestrator Code Guard): "
-                        "Academic-Orchestrator is strictly managerial and forbidden from writing or modifying files directly. "
+                        "CONSTITUTIONAL VIOLATION (Directive 12.1 / Directive 19 / Directive 20 Zero-Hands Contract / Orchestrator Code Guard): "
+                        "Academic-Orchestrator is strictly managerial and a pure brain conductor (Directive 20), and forbidden from writing or modifying files directly. "
                         "File generation, document drafting, and mutations must be delegated to specialist workers."
                     )
                 }
@@ -1041,6 +1040,24 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                     "reason": (
                         "CONSTITUTIONAL VIOLATION (Directive 12 / Directive 19 / Digital Saber Advisory Guard): "
                         "Digital Saber is an advisory cognitive twin and is forbidden from writing or modifying files directly."
+                    )
+                }
+            elif target in ("methodology-expert", "statistical-expert"):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 20 - Advisory Read-Only Boundary): "
+                        f"Advisory agent '{caller}' is strictly read-only and forbidden from mutating files directly. "
+                        f"Formulate recommendations and specifications in your turn response."
+                    )
+                }
+            elif target in ("results-auditor", "final-judge", "academic-challenger", "evidence-auditor"):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 - Auditor Read-Only Boundary): "
+                        f"Auditor/Critic agent '{caller}' is strictly read-only and forbidden from writing or modifying files directly. "
+                        f"Inspection findings must be reported in validation reports or turn responses."
                     )
                 }
             else:
@@ -1076,8 +1093,8 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                 return {
                     "decision": "deny",
                     "reason": (
-                        "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Phase 3-4 Orchestrator Zero-Hands Contract): "
-                        "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly. "
+                        "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12.1 / Directive 20 Orchestrator Zero-Hands Contract): "
+                        "Academic-Orchestrator is strictly forbidden from executing shell commands or code directly (Directive 20 Pure Brain Conductor). "
                         "All execution and statistical analysis must be delegated to specialist workers (e.g. statistics-agent) via invoke_subagent."
                     )
                 }
@@ -1097,6 +1114,24 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
                         "CONSTITUTIONAL VIOLATION (Directive 2 / Directive 12 / Digital Saber Non-Execution Invariant): "
                         "Digital Saber is an advisory cognitive twin and is strictly forbidden from executing shell commands or code directly. "
                         "All execution and statistical analysis must be delegated through academic-orchestrator to specialist workers."
+                    )
+                }
+            elif target in ("methodology-expert", "statistical-expert"):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 20 - Advisory Non-Execution Boundary): "
+                        f"Advisory agent '{caller}' is strictly read-only and forbidden from executing code, shell commands, or statistical analysis pipelines. "
+                        f"Formulate methodological/statistical recommendations and specifications in your turn response."
+                    )
+                }
+            elif target in ("results-auditor", "final-judge", "academic-challenger", "evidence-auditor"):
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 - Auditing Non-Execution Boundary): "
+                        f"Auditor/Critic agent '{caller}' is strictly read-only and forbidden from executing shell commands or code. "
+                        f"Perform visual/structural inspection of physical disk artifacts."
                     )
                 }
             else:
@@ -1207,6 +1242,34 @@ class SafetyHooks:
                 payload.get("agent") or
                 payload.get("caller") or ""
             ).lower().strip()
+
+        # Fail-closed subagent identification hardening:
+        # A subagent execution must NEVER default to main developer (Track 1) privileges
+        is_subagent_exec = bool(
+            payload.get("isSubagent") or
+            payload.get("is_subagent") or
+            (isinstance(payload.get("depth"), int) and payload.get("depth") > 0) or
+            (isinstance(payload.get("subagentDepth"), int) and payload.get("subagentDepth") > 0) or
+            payload.get("parentConversationIds") or
+            payload.get("parent_conversation_id") or
+            ("subagents" in str(payload.get("transcriptPath", "")).lower())
+        )
+        if is_subagent_exec:
+            is_main = False
+            if caller == "default":
+                caller = ""
+
+        # Fail-closed gating: unverified subagents default strictly to least-privilege read-only mode
+        if is_subagent_exec and (not caller or caller in ("unknown", "default")):
+            if name == "run_command" or name in MUTATION_TOOLS:
+                return {
+                    "decision": "deny",
+                    "reason": (
+                        f"CONSTITUTIONAL VIOLATION (Directive 19 - Fail-Closed Subagent Least-Privilege Gate): "
+                        f"Unverified subagent caller cannot invoke execution or mutation tool '{name}'. "
+                        f"Subagents without verified identity default strictly to least-privilege read-only mode."
+                    )
+                }
 
         # Secondary Enforcement: Check canonical capability policy if explicit caller provided
         # Main Developer Agent (Track 1) is strictly exempt from academic capability stripping
