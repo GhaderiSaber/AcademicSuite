@@ -47,7 +47,7 @@ PERMITTED_LATIN_SYMBOLS = {
     "M", "SD", "T", "F", "P", "Z", "R", "R2", "DF", "SE", "CI", "LLCI", "ULCI",
     "B", "N", "MIN", "MAX", "ANOVA", "ANCOVA", "MANOVA", "MANCOVA", "SEM", "CFA",
     "EFA", "KMO", "AIC", "BIC", "DW", "W", "CR", "AVE", "MSV", "ASV", "CVI", "CVR",
-    "RMSEA", "CFI", "TLI", "IFI", "GFI", "AGFI", "SRMR", "CMIN", "VIF", "TOLERANCE",
+    "RMSEA", "CFI", "TLI", "IFI", "NFI", "GFI", "AGFI", "SRMR", "CMIN", "VIF", "TOLERANCE",
     "EXP", "BETA", "ALPHA", "OMEGA", "ETA2", "ETA"
 }
 
