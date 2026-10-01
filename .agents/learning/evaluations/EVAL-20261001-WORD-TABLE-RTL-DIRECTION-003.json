@@ -47,7 +47,7 @@
   "contradictions": [],
   "evidence": [
     {
-      "artifact_path": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/tests/architecture/test_typography_and_table_bidi_enforcement.py",
+      "artifact_path": "tests/architecture/test_typography_and_table_bidi_enforcement.py",
       "sha256": "updated_test_fixture",
       "evidence_type": "pytest_log"
     }

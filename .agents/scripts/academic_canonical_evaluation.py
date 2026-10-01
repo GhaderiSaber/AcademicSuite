@@ -162,8 +162,16 @@ class CanonicalEvaluationResultBuilder:
         return self
 
     def add_evidence(self, artifact_path: str, sha256: str, evidence_type: str = "EVALUATION_ARTIFACT"):
+        norm_path = artifact_path
+        if norm_path and os.path.isabs(norm_path):
+            try:
+                rel = os.path.relpath(norm_path, getattr(self, "base_dir", os.getcwd()))
+                if not rel.startswith(".."):
+                    norm_path = rel
+            except Exception:
+                pass
         self._evidence.append({
-            "artifact_path": artifact_path,
+            "artifact_path": norm_path,
             "sha256": sha256,
             "evidence_type": evidence_type
         })

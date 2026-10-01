@@ -41,7 +41,7 @@
   "contradictions": [],
   "evidence": [
     {
-      "artifact_path": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-001.json",
+      "artifact_path": ".agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-001.json",
       "sha256": "a3b934c1b2...",
       "evidence_type": "json_report"
     }

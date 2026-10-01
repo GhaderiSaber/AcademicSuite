@@ -1,0 +1,18 @@
+{
+  "investigation_id": "TRJ-20261001-ONLYOFFICE-RTL-SUPPORT-001",
+  "target_capability": "CHAPTER4",
+  "topic": "ONLYOFFICE vs MS Word Table RTL Support",
+  "findings": {
+    "onlyoffice_support": "ONLYOFFICE currently lacks support for the <w:bidiVisual/> tag in w:tblPr. It completely ignores the tag and renders tables Left-to-Right (LTR).",
+    "github_issues": [
+      "ONLYOFFICE/DocumentServer#3133 (Open) - Tracks missing RTL table orientation support (Internal Bug 69579).",
+      "ONLYOFFICE/DesktopEditors#2237 (Closed as Duplicate)",
+      "ONLYOFFICE/DesktopEditors#2159 (Closed as Duplicate)",
+      "ONLYOFFICE/DesktopEditors#1980 (Closed as Duplicate)"
+    ],
+    "openxml_syntax_requirement": "The standard OpenXML tag <w:bidiVisual/> is the correct mechanism for Right-to-Left tables. ONLYOFFICE simply has a missing feature and does not currently have any alternative tag to achieve table-level RTL mirroring.",
+    "libreoffice_behavior": "LibreOffice correctly interprets <w:bidiVisual/> and renders tables as Right-to-Left.",
+    "ms_word_behavior": "Microsoft Word natively processes <w:bidiVisual/> and flips table columns correctly."
+  },
+  "resolution": "Until ONLYOFFICE resolves internal bug 69579 (tracked in Issue #3133), the standard OpenXML <w:bidiVisual/> tag remains the officially correct approach. ONLYOFFICE users will see reversed table columns until the patch is merged upstream. We must retain <w:bidiVisual/> to preserve canonical compatibility with Microsoft Word, LibreOffice, and OpenXML standards."
+}

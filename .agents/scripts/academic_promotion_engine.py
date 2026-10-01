@@ -422,7 +422,7 @@ class AcademicVersionStore:
             with open(os.path.join(v_dir, filename), "r", encoding="utf-8") as f:
                 content = f.read()
             record["content"] = content
-            record["artifact_path"] = os.path.join(v_dir, filename)
+            record["artifact_path"] = os.path.relpath(os.path.join(v_dir, filename), self.base_dir)
 
         return record
 
