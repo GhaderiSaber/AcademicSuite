@@ -283,9 +283,8 @@ class AcademicChapterAuditor:
                     if bidi is None:
                         bidi_errors.append(f"Table {idx} contains Persian text but lacks <w:bidiVisual/> in <w:tblPr>.")
                     else:
-                        val = bidi.attrib.get(f"{{{NS['w']}}}val")
-                        if val is not None and val not in ["1", "true", "on"]:
-                            bidi_errors.append(f"Table {idx} <w:bidiVisual/> is explicitly disabled (w:val='{val}').")
+                        if len(bidi.attrib) != 0:
+                            bidi_errors.append(f"Table {idx} <w:bidiVisual/> has forbidden attributes. Must be exactly <w:bidiVisual/>.")
                         bidi_idx = list(tblPr).index(bidi)
                         tblW = tblPr.find('w:tblW', NS)
                         if tblW is not None:
