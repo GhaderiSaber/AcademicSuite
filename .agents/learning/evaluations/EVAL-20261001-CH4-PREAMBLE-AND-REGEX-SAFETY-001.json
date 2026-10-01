@@ -1,0 +1,49 @@
+{
+  "evaluation_id": "EVAL-20261001-CH4-PREAMBLE-AND-REGEX-SAFETY-001",
+  "candidate_id": "CAND-20261001-CH4-PREAMBLE-AND-REGEX-SAFETY-001",
+  "baseline_id": "BASE-20261001",
+  "task_id": "TSK-2026-LEARN-EVAL-002",
+  "dimensions": {
+    "correctness": "PASS",
+    "methodology": "PASS",
+    "statistical_validity": "PASS",
+    "evidence_grounding": "PASS",
+    "integrity": "PASS",
+    "robustness": "PASS",
+    "consistency": "PASS",
+    "efficiency": "PASS"
+  },
+  "baseline_metrics": {
+    "REGEX_LOOKBEHIND_VERIFICATION": 0.0
+  },
+  "candidate_metrics": {
+    "REGEX_LOOKBEHIND_VERIFICATION": 100.0,
+    "statistical_precision": 1.0,
+    "typography_compliance": 1.0,
+    "execution_reliability": 1.0,
+    "msai_anomaly_score": 0.0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "TSK-2026-LEARN-EVAL-002"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED"
+  },
+  "contradictions": [],
+  "evidence": [
+    "tests/architecture/test_learning_and_rule_integrity.py exit code 0",
+    ".agents/hooks/rules/enforced_invariants.json registration verified"
+  ],
+  "verdict": "PASS"
+}
