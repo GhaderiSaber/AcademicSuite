@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.agents/hooks/track2_academic_dispatcher.py — Track 2 Academic Governance Hook Dispatcher
+.agents/hooks/academic_lifecycle_dispatcher.py — Academic Lifecycle Governance Dispatcher
 
-Dedicated multi-event lifecycle governance dispatcher for the Academic Orchestrator
-and specialist academic subagents (Track 2).
+Dedicated multi-event lifecycle governance dispatcher for the Academic Suite Plugin
+(governing academic-orchestrator and specialist academic subagents).
 
 Enforces:
-1. Fast-Path Developer Bypass: If caller is Main Developer Agent, immediately allows (< 2ms).
-2. Directive 20 (Orchestrator Non-Execution Invariant): Blocks mutation and CLI tools for academic-orchestrator.
+1. Native Developer Fast-Path: If caller is the native Antigravity coding agent, immediately allows (< 2ms).
+2. Directive 20 (Orchestrator Zero-Hands Invariant): Blocks mutation and CLI execution tools for academic-orchestrator.
 3. Directive 12 & CDE Protocol: Enforces structured Contractual Delegation Envelopes for subagents.
-4. Directive 0 & 3 & 22: Enforces Binary Honesty Protocol, on-disk Triad artifacts (.docx, .md, .json),
+4. Directives 0, 3 & 22: Enforces Binary Honesty Protocol, on-disk Triad artifacts (.docx, .md, .json),
    and Fail-Closed mechanical validation reports on Stop.
-5. Continuous Learning & Self-Evolution: Captures trajectories, user feedback, and executes auto-graduation.
+5. Continuous Learning: Captures trajectories, user corrections, and executes auto-graduation.
 """
 
 import os
 import sys
 import json
 import argparse
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
-HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
-AGENTS_DIR = os.path.abspath(os.path.join(HOOKS_DIR, ".."))
+HOOKS_DIR = os.path.dirname(os.path.realpath(__file__))
+AGENTS_DIR = os.path.dirname(HOOKS_DIR)
+ROOT_DIR = os.path.dirname(AGENTS_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 if AGENTS_DIR not in sys.path:
@@ -45,7 +45,7 @@ except Exception:
         from .hook_seen import emit_hook_seen
         from .dynamic_invariant_guard import DynamicInvariantGuard
     except Exception as e_imp:
-        sys.stderr.write(f"[track2_academic_dispatcher] Hook module import note: {e_imp}\n")
+        sys.stderr.write(f"[academic_lifecycle_dispatcher] Hook module import note: {e_imp}\n")
         class SafetyHooks:
             @staticmethod
             def handle_pre_tool_use(p): return {"decision": "allow"}
@@ -131,7 +131,7 @@ def check_agent_tool_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str,
             if hasattr(mod, "handle_pre_tool_use"):
                 return mod.handle_pre_tool_use(payload)
         except Exception as e:
-            sys.stderr.write(f"[track2_academic_dispatcher] Error executing {agent_dir_name} guard: {e}\n")
+            sys.stderr.write(f"[academic_lifecycle_dispatcher] Error executing {agent_dir_name} guard: {e}\n")
     return None
 
 
@@ -166,7 +166,7 @@ def check_agent_stop_restrictions(payload: Dict[str, Any]) -> Optional[Dict[str,
             if hasattr(mod, "handle_stop"):
                 return mod.handle_stop(payload)
         except Exception as e:
-            sys.stderr.write(f"[track2_academic_dispatcher] Error executing {agent_dir_name} stop guard: {e}\n")
+            sys.stderr.write(f"[academic_lifecycle_dispatcher] Error executing {agent_dir_name} stop guard: {e}\n")
     return None
 
 
@@ -174,15 +174,15 @@ def check_orchestrator_stop_restrictions(payload: Dict[str, Any]) -> Optional[Di
     return check_agent_stop_restrictions(payload)
 
 
-def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+def dispatch_academic_lifecycle_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Dispatches lifecycle events for Track 2 Academic Agents.
-    Fast-paths Track 1 Main Developer Agent immediately with decision: allow.
+    Dispatches lifecycle events for Academic Suite Agents (academic-orchestrator & subagents).
+    Fast-paths the Native Developer Agent immediately with decision: allow.
     """
     event_upper = event.strip()
     is_main = is_main_agent_developer(payload)
 
-    # FAST PATH: If this is the Main Developer Agent, bypass all academic constraints immediately
+    # FAST PATH: If this is the Native Developer Agent, bypass all academic constraints immediately
     if is_main:
         if event_upper == "Stop":
             return {"decision": "allow"}
@@ -193,7 +193,7 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
         return {"decision": "allow"}
 
     # =========================================================================
-    # Track 2 Academic Lifecycle Governance
+    # Academic Lifecycle Governance
     # =========================================================================
     if event_upper == "PreToolUse":
         emit_hook_seen(payload, event="PreToolUse")
@@ -214,7 +214,7 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
             if isinstance(dynamic_res, dict) and dynamic_res.get("decision") == "deny":
                 return dynamic_res
         except Exception as e_dyn:
-            sys.stderr.write(f"[track2_academic_dispatcher] Dynamic invariant guard error: {e_dyn}\n")
+            sys.stderr.write(f"[academic_lifecycle_dispatcher] Dynamic invariant guard error: {e_dyn}\n")
 
         # Class C: Learning Hooks (context enrichment)
         learning_res = LearningHooks.handle_pre_tool_use(payload)
@@ -286,7 +286,7 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
                 dynamic_stop_res.pop("message", None)
                 return dynamic_stop_res
         except Exception as e_dyn_stop:
-            sys.stderr.write(f"[track2_academic_dispatcher] Dynamic invariant stop guard error: {e_dyn_stop}\n")
+            sys.stderr.write(f"[academic_lifecycle_dispatcher] Dynamic invariant stop guard error: {e_dyn_stop}\n")
 
         # Class C: Learning Hooks (Scan for user corrections)
         LearningHooks.capture_user_correction(payload)
@@ -299,7 +299,7 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
                 ws_paths = payload.get("workspacePaths", [])
                 compiler.compile_all_pending(workspaces=ws_paths, auto_commit=True, dry_run=False)
             except Exception as e_grad:
-                sys.stderr.write(f"[track2_academic_dispatcher] Auto-graduation note: {e_grad}\n")
+                sys.stderr.write(f"[academic_lifecycle_dispatcher] Auto-graduation note: {e_grad}\n")
 
         return stop_res
 
@@ -307,7 +307,7 @@ def dispatch_track2_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Antigravity Track 2 Academic Governance Dispatcher")
+    parser = argparse.ArgumentParser(description="Antigravity Academic Lifecycle Governance Dispatcher")
     parser.add_argument(
         "--event",
         type=str,
@@ -324,10 +324,10 @@ def main():
             if raw:
                 payload = json.loads(raw)
     except Exception as e:
-        sys.stderr.write(f"[track2_academic_dispatcher] Error reading stdin JSON: {e}\n")
+        sys.stderr.write(f"[academic_lifecycle_dispatcher] Error reading stdin JSON: {e}\n")
 
     event = args.event or payload.get("event", "Stop")
-    result = dispatch_track2_event(event=event, payload=payload)
+    result = dispatch_academic_lifecycle_event(event=event, payload=payload)
     print(json.dumps(result, ensure_ascii=False))
 
 

@@ -104,22 +104,11 @@ class AcademicChapterAuditor:
             )
             return self._build_report(report_id, target_artifacts)
 
-        def _make_portable(p: Optional[str]) -> Optional[str]:
-            if not p:
-                return p
-            try:
-                rel = os.path.relpath(p, os.getcwd())
-                if not rel.startswith(".."):
-                    return rel
-            except Exception:
-                pass
-            return p
-
-        target_artifacts.append(_make_portable(self.docx_path))
+        target_artifacts.append(self.docx_path)
         if self.md_path and os.path.isfile(self.md_path):
-            target_artifacts.append(_make_portable(self.md_path))
+            target_artifacts.append(self.md_path)
         if self.json_path and os.path.isfile(self.json_path):
-            target_artifacts.append(_make_portable(self.json_path))
+            target_artifacts.append(self.json_path)
 
         # 1. Open and parse OpenXML document.xml
         try:

@@ -1,0 +1,52 @@
+{
+  "evaluation_id": "EVAL-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "candidate_id": "CAND-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "baseline_id": "BASELINE-20261001",
+  "task_id": "TSK-2026-LEARN-EVAL-004",
+  "dimensions": {
+    "correctness": 0,
+    "methodology": 0,
+    "integrity": 0
+  },
+  "baseline_metrics": {},
+  "candidate_metrics": {},
+  "regression_results": {
+    "verdict": "FAIL",
+    "evidence_status": "VERIFIED",
+    "count": 1,
+    "details": [
+      "Compilation via academic_graduation_compiler.py failed.",
+      "Patch is malformed and contains syntax errors preventing application."
+    ],
+    "fixes_original_mistake": false,
+    "task_id": "TSK-2026-LEARN-EVAL-004"
+  },
+  "adversarial_results": {
+    "verdict": "UNKNOWN",
+    "evidence_status": "MISSING",
+    "creates_new_mistake": false,
+    "task_id": "TSK-2026-LEARN-EVAL-004",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "UNKNOWN",
+    "evidence_status": "MISSING",
+    "pass_rate": 0.0,
+    "generalizes_to_different_case": false,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 0,
+    "task_id": "TSK-2026-LEARN-EVAL-004"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/.agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-001.json",
+      "sha256": "a3b934c1b2...",
+      "evidence_type": "json_report"
+    }
+  ],
+  "verdict": "FAIL",
+  "overall_verdict": "FAIL",
+  "recommendation": "REJECT"
+}

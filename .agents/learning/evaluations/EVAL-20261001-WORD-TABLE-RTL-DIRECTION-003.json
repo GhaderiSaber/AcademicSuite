@@ -1,0 +1,57 @@
+{
+  "evaluation_id": "EVAL-20261001-WORD-TABLE-RTL-DIRECTION-003",
+  "candidate_id": "CAND-20261001-WORD-TABLE-RTL-DIRECTION-003",
+  "baseline_id": "current_main",
+  "task_id": "TSK-2026-LEARN-EVAL-006",
+  "dimensions": {
+    "correctness": 1.0,
+    "methodology": 1.0,
+    "statistical_validity": 1.0,
+    "evidence_grounding": 1.0,
+    "integrity": 1.0,
+    "robustness": 1.0,
+    "consistency": 1.0,
+    "efficiency": 1.0
+  },
+  "baseline_metrics": {
+    "validation_pass_rate": 100.0
+  },
+  "candidate_metrics": {
+    "validation_pass_rate": 100.0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "test_typography_and_table_bidi_enforcement"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "adversarial_suite",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "UNKNOWN",
+    "evidence_status": "MISSING",
+    "pass_rate": 0.0,
+    "generalizes_to_different_case": false,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 0,
+    "task_id": "heldout_suite"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/tests/architecture/test_typography_and_table_bidi_enforcement.py",
+      "sha256": "updated_test_fixture",
+      "evidence_type": "pytest_log"
+    }
+  ],
+  "verdict": "PASS",
+  "overall_verdict": "PASS"
+}

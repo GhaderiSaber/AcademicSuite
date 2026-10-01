@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-OPENXML-CLEAN-ONOFFONLY-ELEMENTS-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261001-TABLE-LTR-ONLYOFFICE-001",
+  "diagnosis": {
+    "what_happened": "Reusing bidiVisual XML elements from preamble tables without clearing attributes caused w:val='1' to persist, making ONLYOFFICE render the table LTR. Validator missed it, and a .~lock file masked updates.",
+    "behavior_caused_outcome": "Strict parsers reject invalid attributes on OnOffOnly tags. Reusing XML nodes blindly leaks state. Validators only checking for tag presence miss malformed tags. Compiling while the document is locked by the OS causes file desync.",
+    "what_should_have_happened": "Clear attributes when reusing XML elements or create fresh ones. Validators must check attribute constraints (len == 0). Check for .~lock files before compiling.",
+    "rationale_why": "OpenXML relies on precise schema adherence. State leakage in XML object reuse corrupts outputs, while incomplete validators create false positives."
+  },
+  "desired_behavior": "Explicitly clear attributes (bidi.attrib.clear()) or instantiate fresh ET.Element('w:bidiVisual'). Update auditor to assert len(bidi.attrib) == 0. Check for active .~lock files prior to compiling deliverable.",
+  "generalization": "XML object reuse requires strict state cleansing. Validation must verify schema constraints, not just presence. File state must be checked before writing.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "OPENXML_ATTRIBUTE_VALIDATION",
+    "observed_value": "w:val='1' persisted in w:bidiVisual",
+    "threshold_value": "len(bidi.attrib) == 0",
+    "supporting_report_ids": [
+      "BAN-20261001-TABLE-LTR-ONLYOFFICE-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "thesis-integrity-auditor"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-01T08:48:40Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "apa-reporting",
+  "target_agents": [
+    "apa-reporting",
+    "thesis-integrity-auditor"
+  ]
+}

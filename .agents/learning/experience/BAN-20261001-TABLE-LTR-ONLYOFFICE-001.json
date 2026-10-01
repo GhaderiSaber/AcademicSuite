@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20261001-TABLE-LTR-ONLYOFFICE-001",
+  "target_agent": "academic-writer",
+  "target_skill": "academic-suite-orchestrator",
+  "observable_failure_step": "Step 8 and Step 12",
+  "failure_signature": "XML_OBJECT_REUSE_ATTRIBUTE_LEAKAGE, VALIDATOR_BLINDSPOT_ATTR_LEN, ACTIVE_DOCUMENT_LOCK_DESYNC",
+  "root_cause_diagnosis": "In compile_gold_standard_chapter4.py, the post_process_docx_zip function reused existing bidiVisual XML ElementTree objects from preamble tables without clearing their attributes, causing w:val='1' to persist. The ONLYOFFICE parser rejected this non-compliant attribute, resulting in LTR rendering. The document update was also masked by an active .~lock file desync. Furthermore, the academic_chapter_auditor.py failed to detect the defect because it verified the element's presence but did not strictly assert len(bidi.attrib) == 0.",
+  "prescribed_behavior": "1. In compile_gold_standard_chapter4.py, explicitly call bidi.attrib.clear() before re-insertion or construct a fresh ET.Element('w:bidiVisual') every time. 2. Update academic_chapter_auditor.py's CHK-TABLE-BIDI-DIRECTION rule to assert len(bidi.attrib) == 0. 3. Check for active .~lock files prior to compilation to avoid open file handle desyncs."
+}

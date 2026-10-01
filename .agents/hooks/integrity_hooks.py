@@ -22,9 +22,12 @@ import json
 import hashlib
 from typing import Dict, Any, List, Optional, Tuple
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+HOOKS_DIR = os.path.dirname(os.path.realpath(__file__))
+AGENTS_DIR = os.path.dirname(HOOKS_DIR)
+ROOT_DIR = os.path.dirname(AGENTS_DIR)
+for p in (ROOT_DIR, AGENTS_DIR, HOOKS_DIR):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 try:
     from contracts.hook_identity_contract import (

@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "CHAPTER4",
+  "trajectory_id": "TRJ-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "write_to_file",
+    "description": "compile_gold_standard_chapter4.py wrote 03_deliverables/Chapter_4_Results.docx with 4 latent structural defects related to BiDi configuration."
+  },
+  "failure_signature": "OPENXML_ONOFFONLY_ATTRIBUTE_ERROR, SECTPR_OUT_OF_ORDER_BIDI, SETTINGS_MISSING_BIDI_LOCALE, CELL_PARAGRAPH_BIDI_OMISSION",
+  "root_cause_diagnosis": "The script and patches failed to enforce RTL in four layers: 1) Injected <w:bidiVisual w:val='1'> instead of empty <w:bidiVisual/>. 2) Omitted <w:bidi/> or appended it after <w:docGrid/> in w:sectPr. 3) Ignored word/settings.xml, missing <w:themeFontLang w:bidi='fa-IR'/>. 4) Omitted <w:bidi w:val='1'/> from short table cell paragraphs. The validator also permitted w:val='1', causing a blindspot.",
+  "prescribed_behavior": "1) Inject <w:bidiVisual/> as empty without w:val. 2) Ensure <w:bidi/> precedes <w:docGrid/> in w:sectPr. 3) Update word/settings.xml with <w:themeFontLang w:bidi='fa-IR'/> and compatibilityMode=15. 4) Enforce <w:bidi w:val='1'/> in <w:pPr> of all table cell paragraphs. 5) Validators must reject w:val on bidiVisual.",
+  "created_at": "2026-10-01T07:49:29Z",
+  "metadata": {
+    "validator_agent_involved": "validation-agent"
+  }
+}

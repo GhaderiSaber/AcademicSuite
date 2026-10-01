@@ -106,7 +106,7 @@ class TestTypographyAndTableBiDiEnforcement(unittest.TestCase):
         xml_persian_good = '''<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:body>
     <w:tbl>
-      <w:tblPr><w:bidiVisual w:val="1"/></w:tblPr>
+      <w:tblPr><w:bidiVisual/></w:tblPr>
       <w:tr><w:tc><w:p><w:r><w:t>جدول توزیع فراوانی متغیرها</w:t></w:r></w:p></w:tc></w:tr>
     </w:tbl>
   </w:body>

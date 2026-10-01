@@ -23,8 +23,9 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
 
-HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", ".."))
+HOOKS_DIR = os.path.dirname(os.path.realpath(__file__))
+AGENTS_DIR = os.path.dirname(HOOKS_DIR)
+ROOT_DIR = os.path.dirname(AGENTS_DIR)
 RULES_DIR = os.path.join(HOOKS_DIR, "rules")
 INVARIANTS_FILE = os.path.join(RULES_DIR, "enforced_invariants.json")
 

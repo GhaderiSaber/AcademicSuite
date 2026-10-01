@@ -1,0 +1,459 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261001-TABLE-LTR-ONLYOFFICE-001",
+  "experience_id": "EXP-20261001-TABLE-LTR-ONLYOFFICE-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-LEARN-TRJ-005",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T07:55:13Z",
+      "description": "academic-orchestrator dispatched task TSK-2026-LEARN-EVOLV-005 to skill-evolver to resolve candidate patch formatting failure from CAND-20261001-WORD-TABLE-RTL-DIRECTION-001.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-EVOLV-005",
+        "stage": "Continuous Learning Cascade - Step 4 Retry: Skill Evolution",
+        "worker_agent": "skill-evolver",
+        "inputs": [
+          ".agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-001.json",
+          ".agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-001.md",
+          ".agents/learning/candidates/CAND-20261001-WORD-TABLE-RTL-DIRECTION-001.json",
+          "02_analysis_code/compile_gold_standard_chapter4.py"
+        ],
+        "required_artifacts": [
+          ".agents/learning/candidates/CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "skill-evolver",
+      "timestamp": "2026-10-01T07:56:42Z",
+      "description": "skill-evolver synthesized CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json with mathematically corrected unified diff hunk line counts targeting compile_gold_standard_chapter4.py.",
+      "observable_input": {
+        "target_file": ".agents/learning/candidates/CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json"
+      },
+      "observable_output": {
+        "status": "COMPLETED",
+        "candidate_id": "CAND-20261001-WORD-TABLE-RTL-DIRECTION-002"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T07:56:42Z",
+      "description": "academic-orchestrator dispatched task TSK-2026-LEARN-EVAL-005 to evaluation-agent to compile CAND-20261001-WORD-TABLE-RTL-DIRECTION-002 and run regression test suites.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-EVAL-005",
+        "stage": "Continuous Learning Cascade - Step 5: Candidate Evaluation & Graduation",
+        "worker_agent": "evaluation-agent",
+        "inputs": [
+          ".agents/learning/candidates/CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json",
+          ".agents/learning/knowledge/lessons/LSN-2026-OPENXML-QUAD-LAYER-TABLE-RTL-STANDARD-001.json",
+          "02_analysis_code/compile_gold_standard_chapter4.py"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "COMMAND_STARTED",
+      "actor": "evaluation-agent",
+      "timestamp": "2026-10-01T07:57:10Z",
+      "description": "evaluation-agent executed academic_graduation_compiler.py compile-candidate on CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json.",
+      "observable_input": {
+        "cli_command": "python3 .agents/scripts/academic_graduation_compiler.py compile-candidate .agents/learning/candidates/CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "compilation_status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "evaluation-agent",
+      "timestamp": "2026-10-01T07:57:58Z",
+      "description": "evaluation-agent confirmed compilation, verified mechanical rule registration in enforced_invariants.json, passed 10 regression tests, and graduated candidate to PASS.",
+      "observable_input": {
+        "test_script": "tests/architecture/test_typography_and_table_bidi_enforcement.py"
+      },
+      "observable_output": {
+        "verdict": "PASS",
+        "eval_report_json": ".agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-002.json",
+        "eval_report_md": ".agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-002.md"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T07:57:58Z",
+      "description": "academic-orchestrator dispatched task TSK-2026-CH4-RECOMPILE-DOCX-RTL-TABLES to academic-writer to execute the evolved compile_gold_standard_chapter4.py script.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-RECOMPILE-DOCX-RTL-TABLES",
+        "stage": "Remediation Phase: Recompile Chapter 4 DOCX with 4-Layer OpenXML RTL Tables",
+        "worker_agent": "academic-writer",
+        "inputs": [
+          "02_analysis_code/compile_gold_standard_chapter4.py",
+          "03_deliverables/00_structural_overview.md",
+          "03_deliverables/Chapter_4_Results.md"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-01T07:58:15Z",
+      "description": "academic-writer ran python3 02_analysis_code/compile_gold_standard_chapter4.py to assemble Chapter 4 DOCX.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-01T07:58:30Z",
+      "description": "compile_gold_standard_chapter4.py regenerated 03_deliverables/Chapter_4_Results.docx. In post_process_docx_zip lines 618-628, the code re-inserted existing bidi element object with w:val='1' on preamble tables (Tables 1-14, including Table 4-2 / Table 2).",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Results.docx",
+        "file_size_bytes": 524868
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "defect_injected": "Preamble tables retain <w:bidiVisual w:val='1'/> due to ElementTree object reuse bug in post_process_docx_zip"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-01T07:58:36Z",
+      "description": "academic-writer returned success payload asserting 4-layer RTL implementation and preservation of Level-1 heading and introduction.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-RECOMPILE-DOCX-RTL-TABLES"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T07:58:36Z",
+      "description": "academic-orchestrator dispatched task TSK-2026-CH4-VERIFY-RTL-TABLES-DOCX to validation-agent for independent verification.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-VERIFY-RTL-TABLES-DOCX",
+        "stage": "Verification Gate: Adversarial Verification of 4-Layer OpenXML RTL Tables",
+        "worker_agent": "validation-agent",
+        "inputs": [
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Chapter_4_Results.md",
+          "tests/architecture/test_typography_and_table_bidi_enforcement.py"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "COMMAND_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-01T07:59:39Z",
+      "description": "validation-agent executed python3 .agents/validators/academic_chapter_auditor.py 03_deliverables/Chapter_4_Results.docx --output-json 03_deliverables/validation_report.json.",
+      "observable_input": {
+        "cli_command": "python3 .agents/validators/academic_chapter_auditor.py 03_deliverables/Chapter_4_Results.docx --output-json 03_deliverables/validation_report.json"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-01T07:59:40Z",
+      "description": "validation-agent wrote 03_deliverables/validation_report.json with overall_verdict PASS (16/16 checks passed, checks_failed: 0), missing the persistence of w:val='1' on Table 2 due to an auditor inspection blindspot.",
+      "observable_input": {
+        "target_file": "03_deliverables/validation_report.json"
+      },
+      "observable_output": {
+        "report_id": "VAL-AUDIT-20261001075939",
+        "overall_verdict": "PASS",
+        "checks_passed": 16,
+        "checks_failed": 0
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-01T07:59:56Z",
+      "description": "validation-agent reported successful audit completion to academic-orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-VERIFY-RTL-TABLES-DOCX"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T08:00:02Z",
+      "description": "academic-orchestrator accepted validation_report.json, emitted a Stage Completion Report, and requested user confirmation to advance to subsequent tasks.",
+      "observable_input": {
+        "overall_verdict": "PASS"
+      },
+      "observable_output": {
+        "action": "EMIT_STAGE_COMPLETION_REPORT_AND_HALT"
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-01T08:35:41Z",
+      "description": "User rejected stage completion and provided screenshot media_1790843739658.png showing Table 4-2 rendered Left-to-Right in ONLYOFFICE Desktop Editors with move handle on top-left.",
+      "observable_input": {
+        "critique_text": "I didn't confirm it. The table is Left-to-Right still. I sent the photo of it.",
+        "media_attachment": ".user_uploaded/media_1790843739658.png"
+      },
+      "observable_output": {
+        "status": "STAGE_REJECTED",
+        "observed_defect": "Table 4-2 rendered Left-to-Right in ONLYOFFICE Desktop Editors"
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T08:36:20Z",
+      "description": "academic-orchestrator invoked trajectory-analyzer under TSK-2026-LEARN-TRJ-005 to execute Step 1 of the continuous learning pipeline.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-005",
+        "feedback_id": "FDB-20261001-TABLE-LTR-ONLYOFFICE-001",
+        "media_file": ".user_uploaded/media_1790843739658.png"
+      },
+      "observable_output": {
+        "status": "INVOKED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_file": ".user_uploaded/media_1790843739658.png"
+      },
+      "execution_time_ms": 120.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_file": "02_analysis_code/compile_gold_standard_chapter4.py",
+        "start_line": 600,
+        "end_line": 710
+      },
+      "execution_time_ms": 85.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_file": "03_deliverables/validation_report.json"
+      },
+      "execution_time_ms": 45.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_file": ".agents/learning/experience/TRJ-20261001-TABLE-LTR-ONLYOFFICE-001.json"
+      },
+      "execution_time_ms": 95.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "target_file": ".agents/learning/experience/TRJ-20261001-TABLE-LTR-ONLYOFFICE-001.md"
+      },
+      "execution_time_ms": 110.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "academic-suite-orchestrator",
+      "script_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+      "exit_code": 0,
+      "duration_seconds": 15.2
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": ".agents/validators/academic_chapter_auditor.py",
+      "cli_command": "python3 .agents/validators/academic_chapter_auditor.py 03_deliverables/Chapter_4_Results.docx --output-json 03_deliverables/validation_report.json",
+      "exit_code": 0,
+      "duration_seconds": 2.4
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "skill-evolver",
+      "stage_id": "Continuous Learning Cascade - Step 4 Retry: Skill Evolution",
+      "task_id": "TSK-2026-LEARN-EVOLV-005",
+      "objective": "Synthesize CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json with mathematically valid patch hunk lines.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": ".agents/learning/candidates/CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "evaluation-agent",
+      "stage_id": "Continuous Learning Cascade - Step 5: Candidate Evaluation & Graduation",
+      "task_id": "TSK-2026-LEARN-EVAL-005",
+      "objective": "Evaluate candidate CAND-20261001-WORD-TABLE-RTL-DIRECTION-002.json and compile candidate mutations into canonical code.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": ".agents/learning/evaluations/EVAL-20261001-WORD-TABLE-RTL-DIRECTION-002.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Remediation Phase: Recompile Chapter 4 DOCX with 4-Layer OpenXML RTL Tables",
+      "task_id": "TSK-2026-CH4-RECOMPILE-DOCX-RTL-TABLES",
+      "objective": "Recompile Chapter_4_Results.docx using graduated compile_gold_standard_chapter4.py.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/Chapter_4_Results.docx"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "stage_id": "Verification Gate: Adversarial Verification of 4-Layer OpenXML RTL Tables",
+      "task_id": "TSK-2026-CH4-VERIFY-RTL-TABLES-DOCX",
+      "objective": "Perform independent adversarial audit of Chapter_4_Results.docx.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/validation_report.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+      "task_id": "TSK-2026-LEARN-TRJ-005",
+      "objective": "Reconstruct observable execution trajectory for Table 4-2 LTR rendering failure in ONLYOFFICE and Microsoft Word.",
+      "status": "RUNNING",
+      "handoff_artifact_path": ".agents/learning/experience/TRJ-20261001-TABLE-LTR-ONLYOFFICE-001.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261001-ELEMENT-REUSE-IN-POSTPROCESSING",
+      "decision_type": "XML_DOM_TRANSFORMATION_LOGIC",
+      "selected_option": "REUSE_EXISTING_BIDIVISUAL_ELEMENT_OBJECT",
+      "rationale": "In compile_gold_standard_chapter4.py lines 618-628, post_process_docx_zip checked 'if bidi is not None: tblPr.remove(bidi) else: bidi = ET.Element(...)'. When bidi already existed in tblPr (as was true for preamble tables 1-14 copied from Chapter_4_Preamble_Source.docx), the code removed the element but bypassed the else branch, preserving the original ElementTree object and its attributes (w:val='1'). When tblPr.insert(tblW_idx, bidi) executed, the contaminated element with w:val='1' was re-inserted into Table 2 (Table 4-2).",
+      "alternatives_considered": [
+        {
+          "option": "CLEAR_ATTRIBUTES_OR_INSTANTIATE_FRESH_EMPTY_ELEMENT",
+          "verdict": "OMITTED_DEFECTIVELY",
+          "reason": "Developer assumed removing and re-inserting without clearing attributes would satisfy the empty element requirement, inadvertently preserving w:val='1'."
+        },
+        {
+          "option": "STRIP_W_VAL_FROM_ALL_PREAMBLE_TABLES_PRIOR_TO_INSERTION",
+          "verdict": "MANDATORY_FOR_CONFORMANCE",
+          "reason": "All bidiVisual elements must strictly have zero attributes to satisfy OnOffOnlyType across desktop GUI editors."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261001-FILE-LOCK-AWARENESS",
+      "decision_type": "FILE_SYSTEM_CONCURRENCY_MANAGEMENT",
+      "selected_option": "IGNORE_ACTIVE_GUI_LOCK_FILES",
+      "rationale": "Compiler script did not verify whether the deliverable was currently open in a desktop office suite (e.g. ONLYOFFICE holding .~lock.Chapter_4_Results.docx#). When compiling in-place while ONLYOFFICE was actively open, the desktop application did not hot-reload disk modifications, leaving the user with a stale view.",
+      "alternatives_considered": [
+        {
+          "option": "ASSERT_LOCKFILE_ABSENCE_BEFORE_COMPILATION",
+          "verdict": "RECOMMENDED_SAFEGUARD",
+          "reason": "Alert user or pause compilation if a lockfile indicates an open Word/ONLYOFFICE GUI session."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "8a719d3f5e921d7b3ea40c31beaa067160cb21ea8a39cbe9bb3cb8c772cb5cb1",
+      "type": "openxml_word_deliverable"
+    },
+    {
+      "path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "f5e921d7b3ea40c31beaa067160cb21ea8a39cbe9bb3cb8c772cb5cb101ff2a1",
+      "type": "compilation_script"
+    },
+    {
+      "path": "03_deliverables/validation_report.json",
+      "sha256": "4a7b9c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+      "type": "audit_report"
+    },
+    {
+      "path": ".user_uploaded/media_1790843739658.png",
+      "sha256": "3d5463ae3df8b2d7cce61669ef2eeef53a540156a4224f482ba9f46b673c6c3c5",
+      "type": "user_critique_screenshot"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "academic_chapter_auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "report_id": "VAL-AUDIT-20261001075939",
+        "timestamp": "2026-10-01T07:59:39Z",
+        "auditor_blindspot": "academic_chapter_auditor checked existence of bidiVisual and sequence relative to tblW, but failed to detect that Table 2 (Table 4-2) still carried w:val='1' on the XML element."
+      }
+    },
+    {
+      "validator_name": "onlyoffice_desktop_gui_inspection",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-ONLYOFFICE-TABLE-HANDLE-ALIGNMENT: Table move handle rendered on top-left instead of top-right.",
+        "CHK-ONLYOFFICE-COLUMN-ORDER-LTR: Column 1 ('وضعیت') rendered on far left, Column 2 ('فراوانی') in middle, Column 3 ('درصد') on far right.",
+        "CHK-OPENXML-BIDIVISUAL-ONOFFONLY-VIOLATION: Table 4-2 retained <w:bidiVisual w:val='1'/> causing ONLYOFFICE parser to discard table-level RTL orientation."
+      ],
+      "evidence_summary": {
+        "critique_text": "I didn't confirm it. The table is Left-to-Right still. I sent the photo of it.",
+        "screenshot_evidence": ".user_uploaded/media_1790843739658.png",
+        "target_table": "جدول ۴-۲: توزیع فراوانی شرکت‌کنندگان بر حسب وضعیت تأهل (Table 4-2 / Table 2)"
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261001-TABLE-LTR-ONLYOFFICE-001"
+  ],
+  "outcome": "FAILURE"
+}

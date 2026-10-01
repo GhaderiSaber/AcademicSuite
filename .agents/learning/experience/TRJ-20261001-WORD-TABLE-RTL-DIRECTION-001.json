@@ -1,0 +1,550 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "experience_id": "EXP-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-LEARN-TRJ-004",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-30T20:22:06.738816+00:00",
+      "description": "academic-orchestrator dispatched task TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001 to academic-writer to enforce Persian typography, eliminate inline Latin abbreviations, align APA 7 tables, and recompile Chapter_4_Results.docx using compile_gold_standard_chapter4.py.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001",
+        "stage": "Phase 2: Micro-Stage Triad Refactoring & Monograph Compilation",
+        "worker_agent": "academic-writer",
+        "inputs": [
+          "03_deliverables/Chapter_4_Results.md",
+          "02_analysis_code/compile_gold_standard_chapter4.py",
+          ".agents/references/OPENXML_STANDARDS_MANUAL.md",
+          ".agents/skills/apa-reporting/SKILL.md",
+          ".agents/skills/chapter-4-writing/SKILL.md"
+        ],
+        "required_artifacts": [
+          "03_deliverables/Chapter_4_Results.md",
+          "03_deliverables/Chapter_4_Results.docx"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T20:22:06.742155+00:00",
+      "description": "academic-writer initialized session to execute task TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T20:22:15.000000+00:00",
+      "description": "academic-writer invoked python3 02_analysis_code/compile_gold_standard_chapter4.py to compile Chapter 4 tables and narrative into DOCX format.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+        "source_preamble": "03_deliverables/Chapter_4_Preamble_Source.docx"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "preamble_children_copied": 87,
+        "sections_appended": [
+          "4-4",
+          "5-4",
+          "6-4",
+          "7-4",
+          "8-4"
+        ]
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T20:22:45.000000+00:00",
+      "description": "compile_gold_standard_chapter4.py wrote 03_deliverables/Chapter_4_Results.docx with 4 latent structural defects: (1) <w:bidiVisual w:val='1'/> on tables, (2) <w:bidi/> omitted or placed after <w:docGrid/> in w:sectPr, (3) word/settings.xml untouched without w:bidi='fa-IR', and (4) table cell paragraphs missing <w:bidi w:val='1'/>.",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Results.docx",
+        "script": "02_analysis_code/compile_gold_standard_chapter4.py"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "file_path": "03_deliverables/Chapter_4_Results.docx",
+        "tables_count": 25,
+        "paragraphs_count": 1070
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T20:23:05.000000+00:00",
+      "description": "academic-writer generated updated 03_deliverables/Chapter_4_Results.md containing Persian-normalized text and markdown tables.",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Results.md"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "file_path": "03_deliverables/Chapter_4_Results.md",
+        "line_count": 482
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T20:23:12.000000+00:00",
+      "description": "academic-writer signaled completion of task TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001 back to academic-orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "output_artifacts": [
+          "03_deliverables/Chapter_4_Results.md",
+          "03_deliverables/Chapter_4_Results.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T20:25:30.000000+00:00",
+      "description": "academic-writer executed ad-hoc patch script patch2.py to update compile_gold_standard_chapter4.py; patch2.py retained <w:bidiVisual w:val='1'/> with attribute w:val='1' and failed to address w:sectPr, word/settings.xml, or cell paragraph properties.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/patch2.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "message": "Patch2 applied."
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T20:26:15.000000+00:00",
+      "description": "academic-writer executed ad-hoc script fix_docx.py which directly mutated Chapter_4_Results.docx in-place; fix_docx.py line 25 explicitly constructed parse_xml('<w:bidiVisual w:val=\"1\"/>') and iterated over table cells replacing text tokens without adding <w:bidi w:val='1'/> to cell pPr.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/fix_docx.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "message": "DOCX fixed."
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-30T20:29:11.251608+00:00",
+      "description": "academic-orchestrator dispatched task TSK-2026-VAL-CH4-TYPOGRAPHY-001 to validation-agent to audit Chapter_4_Results.docx and Chapter_4_Results.md.",
+      "observable_input": {
+        "task_id": "TSK-2026-VAL-CH4-TYPOGRAPHY-001",
+        "stage": "Phase 3: Multi-Tier Adversarial Verification & Release Audit",
+        "worker_agent": "validation-agent",
+        "inputs": [
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Chapter_4_Results.md",
+          ".agents/references/OPENXML_STANDARDS_MANUAL.md",
+          "tests/architecture/test_typography_and_table_bidi_enforcement.py"
+        ],
+        "required_artifacts": [
+          "03_deliverables/validation_report.json"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-30T20:29:11.255072+00:00",
+      "description": "validation-agent commenced automated verification of Chapter 4 deliverables.",
+      "observable_input": {
+        "task_id": "TSK-2026-VAL-CH4-TYPOGRAPHY-001"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "COMMAND_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-01T04:11:06.000000+00:00",
+      "description": "validation-agent ran academic_chapter_auditor.py against 03_deliverables/Chapter_4_Results.docx.",
+      "observable_input": {
+        "cli_command": "python3 .agents/validators/academic_chapter_auditor.py 03_deliverables/Chapter_4_Results.docx --md 03_deliverables/Chapter_4_Results.md --output-json 03_deliverables/validation_report.json"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-01T04:11:07.038552+00:00",
+      "description": "academic_chapter_auditor.py wrote 03_deliverables/validation_report.json; lines 286-288 of the auditor explicitly accepted w:val='1' on <w:bidiVisual>, creating a verification blindspot that masked Microsoft Word's GUI incompatibility.",
+      "observable_input": {
+        "target_file": "03_deliverables/validation_report.json"
+      },
+      "observable_output": {
+        "report_id": "VAL-AUDIT-20261001041106",
+        "table_bidi_verdict": "PASS",
+        "auditor_blindspot_reason": "Validator code checked 'if val is not None and val not in [\"1\", \"true\", \"on\"]' which permitted w:val='1', failing to detect that Microsoft Word GUI Table Properties requires empty <w:bidiVisual/>."
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-01T04:11:08.000000+00:00",
+      "description": "validation-agent reported successful validation to academic-orchestrator based on automated checks passing.",
+      "observable_input": {
+        "task_id": "TSK-2026-VAL-CH4-TYPOGRAPHY-001"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "report_path": "03_deliverables/validation_report.json"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-01T07:41:00.000000+00:00",
+      "description": "User opened 03_deliverables/Chapter_4_Results.docx in Microsoft Word desktop GUI, right-clicked a table, opened Table Properties, and observed that Table Direction displayed 'Left-to-right' instead of 'Right-to-left', issuing formal user correction feedback.",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Results.docx",
+        "application": "Microsoft Word GUI",
+        "dialog_path": "Right Click Table -> Table Properties -> Table Tab -> Table Direction"
+      },
+      "observable_output": {
+        "observed_gui_direction": "Left-to-right",
+        "feedback_text": "In the Microsoft Word, there is an option for changing the table Direction. If you select the table and right click and select table propertesis, the windows open and in one of the opened widows you can change the RTL for table. Currently our tables is LTR. We should make them RTL."
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "AGENT_INVOKED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-01T07:41:25.000000+00:00",
+      "description": "academic-orchestrator activated Continuous Learning Cascade - Step 1 delegating task TSK-2026-LEARN-TRJ-004 to trajectory-analyzer to reconstruct the observable chronology and technical defect mechanisms.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-004",
+        "worker_agent": "trajectory-analyzer",
+        "inputs": [
+          "03_deliverables/Chapter_4_Results.docx",
+          "02_analysis_code/compile_gold_standard_chapter4.py",
+          ".agents/references/OPENXML_STANDARDS_MANUAL.md",
+          "User feedback: 'In the Microsoft Word, there is an option for changing the table Direction. If you select the table and right click and select table propertesis, the windows open and in one of the opened widows you can change the RTL for table. Currently our tables is LTR. We should make them RTL.'"
+        ]
+      },
+      "observable_output": {
+        "status": "RUNNING"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "TypeName": "academic-writer",
+        "task_id": "TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1150
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/compile_gold_standard_chapter4.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 18240
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/Chapter_4_Results.docx",
+        "size_bytes": 352410
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 620
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "TargetFile": "03_deliverables/Chapter_4_Results.md",
+        "size_bytes": 80501
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 380
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/patch2.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 140
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/fix_docx.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2840
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "TypeName": "validation-agent",
+        "task_id": "TSK-2026-VAL-CH4-TYPOGRAPHY-001"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1280
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "command": "python3 .agents/validators/academic_chapter_auditor.py 03_deliverables/Chapter_4_Results.docx --md 03_deliverables/Chapter_4_Results.md --output-json 03_deliverables/validation_report.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 3410
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/validation_report.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 195
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 10,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/compile_gold_standard_chapter4.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 220
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+      "exit_code": 0,
+      "duration_seconds": 18.24
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/validators/academic_chapter_auditor.py",
+      "cli_command": "python3 .agents/validators/academic_chapter_auditor.py 03_deliverables/Chapter_4_Results.docx --md 03_deliverables/Chapter_4_Results.md --output-json 03_deliverables/validation_report.json",
+      "exit_code": 0,
+      "duration_seconds": 3.41
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Phase 2: Micro-Stage Triad Refactoring & Monograph Compilation",
+      "envelope_summary": "TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001: Enforce Persian typography, complex script bindings, APA 7 tables, and recompile Chapter_4_Results.docx.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/Chapter_4_Results.docx",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-TYPOGRAPHY-REFACTOR-001",
+      "objective": "Refactor Chapter 4 deliverables and recompile DOCX",
+      "input_artifacts": [
+        "03_deliverables/Chapter_4_Results.md",
+        "02_analysis_code/compile_gold_standard_chapter4.py",
+        ".agents/references/OPENXML_STANDARDS_MANUAL.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/Chapter_4_Results.md",
+        "03_deliverables/Chapter_4_Results.docx"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "stage_id": "Phase 3: Multi-Tier Adversarial Verification & Release Audit",
+      "envelope_summary": "TSK-2026-VAL-CH4-TYPOGRAPHY-001: Execute adversarial quality audit on Chapter_4_Results.docx and Chapter_4_Results.md.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/validation_report.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "task_id": "TSK-2026-VAL-CH4-TYPOGRAPHY-001",
+      "objective": "Audit deliverable compliance against OpenXML and typography standards",
+      "input_artifacts": [
+        "03_deliverables/Chapter_4_Results.docx",
+        "03_deliverables/Chapter_4_Results.md"
+      ],
+      "output_artifacts": [
+        "03_deliverables/validation_report.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261001-TABLE-BIDIVISUAL-VAL-ATTRIBUTE",
+      "decision_type": "OPENXML_TABLE_ELEMENT_SYNTAX",
+      "selected_option": "INJECT_BIDIVISUAL_WITH_EXPLICIT_VAL_ONE_ATTRIBUTE",
+      "rationale": "In apply_table_apa7_and_bidi and post_process_openxml within compile_gold_standard_chapter4.py, the script injected <w:bidiVisual w:val='1'/> instead of an empty <w:bidiVisual/>. The developer assumed that because boolean properties like <w:bidi w:val='1'/> use w:val, table bidiVisual also requires w:val='1'. In ISO/IEC 29500-1 §17.4.2, bidiVisual is an OnOffOnlyType element where presence indicates true without attributes. Microsoft Word's desktop GUI Table Properties dialog specifically checks for the empty element <w:bidiVisual/> and fails to map <w:bidiVisual w:val='1'/> to its Right-to-left radio button, displaying 'Left-to-right' instead.",
+      "alternatives_considered": [
+        {
+          "option": "INJECT_EMPTY_BIDIVISUAL_ELEMENT",
+          "verdict": "REQUIRED_BY_OPENXML_SPEC_AND_WORD_GUI",
+          "reason": "Microsoft Word's Table Properties dialog parser recognizes <w:bidiVisual/> as RTL but fails on unexpected w:val attribute."
+        },
+        {
+          "option": "OMIT_BIDIVISUAL_ENTIRELY",
+          "verdict": "REJECTED",
+          "reason": "Omitting bidiVisual makes table column order physically Left-to-Right."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261001-SECTPR-DOCGRID-BIDI-SEQUENCING",
+      "decision_type": "SECTION_PROPERTIES_CHILD_SEQUENCING",
+      "selected_option": "OMIT_OR_APPEND_BIDI_AFTER_DOCGRID_IN_SECTPR",
+      "rationale": "In compile_gold_standard_chapter4.py lines 727-742, sectPr was moved to the end of the body and modified via doc.sections margin properties, which left <w:docGrid w:linePitch='360'/> at the end of sectPr without inserting <w:bidi/>. When scripts attempted to add bidi via sectPr.append(bidi), <w:bidi/> was positioned AFTER <w:docGrid/>. Under ISO/IEC 29500-1 §17.6.17 (CT_SectPr), <w:bidi/> MUST precede <w:docGrid/>. When Microsoft Word encounters <w:bidi/> after <w:docGrid/>, its graceful degradation error recovery ignores the out-of-order element, causing section-level LTR fallback that forces tables inside the section to default to LTR in GUI dialogs.",
+      "alternatives_considered": [
+        {
+          "option": "INSERT_BIDI_BEFORE_DOCGRID_IN_SECTPR",
+          "verdict": "REQUIRED_BY_CT_SECTPR_SCHEMA",
+          "reason": "Schema order mandates: ... -> textDirection -> bidi -> rtlGutter -> docGrid -> printerSettings."
+        },
+        {
+          "option": "APPEND_BIDI_TO_SECTPR_END",
+          "verdict": "VIOLATES_SCHEMA_AND_CAUSES_WORD_LTR_FALLBACK",
+          "reason": "Placing bidi after docGrid triggers OpenXML deserialization error recovery in Microsoft Word."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261001-SETTINGS-XML-BIDI-OMISSION",
+      "decision_type": "DOCUMENT_SETTINGS_LOCALE_CONFIGURATION",
+      "selected_option": "LIMIT_POSTPROCESSING_TO_DOCUMENT_XML_ONLY",
+      "rationale": "In compile_gold_standard_chapter4.py lines 571-676 (post_process_docx_zip), the compiler exclusively unzipped and edited word/document.xml, leaving word/settings.xml untouched. In OpenXML §17.15.1, word/settings.xml must declare <w:themeFontLang w:bidi='fa-IR'/> and modern compatibilityMode=15 to configure Word's BiDi engine for Persian. Without document-level w:bidi='fa-IR', Microsoft Word defaults its internal locale to Western/LTR, causing table GUI dialogs to open in Left-to-Right mode.",
+      "alternatives_considered": [
+        {
+          "option": "INJECT_THEMEFONTLANG_BIDI_FA_IR_INTO_SETTINGS_XML",
+          "verdict": "MANDATED_BY_WORD_BIDI_SPECIFICATION",
+          "reason": "Instructs Word application and GUI dialogs that the active complex-script locale is Persian."
+        },
+        {
+          "option": "RELY_ON_RUN_LEVEL_LANG_ONLY",
+          "verdict": "INSUFFICIENT_FOR_DOCUMENT_LEVEL_GUI_DIALOGS",
+          "reason": "Run-level <w:lang w:bidi='fa-IR'/> affects text shaping but does not configure Word's Table Properties dialog default."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261001-TABLE-CELL-PPR-BIDI-OMISSION",
+      "decision_type": "TABLE_CELL_PARAGRAPH_BIDI_ENFORCEMENT",
+      "selected_option": "OMIT_BIDI_FROM_SHORT_CELL_PARAGRAPHS",
+      "rationale": "In compile_gold_standard_chapter4.py lines 80-110 (apply_table_apa7_and_bidi) and lines 309-350 (post_process_openxml), <w:bidi w:val='1'/> was only injected into paragraphs where len(p_text) > 80 or is_heading was true. Because all table cell paragraphs (headers like 'ردیف', 'عنوان فرضیه', numbers like '۰.۲۳۴', p-values like '< ۰.۰۰۱') have len(p_text) <= 80 and are not headings, and because table cell paragraphs are excluded from the body_paragraphs branch, zero table cell paragraphs received <w:bidi w:val='1'/>. When Word inspects a table, seeing that every cell paragraph lacks <w:bidi>, it defaults the table direction in the GUI to Left-to-right.",
+      "alternatives_considered": [
+        {
+          "option": "ENFORCE_BIDI_VAL_ONE_IN_ALL_TABLE_CELL_PPR",
+          "verdict": "REQUIRED_BY_DIRECTIVE_5_AND_WORD_GUI",
+          "reason": "Every paragraph in every table cell must have <w:bidi w:val='1'/> in <w:pPr> to enforce cell-level RTL text flow."
+        },
+        {
+          "option": "RELY_ON_TABLE_LEVEL_BIDIVISUAL_ALONE",
+          "verdict": "INSUFFICIENT_AND_CAUSES_CELL_LTR_RENDER",
+          "reason": "Word requires both table-level bidiVisual and cell paragraph-level bidi to establish consistent RTL orientation."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "1f2e3d4c5b6a7f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f2e",
+      "type": "openxml_word_deliverable"
+    },
+    {
+      "path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c",
+      "type": "python_compilation_script"
+    },
+    {
+      "path": ".agents/references/OPENXML_STANDARDS_MANUAL.md",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "type": "openxml_standards_reference"
+    },
+    {
+      "path": "03_deliverables/validation_report.json",
+      "sha256": "4a7b9c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+      "type": "audit_validation_report"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.md",
+      "sha256": "8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+      "type": "markdown_deliverable"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "academic_chapter_auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "report_id": "VAL-AUDIT-20261001041106",
+        "timestamp": "2026-10-01T04:11:07.038552+00:00",
+        "table_bidi_verdict": "PASS",
+        "auditor_blindspot": "academic_chapter_auditor.py checked 'if val is not None and val not in [\"1\", \"true\", \"on\"]' which permitted <w:bidiVisual w:val='1'/>, and failed to check w:sectPr element ordering, word/settings.xml, or cell pPr <w:bidi w:val='1'/>."
+      }
+    },
+    {
+      "validator_name": "microsoft_word_gui_inspection",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-WORD-GUI-TABLE-PROPERTIES-LTR: Microsoft Word Table Properties dialog displayed Table direction: Left-to-right.",
+        "CHK-OPENXML-BIDIVISUAL-ONOFFONLY-ATTR: <w:bidiVisual w:val='1'/> contains illegal w:val attribute on OnOffOnlyType element.",
+        "CHK-OPENXML-SECTPR-BIDI-DOCGRID-ORDER: <w:bidi/> in w:sectPr does not precede <w:docGrid/>, triggering section-level LTR fallback in Word.",
+        "CHK-OPENXML-SETTINGS-THEMEFONTLANG-BIDI: word/settings.xml lacks <w:themeFontLang w:bidi='fa-IR'/> and compatibilityMode=15.",
+        "CHK-OPENXML-TABLE-CELL-PPR-BIDI: Table cell paragraphs lack <w:bidi w:val='1'/> in <w:pPr>."
+      ],
+      "evidence_summary": {
+        "user_correction": "In the Microsoft Word, there is an option for changing the table Direction. If you select the table and right click and select table propertesis, the windows open and in one of the opened widows you can change the RTL for table. Currently our tables is LTR. We should make them RTL.",
+        "observed_table_count": 25,
+        "affected_tables": "Tables 1 through 25"
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261001-WORD-TABLE-RTL-DIRECTION-001"
+  ],
+  "outcome": "FAILURE"
+}

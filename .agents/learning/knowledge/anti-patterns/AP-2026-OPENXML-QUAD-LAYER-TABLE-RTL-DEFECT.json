@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-OPENXML-QUAD-LAYER-TABLE-RTL-DEFECT",
+  "category": "execution",
+  "defective_pattern": "Failing to establish RTL directionality across all 4 OpenXML layers: 1) Injecting <w:bidiVisual w:val='1'/> instead of <w:bidiVisual/>. 2) Omitting <w:bidi/> or appending it after <w:docGrid/> in w:sectPr. 3) Missing <w:themeFontLang w:bidi='fa-IR'/> in word/settings.xml. 4) Omitting <w:bidi w:val='1'/> in table cell paragraphs.",
+  "why_defective": "MS Word requires exact RTL declarations across the document settings, section properties, table properties, and paragraph properties. Incorrect attribute injection (w:val='1' on bidiVisual) or misordered elements (bidi after docGrid) silently corrupts RTL rendering.",
+  "observed_symptoms": [
+    "RTL tables rendered LTR in MS Word",
+    "Validation blindspots permitting w:val='1' on bidiVisual",
+    "Section properties failing schema validation"
+  ],
+  "corrective_remedy": "1) Inject <w:bidiVisual/> as empty without w:val. 2) Ensure <w:bidi/> precedes <w:docGrid/> in w:sectPr. 3) Update word/settings.xml with <w:themeFontLang w:bidi='fa-IR'/>. 4) Enforce <w:bidi w:val='1'/> in <w:pPr> of all table cell paragraphs.",
+  "detection_heuristic": {
+    "trigger_rule": "Detects presence of w:val='1' on bidiVisual",
+    "regex_patterns": ["<w:bidiVisual\\s+w:val=['\"]1['\"]\\s*/>"],
+    "pattern": "<w:bidiVisual\\s+w:val=['\"]1['\"]\\s*/>",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py$",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-01T07:50:32Z"
+}

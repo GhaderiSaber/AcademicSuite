@@ -1,0 +1,17 @@
+{
+  "trajectory_id": "TRJ-20261001-TABLE-RTL-GUI-DESYNC-001",
+  "timestamp": "2026-10-01T09:18:19Z",
+  "category": "defect_resolution",
+  "description": "Table RTL GUI Desync Issue",
+  "symptoms": [
+    "ONLYOFFICE rendered tables as Left-to-Right despite passing RTL tests",
+    "Root Chapter_4_Results.docx was stale and had defective bidiVisual w:val='1'"
+  ],
+  "root_cause": "The compile script was only compiling to 03_deliverables/ and only copying the .md file to the root directory. This left the root Chapter_4_Results.docx stale from an earlier run. The stale file contained a defective <w:bidiVisual w:val=\"1\"/> element, which ONLYOFFICE discarded, defaulting to Left-to-Right rendering.",
+  "resolution": "Synchronized 03_deliverables/Chapter_4_Results.docx to the root directory. Verified that the updated DOCX contained clean, pure, empty <w:bidiVisual/> elements on all 25 tables, resolving the GUI rendering desync in ONLYOFFICE.",
+  "artifacts_impacted": [
+    "03_deliverables/Chapter_4_Results.docx",
+    "Chapter_4_Results.docx",
+    "03_deliverables/validation_report.json"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-OPENXML-OBJECT-REUSE-ATTRIBUTE-LEAKAGE",
+  "category": "execution",
+  "defective_pattern": "Reusing existing XML ElementTree objects (like w:bidiVisual) without clearing attributes, leading to non-compliant attributes (e.g., w:val='1') leaking into the output.",
+  "why_defective": "ONLYOFFICE strict parsers reject non-compliant attributes on OnOffOnly elements (like w:bidiVisual with w:val='1'), causing the table to render LTR. Validator failed to catch it by only checking element presence.",
+  "observed_symptoms": [
+    "Table renders LTR in ONLYOFFICE despite having w:bidiVisual tag due to invalid w:val='1' attribute.",
+    "Validator fails to detect invalid attributes by only checking for tag existence.",
+    "Document updates are masked by active .~lock file desync."
+  ],
+  "corrective_remedy": "1. Explicitly call bidi.attrib.clear() before re-insertion or construct a fresh ET.Element('w:bidiVisual'). 2. Update validator to assert len(bidi.attrib) == 0. 3. Check for active .~lock files prior to compiling deliverable.",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting w:bidiVisual with attributes",
+    "regex_patterns": [
+      "<w:bidiVisual [^>]*>"
+    ],
+    "pattern": "<w:bidiVisual [^>]*>",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.xml",
+    "event": "Both"
+  },
+  "target_agent": "apa-reporting",
+  "target_agents": [
+    "apa-reporting",
+    "thesis-integrity-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-01T08:48:40Z"
+}

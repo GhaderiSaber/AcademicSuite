@@ -1063,8 +1063,19 @@ def run_suite(
                         "evidence": {"dependency_stage": dep_stage, "hash_verified": True, "hash": actual_hash}
                     })
 
-    # Deduplicate target_artifacts list
-    report["target_artifacts"] = sorted(list(set(report["target_artifacts"])))
+    # Deduplicate target_artifacts list and ensure portable relative paths
+    norm_artifacts = []
+    cwd = os.getcwd()
+    for p in report["target_artifacts"]:
+        if isinstance(p, str):
+            try:
+                rel = os.path.relpath(p, cwd)
+                norm_artifacts.append(rel if not rel.startswith("..") else p)
+            except Exception:
+                norm_artifacts.append(p)
+        else:
+            norm_artifacts.append(p)
+    report["target_artifacts"] = sorted(list(set(norm_artifacts)))
 
     # ==========================================================================
     # Gate 5.5: Tier 3 Adversarial Red-Teaming Challenge Audit
