@@ -1,0 +1,44 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-OPENXML-QUAD-LAYER-TABLE-RTL-STANDARD-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261001-WORD-TABLE-RTL-DIRECTION-001",
+  "diagnosis": {
+    "what_happened": "The script failed to enforce RTL in four OpenXML layers, including using w:val='1' on bidiVisual, misordering bidi in sectPr, ignoring settings.xml, and omitting bidi in cell paragraphs.",
+    "behavior_caused_outcome": "Incomplete and malformed RTL attribute injection caused MS Word to render tables with LTR column progression, despite passing partial validations.",
+    "what_should_have_happened": "Strict multi-layer RTL enforcement: empty <w:bidiVisual/>, ordered <w:bidi/> in sectPr, localized settings.xml, and <w:bidi w:val='1'/> in cell <w:pPr>.",
+    "rationale_why": "OpenXML schema strictly defines element ordering (bidi before docGrid) and attributes (bidiVisual takes no val). Full RTL fidelity requires document, section, table, and paragraph level declarations."
+  },
+  "desired_behavior": "Enforce the 4-layer OpenXML RTL standard: 1) Inject <w:bidiVisual/> without w:val in tblPr. 2) Insert <w:bidi/> before <w:docGrid/> in w:sectPr. 3) Inject <w:themeFontLang w:bidi='fa-IR'/> in word/settings.xml. 4) Apply <w:bidi w:val='1'/> to all cell <w:pPr>. Validators must reject w:val on bidiVisual.",
+  "generalization": "RTL in OpenXML is a multi-layered requirement spanning settings, sections, tables, and paragraphs. Partial or malformed injections (like w:val on bidiVisual) break rendering.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "RTL table direction failed in Chapter 4 docx",
+    "threshold_value": "Zero tolerance for RTL degradation",
+    "supporting_report_ids": [
+      "BAN-20261001-WORD-TABLE-RTL-DIRECTION-001"
+    ],
+    "supporting_artifact_paths": [
+      ".agents/learning/experience/BAN-20261001-WORD-TABLE-RTL-DIRECTION-001.json"
+    ]
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-01T07:50:32Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ],
+  "graduation_status": "PENDING_GRADUATION",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+}

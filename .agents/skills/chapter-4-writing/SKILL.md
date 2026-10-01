@@ -489,3 +489,6 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 
 ## 🧠 Active Learned Behavioral Invariants
 - **Lesson (LSN-2026-OPENXML-PERSIAN-TYPOGRAPHY-AND-NORMALIZATION-001)**: Modify python-docx compiler to inject w:hint="cs" and w:eastAsia into ... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]
+
+## 🧠 Active Learned Behavioral Invariants
+- **Lesson (LSN-2026-OPENXML-QUAD-LAYER-TABLE-RTL-STANDARD-001)**: Enforce the 4-layer OpenXML RTL standard: 1) Inject <w:bidiVisual/> wi... See [learned_invariants.md](references/learned_invariants.md). [Enforcement: results_auditor_guard.py]

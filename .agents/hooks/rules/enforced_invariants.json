@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-01T06:35:43.739282+00:00",
+  "updated_at": "2026-10-01T08:47:31.846011+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1441,6 +1441,27 @@
       "remedy": "Implement preamble injection logic after loading docx.Document that replaces stale preamble paragraphs with the markdown truth.",
       "enabled": true,
       "updated_at": "2026-10-01T06:35:43.739256+00:00"
+    },
+    "LSN-2026-OPENXML-QUAD-LAYER-TABLE-RTL-STANDARD-001": {
+      "item_id": "LSN-2026-OPENXML-QUAD-LAYER-TABLE-RTL-STANDARD-001",
+      "category": "Lesson",
+      "statement": "Enforce the 4-layer OpenXML RTL standard: 1) Inject <w:bidiVisual/> without w:val in tblPr. 2) Insert <w:bidi/> before <w:docGrid/> in w:sectPr. 3) Inject <w:themeFontLang w:bidi='fa-IR'/> in word/settings.xml. 4) Apply <w:bidi w:val='1'/> to all cell <w:pPr>. Validators must reject w:val on bidiVisual.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "apa-reporting",
+        "chapter-4-writing"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.py$",
+      "check_type": "regex_ban",
+      "pattern": "<w:bidiVisual\\s+w:val=['\"]1['\"]\\s*/>",
+      "violation_message": "Enforce the 4-layer OpenXML RTL standard: 1) Inject <w:bidiVisual/> without w:val in tblPr. 2) Insert <w:bidi/> before <w:docGrid/> in w:sectPr. 3) Inject <w:themeFontLang w:bidi='fa-IR'/> in word/settings.xml. 4) Apply <w:bidi w:val='1'/> to all cell <w:pPr>. Validators must reject w:val on bidiVisual.",
+      "remedy": "Enforce the 4-layer OpenXML RTL standard: 1) Inject <w:bidiVisual/> without w:val in tblPr. 2) Insert <w:bidi/> before <w:docGrid/> in w:sectPr. 3) Inject <w:themeFontLang w:bidi='fa-IR'/> in word/settings.xml. 4) Apply <w:bidi w:val='1'/> to all cell <w:pPr>. Validators must reject w:val on bidiVisual.",
+      "enabled": true,
+      "updated_at": "2026-10-01T08:47:31.845992+00:00"
     }
   }
 }
