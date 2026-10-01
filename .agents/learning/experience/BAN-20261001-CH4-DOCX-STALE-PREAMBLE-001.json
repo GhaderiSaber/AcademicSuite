@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261001-CH4-DOCX-STALE-PREAMBLE-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261001-CH4-DOCX-STALE-PREAMBLE-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "CHAPTER4",
+  "trajectory_id": "TRJ-20261001-CH4-DOCX-STALE-PREAMBLE-001",
+  "observable_failure_step": {
+    "step_number": 11,
+    "action_type": "FILE_WRITTEN",
+    "tool_name": "compile_gold_standard_chapter4.py",
+    "description": "DEFECT ENTRY POINT 3 (MONOGRAPH COMPILATION WITH STALE PREAMBLE): compile_gold_standard_chapter4.py appended sections 4-4, 5-4, 6-4, 7-4, and 8-4 onto the loaded base document without modifying, replacing, or checking the preamble paragraphs, and saved the result to 03_deliverables/Chapter_4_Results.docx."
+  },
+  "failure_signature": "IMMUTABLE_BASE_DOCX_DECOUPLING",
+  "root_cause_diagnosis": "The compiler script compile_gold_standard_chapter4.py decoupled the markdown preamble from the DOCX build process. It loaded a frozen legacy document (Chapter_4_Preamble_Source.docx) as the base, which contained a stale truncated preamble and disconnected Persian glyphs. The academic-writer successfully updated Chapter_4_Results.md with the canonical title and roadmap, but never updated the immutable base document nor patched the compiler to dynamically read the markdown preamble. Consequently, the compiled output retained the stale base document text verbatim.",
+  "prescribed_behavior": "The compilation script (compile_gold_standard_chapter4.py) must be refactored to dynamically inject the canonical preamble. It should parse the introductory paragraphs from Chapter_4_Results.md and replace the initial paragraphs of the base document (Chapter_4_Preamble_Source.docx), or Chapter_4_Preamble_Source.docx itself must be updated to align with the markdown truth before compilation.",
+  "created_at": "2026-10-01T06:35:00Z"
+}

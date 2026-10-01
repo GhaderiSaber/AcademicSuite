@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-IMMUTABLE-BASE-DOCX-DECOUPLING",
+  "category": "execution",
+  "defective_pattern": "Decoupling the markdown preamble from the DOCX build process by loading an immutable, legacy base DOCX (e.g., Chapter_4_Preamble_Source.docx) that contains a stale or truncated preamble, and appending new sections without syncing the preamble from the canonical markdown.",
+  "why_defective": "Causes synchronization drift between the markdown source of truth and the compiled DOCX deliverable. Even if the agent updates the markdown preamble correctly, the compiler ignores it and retains the defective, stale base document text.",
+  "observed_symptoms": [
+    "The compiled Chapter 4 DOCX contains a stale or truncated preamble.",
+    "The compiled DOCX lacks the canonical Level-1 heading or the full 4-paragraph introduction present in the markdown source.",
+    "Disconnected Persian glyphs or formatting issues from the legacy base document persist in the compiled output."
+  ],
+  "corrective_remedy": "The compiler script must dynamically parse the markdown source (e.g., Chapter_4_Results.md) to extract the canonical heading and preamble paragraphs, then either clear the stale introductory paragraphs from the base DOCX before injecting the markdown preamble, or update the base DOCX itself to align with the markdown truth before appending sections.",
+  "detection_heuristic": {
+    "trigger_rule": "Detects compiler scripts appending to a base document without clearing or replacing the first paragraphs based on markdown content.",
+    "regex_patterns": [
+      "(?m)Document\\(.*Preamble_Source\\.docx.*\\)\\n\\s*(?:.*\\n){0,10}\\s*subdoc = Document\\("
+    ],
+    "pattern": "(?m)Document\\(.*Preamble_Source\\.docx.*\\)\\n\\s*(?:.*\\n){0,10}\\s*subdoc = Document\\(",
+    "check_type": "regex_ban",
+    "file_pattern": "compile_.*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-01T06:32:47Z"
+}

@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-01T05:31:40.217200+00:00",
+  "updated_at": "2026-10-01T06:35:43.739282+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1419,6 +1419,28 @@
       "remedy": "Modify the regex to use a negative lookbehind assertion, e.g., re.sub(r'(?<![0-9\\u06F0-\\u06F9])\\.(\\d+)', r'۰.\\1', text).",
       "enabled": true,
       "updated_at": "2026-10-01T05:31:40.217165+00:00"
+    },
+    "CAND-20261001-DYNAMIC-PREAMBLE-INJECTION-001": {
+      "item_id": "CAND-20261001-DYNAMIC-PREAMBLE-INJECTION-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Compiler script must dynamically inject the canonical Level-1 heading and 4-paragraph introduction from 00_structural_overview.md. Do not assume the base document preamble is correct.",
+      "target_agents": [
+        "academic-writer",
+        "statistics-agent"
+      ],
+      "target_skills": [
+        "CHAPTER4",
+        "DOCX_COMPILATION"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*compile_gold_standard_chapter4\\.py",
+      "check_type": "regex_ban",
+      "pattern": "doc = docx\\.Document\\(src_path\\)\\s+body = doc\\._element\\.body\\s+# Critical OpenXML compliance",
+      "violation_message": "Compiler script must dynamically inject the canonical Level-1 heading and 4-paragraph introduction from 00_structural_overview.md. Do not assume the base document preamble is correct.",
+      "remedy": "Implement preamble injection logic after loading docx.Document that replaces stale preamble paragraphs with the markdown truth.",
+      "enabled": true,
+      "updated_at": "2026-10-01T06:35:43.739256+00:00"
     }
   }
 }

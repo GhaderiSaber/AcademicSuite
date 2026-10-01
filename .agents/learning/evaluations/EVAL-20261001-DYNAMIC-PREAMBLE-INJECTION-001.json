@@ -1,0 +1,59 @@
+{
+  "contract_version": "1.0.0",
+  "evaluation_id": "EVAL-20261001-DYNAMIC-PREAMBLE-INJECTION-001",
+  "candidate_id": "CAND-20261001-DYNAMIC-PREAMBLE-INJECTION-001",
+  "baseline_id": "BASELINE-CHAPTER4",
+  "task_id": "TSK-2026-LEARN-EVAL-003",
+  "evaluated_at": "2026-10-01T06:36:00Z",
+  "dimensions": {
+    "correctness": 1.0,
+    "methodology": 1.0,
+    "statistical_validity": 1.0,
+    "evidence_grounding": 1.0,
+    "integrity": 1.0,
+    "robustness": 1.0,
+    "consistency": 1.0,
+    "efficiency": 1.0
+  },
+  "baseline_metrics": {
+    "docx_md_sync_rate": 0.0
+  },
+  "candidate_metrics": {
+    "docx_md_sync_rate": 1.0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "TSK-2026-LEARN-EVAL-003"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "TSK-2026-LEARN-EVAL-003",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "TSK-2026-LEARN-EVAL-003"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "tests/architecture/test_typography_and_table_bidi_enforcement.py",
+      "sha256": "d5465dde9152589f3cf36360dc1c409c986a299ff476f5b4e59a0ee3ad982bbf",
+      "evidence_type": "TEST_LOG"
+    }
+  ],
+  "verdict": "PASS",
+  "recommendation": "PROMOTE"
+}
