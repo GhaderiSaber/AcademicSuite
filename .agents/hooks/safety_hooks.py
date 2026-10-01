@@ -65,6 +65,27 @@ except ImportError:
         "patch",
     )
 
+try:
+    from contracts.canonical_paths import (
+        is_canonical_learning_path,
+        redirect_learning_target_to_canonical,
+        resolve_canonical_repo_root,
+        get_canonical_learning_dir
+    )
+except ImportError:
+    try:
+        from .contracts.canonical_paths import (
+            is_canonical_learning_path,
+            redirect_learning_target_to_canonical,
+            resolve_canonical_repo_root,
+            get_canonical_learning_dir
+        )
+    except ImportError:
+        def is_canonical_learning_path(p): return False
+        def redirect_learning_target_to_canonical(p): return p
+        def resolve_canonical_repo_root(): return os.getcwd()
+        def get_canonical_learning_dir(): return os.path.join(os.getcwd(), ".agents", "learning")
+
 LEARNING_SUBAGENTS: Tuple[str, ...] = (
     "behavior-analyst",
     "curriculum-builder",
@@ -349,7 +370,13 @@ def is_outside_workspace(path: str, workspaces: List[str]) -> bool:
     """Detects whether a target path is outside the authorized workspace boundaries."""
     if not path or not workspaces:
         return False
+    # Exemption: canonical learning or memory store in AcademicSuite
+    if is_canonical_learning_path(path):
+        return False
     abs_target = os.path.abspath(path)
+    canonical_learning = os.path.abspath(get_canonical_learning_dir())
+    if abs_target.startswith(canonical_learning):
+        return False
     for ws in workspaces:
         abs_ws = os.path.abspath(ws)
         if abs_target == abs_ws or abs_target.startswith(abs_ws + os.sep):
@@ -1424,6 +1451,37 @@ class SafetyHooks:
                         # Antigravity 2.18.1: Unblock delivery workers to allow direct remediation
                         pass
 
+        # Target Redirection for Canonical Learning Store:
+        # If any tool targets .agents/learning, learning/, or .agents/memory,
+        # redirect it directly to the central AcademicSuite repository learning store.
+        was_redirected = False
+        for path_key in ("TargetFile", "file_path", "filePath", "target_file", "path", "target", "AbsolutePath"):
+            if path_key in args and isinstance(args[path_key], str) and is_canonical_learning_path(args[path_key]):
+                redirected_path = redirect_learning_target_to_canonical(args[path_key])
+                if redirected_path != args[path_key]:
+                    args[path_key] = redirected_path
+                    was_redirected = True
+                    if isinstance(payload.get("toolCall"), dict) and "args" in payload["toolCall"]:
+                        payload["toolCall"]["args"][path_key] = redirected_path
+                    if "toolArgs" in payload and isinstance(payload["toolArgs"], dict):
+                        payload["toolArgs"][path_key] = redirected_path
+
+        for list_key in ("files", "paths", "targets", "file_paths"):
+            if list_key in args and isinstance(args[list_key], list):
+                for idx, item in enumerate(args[list_key]):
+                    if isinstance(item, str) and is_canonical_learning_path(item):
+                        redirected_path = redirect_learning_target_to_canonical(item)
+                        if redirected_path != item:
+                            args[list_key][idx] = redirected_path
+                            was_redirected = True
+                    elif isinstance(item, dict):
+                        for pk in ("path", "file_path", "TargetFile", "target"):
+                            if pk in item and isinstance(item[pk], str) and is_canonical_learning_path(item[pk]):
+                                red = redirect_learning_target_to_canonical(item[pk])
+                                if red != item[pk]:
+                                    item[pk] = red
+                                    was_redirected = True
+
         # 2. Raw-Data, Outside-Workspace & State Ledger Guard on Mutation Tools (tool -> target resource -> safety policy)
         if name in MUTATION_TOOLS:
             targets = extract_target_paths(name, args)
@@ -1997,6 +2055,8 @@ class SafetyHooks:
                                         )
                                     }
 
+        if was_redirected:
+            return {"decision": "allow", "overwrite": {"args": args}}
         return {"decision": "allow"}
 
     @staticmethod

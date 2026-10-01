@@ -138,9 +138,27 @@ class AcademicLessonDistiller:
         feedback_dir: Optional[str] = None,
         project_root: Optional[str] = None
     ):
-        self.project_root = project_root or ROOT_DIR
-        cand_agents = os.path.join(self.project_root, ".agents", "learning")
-        l_base = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.project_root, "learning")
+        try:
+            from contracts.canonical_paths import (
+                resolve_canonical_repo_root,
+                resolve_learning_base_dir,
+                is_isolated_test_dir
+            )
+        except ImportError:
+            from .contracts.canonical_paths import (
+                resolve_canonical_repo_root,
+                resolve_learning_base_dir,
+                is_isolated_test_dir
+            )
+
+        explicit_root = project_root or os.environ.get("ACADEMIC_SUITE_BASE_DIR")
+        if explicit_root and is_isolated_test_dir(explicit_root):
+            self.project_root = os.path.abspath(explicit_root)
+            l_base = resolve_learning_base_dir(self.project_root)
+        else:
+            self.project_root = resolve_canonical_repo_root()
+            l_base = resolve_learning_base_dir(self.project_root)
+
         self.lessons_dir = os.path.abspath(
             lessons_dir or os.path.join(l_base, "knowledge", "lessons")
         )

@@ -31,6 +31,7 @@ hooks:
 4. **Directive 6 (English-Only Filenames)**: All candidate files strictly ASCII English (`^[a-zA-Z0-9_.-]+$`). [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
 5. **Directive 12 (Worker Delegation Guard)**: Cannot spawn secondary subagents. [Enforcement: `PreToolUse` hook / `skill_evolver_guard.py`]
 6. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush & Proper Execution Invariant)**: Zero permission to take fastpaths, shortpaths, ad-hoc bypasses, temporary workarounds, or placeholder stubs across all agents and subagents. Strictly no rush in getting the job done; never prioritize speed or turn economy over thoroughness and correctness. Full, thorough, and proper execution to canonical standards without shortcuts, stubs, or premature turn completion. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
+7. **Central Repository Learning Store Mandate**: Improvement candidates and mutation specifications must be placed directly into the central AcademicSuite repository (`.agents/learning/candidates/`). Never stage candidates in client project workspaces. All relative `.agents/learning/...` paths automatically redirect to the central repository.
 
 ## 🏛️ Identity & Domain Mission
 

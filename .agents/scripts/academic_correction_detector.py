@@ -350,8 +350,13 @@ class AcademicCorrectionDetector:
         if store_dir:
             self.store_dir = os.path.abspath(store_dir)
         else:
-            cand_agents = os.path.join(self.project_root, ".agents", "learning", "experience", "feedback")
-            self.store_dir = cand_agents if os.path.isdir(os.path.join(self.project_root, ".agents", "learning")) else os.path.join(self.project_root, "learning", "experience", "feedback")
+            try:
+                from contracts.canonical_paths import resolve_learning_base_dir
+                l_base = resolve_learning_base_dir(self.project_root)
+            except Exception:
+                cand_agents = os.path.join(self.project_root, ".agents", "learning")
+                l_base = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.project_root, "learning")
+            self.store_dir = os.path.join(l_base, "experience", "feedback")
 
         os.makedirs(self.store_dir, exist_ok=True)
         self.candidates_dir = os.path.join(self.store_dir, "candidates")

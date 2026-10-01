@@ -107,10 +107,28 @@ class AcademicIntegratedLearningHub:
     ]
 
     def __init__(self, base_dir: Optional[str] = None, mode: str = "simulation"):
-        self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
+        try:
+            from contracts.canonical_paths import (
+                resolve_canonical_repo_root,
+                resolve_learning_base_dir,
+                is_isolated_test_dir
+            )
+        except ImportError:
+            from .contracts.canonical_paths import (
+                resolve_canonical_repo_root,
+                resolve_learning_base_dir,
+                is_isolated_test_dir
+            )
+
+        explicit_dir = base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR")
+        if explicit_dir and is_isolated_test_dir(explicit_dir):
+            self.base_dir = os.path.abspath(explicit_dir)
+            learning_dir = resolve_learning_base_dir(self.base_dir)
+        else:
+            self.base_dir = resolve_canonical_repo_root()
+            learning_dir = resolve_learning_base_dir(self.base_dir)
+
         self.mode = mode
-        cand_agents = os.path.join(self.base_dir, ".agents", "learning")
-        learning_dir = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.base_dir, "learning")
         self.learning_dir = learning_dir
         self.telemetry_dir = os.path.join(learning_dir, "telemetry")
         self.error_log_file = os.path.join(self.telemetry_dir, "learning_errors.log")
@@ -123,9 +141,9 @@ class AcademicIntegratedLearningHub:
         self.event_tracker = FeedbackEventTracker(store_dir=self.feedback_dir, project_root=self.base_dir)
 
         # Initialize constituent engines
-        self.experience_recorder = AcademicExperienceRecorder(project_root=self.base_dir)
+        self.experience_recorder = AcademicExperienceRecorder(store_dir=os.path.join(learning_dir, "experience"), project_root=self.base_dir)
         self.correction_detector = AcademicCorrectionDetector(store_dir=self.feedback_dir, project_root=self.base_dir)
-        self.lesson_distiller = AcademicLessonDistiller(project_root=self.base_dir)
+        self.lesson_distiller = AcademicLessonDistiller(lessons_dir=os.path.join(learning_dir, "knowledge", "lessons"), project_root=self.base_dir)
         self.dual_loop_engine = AcademicDualLoopEngine(base_dir=self.base_dir)
         self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
         self.drift_monitor = AcademicBehaviorDriftMonitor(base_dir=self.base_dir)

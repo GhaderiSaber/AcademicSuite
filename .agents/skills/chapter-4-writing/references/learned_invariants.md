@@ -122,3 +122,8 @@ The current local time is: 2026-09-25T19:49:25+03:30.
 - **Category**: Lesson
 - **Rule**: Enforce the 4-layer OpenXML RTL standard: 1) Inject <w:bidiVisual/> without w:val in tblPr. 2) Insert <w:bidi/> before <w:docGrid/> in w:sectPr. 3) Inject <w:themeFontLang w:bidi='fa-IR'/> in word/settings.xml. 4) Apply <w:bidi w:val='1'/> to all cell <w:pPr>. Validators must reject w:val on bidiVisual.
 - **Enforcement**: results_auditor_guard.py
+
+### Invariant LSN-2026-THREE-COLUMN-HIERARCHICAL-TABLE-STANDARD-001 (20261001_110815)
+- **Category**: Lesson
+- **Rule**: Enforce a strict 3-column leading structure ('ردیف', 'متغیر', 'مؤلفه') for all descriptive, correlational, and psychometric tables. Ensure row numbers, parent variables, and subscales are structurally separated into their distinct columns.
+- **Enforcement**: results_auditor_guard.py

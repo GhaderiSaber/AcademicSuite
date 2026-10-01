@@ -221,7 +221,13 @@ def dispatch_academic_lifecycle_event(event: str, payload: Dict[str, Any]) -> Di
         if learning_res and isinstance(learning_res, dict) and "overwrite" in learning_res:
             res = dict(safety_res) if isinstance(safety_res, dict) else {"decision": "allow"}
             res["decision"] = "allow"
-            res["overwrite"] = learning_res["overwrite"]
+            if "overwrite" in res and isinstance(res["overwrite"], dict) and "args" in res["overwrite"]:
+                merged_args = dict(res["overwrite"]["args"])
+                if isinstance(learning_res["overwrite"], dict) and "args" in learning_res["overwrite"]:
+                    merged_args.update(learning_res["overwrite"]["args"])
+                res["overwrite"] = {"args": merged_args}
+            else:
+                res["overwrite"] = learning_res["overwrite"]
             return res
 
         return safety_res

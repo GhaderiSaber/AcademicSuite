@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='.agents/hooks/workspace_safety_dispatcher.py' if os.path.exists('.agents/hooks/workspace_safety_dispatcher.py') else 'hooks/workspace_safety_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
+            "command": "python3 -c \"import os,sys; cands=['.agents/hooks/workspace_safety_dispatcher.py','hooks/workspace_safety_dispatcher.py',os.path.expanduser('~/.gemini/config/plugins/academic-suite/hooks/workspace_safety_dispatcher.py'),os.path.expanduser('~/Desktop/AcademicSuite/.agents/hooks/workspace_safety_dispatcher.py')]; f=next((c for c in cands if os.path.exists(c)),'hooks/workspace_safety_dispatcher.py'); os.execv(sys.executable,[sys.executable,f]+sys.argv[1:])\" --event PreToolUse",
             "timeout": 15
           }
         ]
@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
+            "command": "python3 -c \"import os,sys; cands=['.agents/hooks/academic_lifecycle_dispatcher.py','hooks/academic_lifecycle_dispatcher.py',os.path.expanduser('~/.gemini/config/plugins/academic-suite/hooks/academic_lifecycle_dispatcher.py'),os.path.expanduser('~/Desktop/AcademicSuite/.agents/hooks/academic_lifecycle_dispatcher.py')]; f=next((c for c in cands if os.path.exists(c)),'hooks/academic_lifecycle_dispatcher.py'); os.execv(sys.executable,[sys.executable,f]+sys.argv[1:])\" --event PreToolUse",
             "timeout": 15
           }
         ]
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostToolUse",
+            "command": "python3 -c \"import os,sys; cands=['.agents/hooks/academic_lifecycle_dispatcher.py','hooks/academic_lifecycle_dispatcher.py',os.path.expanduser('~/.gemini/config/plugins/academic-suite/hooks/academic_lifecycle_dispatcher.py'),os.path.expanduser('~/Desktop/AcademicSuite/.agents/hooks/academic_lifecycle_dispatcher.py')]; f=next((c for c in cands if os.path.exists(c)),'hooks/academic_lifecycle_dispatcher.py'); os.execv(sys.executable,[sys.executable,f]+sys.argv[1:])\" --event PostToolUse",
             "timeout": 15
           }
         ]
@@ -45,21 +45,21 @@
     "PreInvocation": [
       {
         "type": "command",
-        "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreInvocation",
+        "command": "python3 -c \"import os,sys; cands=['.agents/hooks/academic_lifecycle_dispatcher.py','hooks/academic_lifecycle_dispatcher.py',os.path.expanduser('~/.gemini/config/plugins/academic-suite/hooks/academic_lifecycle_dispatcher.py'),os.path.expanduser('~/Desktop/AcademicSuite/.agents/hooks/academic_lifecycle_dispatcher.py')]; f=next((c for c in cands if os.path.exists(c)),'hooks/academic_lifecycle_dispatcher.py'); os.execv(sys.executable,[sys.executable,f]+sys.argv[1:])\" --event PreInvocation",
         "timeout": 15
       }
     ],
     "PostInvocation": [
       {
         "type": "command",
-        "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PostInvocation",
+        "command": "python3 -c \"import os,sys; cands=['.agents/hooks/academic_lifecycle_dispatcher.py','hooks/academic_lifecycle_dispatcher.py',os.path.expanduser('~/.gemini/config/plugins/academic-suite/hooks/academic_lifecycle_dispatcher.py'),os.path.expanduser('~/Desktop/AcademicSuite/.agents/hooks/academic_lifecycle_dispatcher.py')]; f=next((c for c in cands if os.path.exists(c)),'hooks/academic_lifecycle_dispatcher.py'); os.execv(sys.executable,[sys.executable,f]+sys.argv[1:])\" --event PostInvocation",
         "timeout": 15
       }
     ],
     "Stop": [
       {
         "type": "command",
-        "command": "python3 -c \"import os,sys; f='.agents/hooks/academic_lifecycle_dispatcher.py' if os.path.exists('.agents/hooks/academic_lifecycle_dispatcher.py') else 'hooks/academic_lifecycle_dispatcher.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event Stop",
+        "command": "python3 -c \"import os,sys; cands=['.agents/hooks/academic_lifecycle_dispatcher.py','hooks/academic_lifecycle_dispatcher.py',os.path.expanduser('~/.gemini/config/plugins/academic-suite/hooks/academic_lifecycle_dispatcher.py'),os.path.expanduser('~/Desktop/AcademicSuite/.agents/hooks/academic_lifecycle_dispatcher.py')]; f=next((c for c in cands if os.path.exists(c)),'hooks/academic_lifecycle_dispatcher.py'); os.execv(sys.executable,[sys.executable,f]+sys.argv[1:])\" --event Stop",
         "timeout": 20
       }
     ]

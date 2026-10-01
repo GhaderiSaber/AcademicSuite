@@ -113,7 +113,21 @@ class AcademicGraduationCompiler:
     """Deterministic compilation engine ('The Hands') for Track 1 invariant graduation."""
 
     def __init__(self, base_dir: Optional[str] = None):
-        self.base_dir = os.path.abspath(base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR") or ROOT_DIR)
+        try:
+            from contracts.canonical_paths import resolve_canonical_repo_root, is_isolated_test_dir
+        except ImportError:
+            try:
+                from .contracts.canonical_paths import resolve_canonical_repo_root, is_isolated_test_dir
+            except ImportError:
+                def resolve_canonical_repo_root(): return os.getcwd()
+                def is_isolated_test_dir(p): return False
+
+        explicit_dir = base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR")
+        if explicit_dir and is_isolated_test_dir(explicit_dir):
+            self.base_dir = os.path.abspath(explicit_dir)
+        else:
+            self.base_dir = resolve_canonical_repo_root()
+
         cand_agents = os.path.join(self.base_dir, ".agents")
         self.agents_dir = cand_agents if os.path.isdir(cand_agents) else self.base_dir
         self.skills_dir = os.path.join(self.agents_dir, "skills")

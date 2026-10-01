@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20261001-TABLE-VARIABLE-SUBSCALE-COLUMNS-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": "DOCX compilation and Markdown deliverable generation",
+  "failure_signature": "MERGED_VARIABLE_SUBSCALE_COLUMN",
+  "root_cause_diagnosis": "The script compile_gold_standard_chapter4.py and markdown deliverables flatten hierarchical variable data (row numbers, parent variables, and subscales) into a single column, leading to structural presentation defects. In Table 4-15, row numbers are embedded directly into the variable names, and parent variables are omitted or merged with subscales. This violates the hierarchical table structure needed for clarity and APA 7th Edition compliance, specifically AP-2026-FLAT-OR-UNGROUPED-VARIABLE-SUBSCALE-TABLES.",
+  "prescribed_behavior": "Enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه') for all descriptive, correlational, and inferential tables. Specifically, in compile_gold_standard_chapter4.py, increase the column count for Table 4-15 to 13 and define headers as ['ردیف', 'متغیر', 'مؤلفه', '۱', '۲', ...]. Update Tables 4-16, 4-19, and 4-13 similarly. In markdown deliverables, separate 'متغیر' and 'مؤلفه' into distinct columns and ensure row numbers ('ردیف') are separated from variable names."
+}

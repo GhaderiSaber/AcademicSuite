@@ -142,9 +142,27 @@ class AcademicKnowledgeManager:
     }
 
     def __init__(self, base_dir: Optional[str] = None):
-        self.base_dir = os.path.abspath(base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR") or ROOT_DIR)
-        cand_agents = os.path.join(self.base_dir, ".agents", "learning")
-        self.learning_dir = cand_agents if os.path.isdir(cand_agents) else os.path.join(self.base_dir, "learning")
+        try:
+            from contracts.canonical_paths import (
+                resolve_canonical_repo_root,
+                resolve_learning_base_dir,
+                is_isolated_test_dir
+            )
+        except ImportError:
+            from .contracts.canonical_paths import (
+                resolve_canonical_repo_root,
+                resolve_learning_base_dir,
+                is_isolated_test_dir
+            )
+
+        explicit_dir = base_dir or os.environ.get("ACADEMIC_SUITE_BASE_DIR")
+        if explicit_dir and is_isolated_test_dir(explicit_dir):
+            self.base_dir = os.path.abspath(explicit_dir)
+            self.learning_dir = resolve_learning_base_dir(self.base_dir)
+        else:
+            self.base_dir = resolve_canonical_repo_root()
+            self.learning_dir = resolve_learning_base_dir(self.base_dir)
+
         self.knowledge_dir = os.path.join(self.learning_dir, "knowledge")
         self.skill_memory_dir = os.path.join(self.learning_dir, "skill-memory")
 

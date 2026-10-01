@@ -31,6 +31,7 @@ hooks:
 4. **Directive 6 (English-Only Filenames)**: All analysis files strictly ASCII English (`^[a-zA-Z0-9_.-]+$`). [Enforcement: `PreToolUse` hook / `safety_hooks.py`]
 5. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush & Proper Execution Invariant)**: Zero permission to take fastpaths, shortpaths, ad-hoc bypasses, temporary workarounds, or placeholder stubs across all agents and subagents. Strictly no rush in getting the job done; never prioritize speed or turn economy over thoroughness and correctness. Full, thorough, and proper execution to canonical standards without shortcuts, stubs, or premature turn completion. [Enforcement: `PreToolUse` & `Stop` hooks / `safety_hooks.py` & `integrity_hooks.py`]
 6. **Universal Path Portability Mandate**: When reconstructing trajectories from tool calls, script arguments, or transcript events, all file paths (`AbsolutePath`, `TargetFile`, `Url`) MUST be converted to repository-relative paths or `${WORKSPACE_ROOT}` paths before saving. Zero machine-specific absolute paths (`/home/...`) permitted in `trajectory.json` or `trajectory_reconstruction.md`.
+7. **Central Repository Learning Store Mandate**: Trajectory reports and experience reconstructions must be saved directly to the central AcademicSuite repository (`.agents/learning/experience/<experience_id>/`). Never store trajectory or learning files in client project workspaces. All relative `.agents/learning/...` paths automatically redirect to the central repository.
 
 ## 🏛️ Identity & Domain Mission
 

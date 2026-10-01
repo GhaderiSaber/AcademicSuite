@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MERGED-VARIABLE-SUBSCALE-COLUMN",
+  "category": "typography",
+  "defective_pattern": "Flattening hierarchical variable data (row numbers, parent variables, and subscales) into a single column in academic tables.",
+  "why_defective": "Violates APA 7th Edition formatting and hierarchical table structure requirements. Merging row numbers into variable names or conflating parent variables with subscales reduces clarity, prevents structural presentation, and breaks scholarly presentation standards.",
+  "observed_symptoms": [
+    "Table columns merged inappropriately, combining parent variable names with subscales.",
+    "Row numbers embedded directly into variable names instead of having their own dedicated 'ردیف' column."
+  ],
+  "corrective_remedy": "Enforce a strict 3-column leading prefix for all descriptive, correlational, psychometric, and hierarchical tables. Column 1 MUST be 'ردیف' (Row Number), Column 2 MUST be 'متغیر' (Parent Variable Name), and Column 3 MUST be 'مؤلفه' (Subscale/Component).",
+  "detection_heuristic": {
+    "trigger_rule": "Deterministic detection of missing 3-column prefix in structural tables.",
+    "regex_patterns": [
+      "(?i)table.*merged",
+      "flattened.*subscale"
+    ],
+    "pattern": "(?i)flattened.*subscale",
+    "check_type": "markdown_table_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-01T11:07:00Z"
+}
