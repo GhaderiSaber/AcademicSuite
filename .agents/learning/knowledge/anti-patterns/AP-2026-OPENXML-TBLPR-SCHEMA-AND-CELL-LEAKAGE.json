@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-OPENXML-TBLPR-SCHEMA-AND-CELL-LEAKAGE",
+  "category": "execution",
+  "defective_pattern": "Appending w:bidiVisual to the end of w:tblPr, using brittle string-prefix heuristics for paragraph justification, and leaving English statistical abbreviations untranslated in Persian tables.",
+  "why_defective": "Violates OpenXML sequence ordering causing document corruption, incorrectly strips justification from Persian narrative captions, and violates Persian academic reporting standards with English leaks.",
+  "observed_symptoms": [
+    "Structural schema sequencing defects in OpenXML",
+    "Heuristic classification failures for justification (e.g., stripping from narrative captions)",
+    "Un-sanitized English tokens ('Adj', 'Constant', 'Chi', 'Square') in table cells"
+  ],
+  "corrective_remedy": "Insert <w:bidiVisual/> strictly before <w:tblW>. Abandon brittle string-matching for paragraph classification in favor of robust structural checks. Enforce complete translation of all statistical terms within generated tuples.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect untranslated English statistical terms in Persian tuple generation.",
+    "regex_patterns": ["(?i)(Adj|Constant|Chi|Square)"],
+    "pattern": "(?i)(Adj|Constant|Chi|Square)",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "apa-reporting"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-01T04:20:03Z"
+}

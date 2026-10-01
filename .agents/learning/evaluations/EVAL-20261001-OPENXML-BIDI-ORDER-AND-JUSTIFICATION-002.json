@@ -1,0 +1,62 @@
+{
+  "evaluation_id": "EVAL-20261001-OPENXML-BIDI-ORDER-AND-JUSTIFICATION-002",
+  "candidate_id": "CAND-20261001-OPENXML-BIDI-ORDER-AND-JUSTIFICATION-002",
+  "baseline_id": "baseline_agent",
+  "task_id": "TSK-2026-VAL-FAIL-EVAL-003",
+  "dimensions": {
+    "correctness": 1.0,
+    "robustness": 1.0,
+    "integrity": 1.0
+  },
+  "baseline_metrics": {
+    "passing_tests": 0,
+    "failing_tests": 1
+  },
+  "candidate_metrics": {
+    "passing_tests": 1,
+    "failing_tests": 0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": ["test_typography_and_table_bidi_enforcement.py passed all 10 tests"],
+    "fixes_original_mistake": true,
+    "task_id": "TSK-2026-VAL-FAIL-EVAL-003"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "TSK-2026-VAL-FAIL-EVAL-003",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "TSK-2026-VAL-FAIL-EVAL-003"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": ".agents/hooks/rules/enforced_invariants.json",
+      "sha256": "8a1ea9cb88e735cb15d93b849020bcc255d425b06084f2d1082abe42509b1bfc",
+      "evidence_type": "HOOK_REGISTRATION"
+    },
+    {
+      "artifact_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "192f14da1a9daeade81367ecb54e08a16e8fc4de0e231d65d230df0f7a36500a",
+      "evidence_type": "COMPILED_SCRIPT"
+    }
+  ],
+  "verdict": "PASS",
+  "overall_verdict": "PASS",
+  "contract_version": "1.0.0",
+  "evaluated_at": "2026-10-01T08:00:00Z",
+  "recommendation": "PROMOTE"
+}

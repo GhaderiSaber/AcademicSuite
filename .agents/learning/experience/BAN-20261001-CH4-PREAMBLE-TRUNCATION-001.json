@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261001-CH4-PREAMBLE-TRUNCATION-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261001-CH4-PREAMBLE-TRUNCATION-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "Chapter 4 methodological preamble generation and typography normalization",
+  "trajectory_id": "TRJ-20261001-CH4-PREAMBLE-TRUNCATION-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "FILE_WRITTEN",
+    "description": "academic-writer omitted the canonical Level-1 institutional title '# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش' and replaced the 4-stage methodological roadmap with a truncated 3-sentence stub in 03_deliverables/00_structural_overview.md. Subsequently in Step 5, it executed a naive regex substitution in fix_md.py corrupting decimal percentages."
+  },
+  "failure_signature": "PREMATURE_TRUNCATION_OF_PREAMBLE, CORRUPTED_DECIMAL_REGEX, FASTPATH_BOILERPLATE_SUBSTITUTION",
+  "root_cause_diagnosis": "The defect was caused by two distinct failures: 1) A violation of the Anti-Shortcut Invariant (Directive 25) where the agent replaced the detailed 4-stage empirical progression and canonical chapter heading with a minimal 3-sentence boilerplate stub ('مقدمه و ساختار فصل') during refactoring. 2) A typographical normalization failure where the script fix_md.py naively injected a Persian zero ('۰') before decimal points without using a negative lookbehind for preceding digits, thereby corrupting existing valid percentages (e.g., converting 71.6 to ۷۱۰.۶).",
+  "prescribed_behavior": "1. Strictly preserve the canonical Level-1 chapter title ('# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش') and the exhaustive 4-stage methodological roadmap without abbreviation or truncation. 2. When normalizing Persian leading zeros via regex, explicitly use negative lookbehind assertions (e.g., `(?<![0-9\\u06F0-\\u06F9])\\.(\\d+)`) to only target decimals lacking an integer component, preserving valid numbers like 71.6.",
+  "created_at": "2026-10-01T05:25:33Z"
+}

@@ -1,0 +1,439 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261001-CH4-PREAMBLE-TRUNCATION-001",
+  "experience_id": "EXP-20261001-CH4-PREAMBLE-TRUNCATION-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-LEARN-TRJ-002",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-09-30T18:34:11.972090+00:00",
+      "description": "academic-orchestrator dispatched task TSK-2026-CH4-REFACTOR-TYPOGRAPHY to academic-writer for Stage Phase 2: Systematic Micro-Stage Triad Refactoring & Monograph Compilation.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-REFACTOR-TYPOGRAPHY",
+        "stage": "Phase 2: Systematic Micro-Stage Triad Refactoring & Monograph Compilation",
+        "worker_agent": "academic-writer",
+        "inputs": [
+          "03_deliverables/Chapter_4_Results.md",
+          "03_deliverables/00_structural_overview.md",
+          "03_deliverables/01_demographics.md",
+          "03_deliverables/02_descriptives_and_reliability.md",
+          "03_deliverables/03_parametric_assumptions.md",
+          "03_deliverables/04_correlations.md",
+          "03_deliverables/05_macro_model.md",
+          "03_deliverables/06_hypothesis_1.md",
+          "03_deliverables/07_hypothesis_2.md",
+          "03_deliverables/08_hypothesis_3.md",
+          "03_deliverables/09_hypothesis_4.md",
+          "03_deliverables/10_hypothesis_5.md",
+          "03_deliverables/11_hypothesis_6.md",
+          "03_deliverables/12_hypothesis_7.md",
+          "03_deliverables/13_hypothesis_8.md",
+          "03_deliverables/14_master_decision_matrix.md",
+          "02_analysis_code/compile_gold_standard_chapter4.py",
+          ".agents/references/OPENXML_STANDARDS_MANUAL.md",
+          ".agents/skills/persian-academic-translation/SKILL.md",
+          ".agents/skills/ai-academic-tone-polisher/SKILL.md",
+          ".agents/skills/apa-reporting/SKILL.md"
+        ],
+        "required_artifacts": [
+          "03_deliverables/Chapter_4_Results.md",
+          "03_deliverables/Chapter_4_Results.docx"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:34:11.976077+00:00",
+      "description": "academic-writer session initialized to execute Phase 2 refactoring pass.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-REFACTOR-TYPOGRAPHY"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:34:15.120000+00:00",
+      "description": "academic-writer inspected 03_deliverables/00_structural_overview.md, 03_deliverables/01_demographics.md, and 03_deliverables/01_demographics.json to review demographic distribution and chapter preamble.",
+      "observable_input": {
+        "paths": [
+          "03_deliverables/00_structural_overview.md",
+          "03_deliverables/01_demographics.md",
+          "03_deliverables/01_demographics.json"
+        ]
+      },
+      "observable_output": {
+        "sample_size": 483,
+        "preamble_lines_read": 4,
+        "demographics_gender_json": {
+          "female_n": 346,
+          "female_percent": 71.6,
+          "male_n": 136,
+          "male_percent": 28.2,
+          "other_n": 1,
+          "other_percent": 0.2
+        }
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:35:10.000000+00:00",
+      "description": "DEFECT ENTRY POINT 1 & 2: academic-writer authored 03_deliverables/00_structural_overview.md (4 lines) and 00_structural_overview.json. The writer omitted the canonical Level-1 institutional title '# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش', replacing it with '# مقدمه و ساختار فصل', and truncated the 4-stage methodological roadmap into a 3-sentence boilerplate stub ('ساختار این فصل در دو بخش اصلی تدوین شده است...').",
+      "observable_input": {
+        "target_file": "03_deliverables/00_structural_overview.md",
+        "omitted_canonical_header": "# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش",
+        "substituted_header": "# مقدمه و ساختار فصل",
+        "omitted_methodological_stages": [
+          "Stage 1: Demographic Profiling across 12 variables",
+          "Stage 2: Univariate Descriptives & Scale Reliability",
+          "Stage 3: Parametric Assumptions & Collinearity Diagnostics",
+          "Stage 4: SEM Goodness-of-Fit & Sequential Hypothesis Testing"
+        ]
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "byte_count": 907,
+        "line_count": 4,
+        "written_heading": "# مقدمه و ساختار فصل"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:36:20.000000+00:00",
+      "description": "DEFECT ENTRY POINT 3: academic-writer executed automated text normalization pass via 02_analysis_code/fix_md.py to enforce Persian digits and leading zeros under Directive 4. A naive regex substitution without negative lookbehind for preceding digits matched decimal points and inserted a Persian zero '۰' after the whole number, corrupting all percentage decimals across 03_deliverables/01_demographics.md and 03_deliverables/Chapter_4_Results.md.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/fix_md.py",
+        "regex_intent": "Enforce Persian leading zero standard (۰.۰۵, ۰.۰۰۱)",
+        "flawed_logic": "Naively prepending '۰' to decimal points or replacing '.' with '۰.' on numbers already containing integer digits (e.g. 71.6 -> ۷۱۰.۶)"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "message": "Markdown refactored.",
+        "corrupted_values": {
+          "female_percent": "71.6% -> ۷۱۰.۶%",
+          "male_percent": "28.2% -> ۲۸۰.۲%",
+          "other_percent": "0.2% -> ۰۰.۲%",
+          "total_percent": "100.0% -> ۱.۰%"
+        }
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:37:45.000000+00:00",
+      "description": "academic-writer updated 03_deliverables/01_demographics.md and 03_deliverables/Chapter_4_Results.md, writing the corrupted percentages (۷۱۰.۶ and ۲۸۰.۲) into Table 4-1 (lines 13-19) and narrative text (lines 8-11), as well as Table 4-7 (lines 95-100).",
+      "observable_input": {
+        "target_files": [
+          "03_deliverables/01_demographics.md",
+          "03_deliverables/Chapter_4_Results.md"
+        ]
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "table_4_1_gender_row_1": "| زن | ۳۴۶ | ۷۱۰.۶ |",
+        "table_4_1_gender_row_2": "| مرد | ۱۳۶ | ۲۸۰.۲ |",
+        "table_4_1_gender_row_total": "| کل | ۴۸۳ | ۱.۰ |",
+        "narrative_excerpt": "۳۴۶ نفر (معادل ۷۱۰.۶ درصد) از پاسخ‌دهندگان زن و ۱۳۶ نفر (معادل ۲۸۰.۲ درصد) مرد بوده‌اند"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:38:10.000000+00:00",
+      "description": "academic-writer executed compilation script 02_analysis_code/compile_gold_standard_chapter4.py to compile the monolithic monograph 03_deliverables/Chapter_4_Results.docx.",
+      "observable_input": {
+        "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+        "source_preamble": "03_deliverables/Chapter_4_Preamble_Source.docx"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "preamble_children_copied": 87,
+        "sections_appended": ["4-4", "5-4", "6-4", "7-4", "8-4"]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:38:35.000000+00:00",
+      "description": "academic-writer generated 03_deliverables/Chapter_4_Results.docx. Paragraph 1 contained '# مقدمه و ساختار فصل' instead of the Level-1 chapter title, paragraphs 2-3 contained only the truncated 3-sentence preamble, and Table 4-1 embedded the corrupted percentage decimals (۷۱۰.۶).",
+      "observable_input": {
+        "target_file": "03_deliverables/Chapter_4_Results.docx"
+      },
+      "observable_output": {
+        "status": "WRITTEN",
+        "file_path": "03_deliverables/Chapter_4_Results.docx",
+        "tables_count": 25,
+        "total_paragraphs": 1070
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-09-30T18:39:00.000000+00:00",
+      "description": "academic-writer completed execution and returned status SUCCESS to academic-orchestrator, asserting delivery of Chapter 4 deliverables.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-REFACTOR-TYPOGRAPHY"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "output_artifacts": [
+          "03_deliverables/Chapter_4_Results.md",
+          "03_deliverables/Chapter_4_Results.docx"
+        ]
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "validation-agent",
+      "timestamp": "2026-09-30T18:42:32.000000+00:00",
+      "description": "validation-agent executed automated checks on 03_deliverables/Chapter_4_Results.docx and Chapter_4_Results.md. While it checked OpenXML schema bindings and Latin acronyms, it exhibited an architectural blindspot: it did not assert the presence of '# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش', did not verify the 4-stage methodological roadmap completeness, and did not check numerical integrity or bounds on Table 4-1 percentages.",
+      "observable_input": {
+        "target_artifacts": [
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Chapter_4_Results.md"
+        ]
+      },
+      "observable_output": {
+        "chapter_heading_checked": false,
+        "preamble_methodological_completeness_checked": false,
+        "demographic_percentage_range_checked": false,
+        "status": "CHECK_PASSED_WITH_BLINDSPOTS"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "USER_CORRECTION",
+      "actor": "HumanSupervisor",
+      "timestamp": "2026-10-01T05:15:00.000000+00:00",
+      "description": "Human supervisor reviewed the compiled deliverables and issued a formal rejection critique identifying the missing chapter header, truncated introduction, and corrupted table percentages.",
+      "observable_input": {
+        "critique_text": "You reduced the introduction of chapter and also remove the head of chapter 4..."
+      },
+      "observable_output": {
+        "identified_defects": [
+          "TRUNCATION_OF_CHAPTER_4_HEADING",
+          "REMOVAL_OF_4_STAGE_METHODOLOGICAL_ROADMAP",
+          "CORRUPTION_OF_TABLE_4_1_PERCENTAGE_DECIMALS"
+        ],
+        "verdict": "REJECTED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/Chapter_4_Results.md",
+        "lines": "1-100"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 180
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/00_structural_overview.md",
+        "lines": "1-4"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 110
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/01_demographics.md",
+        "lines": "1-50"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 160
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/01_demographics.json",
+        "lines": "1-40"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 140
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/compile_gold_standard_chapter4.py",
+        "lines": "495-570"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 210
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+      "exit_code": 0,
+      "duration_seconds": 18.24
+    },
+    {
+      "skill_name": "ai-academic-tone-polisher",
+      "script_path": "02_analysis_code/fix_md.py",
+      "cli_command": "python3 02_analysis_code/fix_md.py",
+      "exit_code": 0,
+      "duration_seconds": 2.15
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Phase 2: Systematic Micro-Stage Triad Refactoring & Monograph Compilation",
+      "envelope_summary": "TSK-2026-CH4-REFACTOR-TYPOGRAPHY: Refactor Chapter 4 micro-stage triads and recompile Chapter_4_Results.docx and Chapter_4_Results.md to achieve 100% genuine Persian typography, Unicode normalization, zero un-transliterated Latin acronyms, and pristine OpenXML complex-script font bindings.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/Chapter_4_Results.docx",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-REFACTOR-TYPOGRAPHY",
+      "objective": "Refactor Chapter 4 deliverables and recompile monolithic monograph",
+      "input_artifacts": [
+        "03_deliverables/Chapter_4_Results.md",
+        "03_deliverables/00_structural_overview.md",
+        "03_deliverables/01_demographics.md",
+        "02_analysis_code/compile_gold_standard_chapter4.py"
+      ],
+      "output_artifacts": [
+        "03_deliverables/Chapter_4_Results.md",
+        "03_deliverables/Chapter_4_Results.docx"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261001-CH4-HEADING-DEMOTION-TO-SECTION",
+      "decision_type": "CHAPTER_TITLE_STRUCTURAL_ORGANIZATION",
+      "selected_option": "REPLACE_LEVEL_1_CHAPTER_TITLE_WITH_SECTION_PREAMBLE_HEADING",
+      "rationale": "academic-writer treated Stage 4.0 (00_structural_overview.md) as the root document heading, emitting '# مقدمه و ساختار فصل' at line 1 rather than preserving the overarching Level-1 chapter title '# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش' followed by '## ۴-۰. مقدمه و ساختار فصل'.",
+      "alternatives_considered": [
+        {
+          "option": "PRESERVE_CANONICAL_CHAPTER_4_HEADER",
+          "verdict": "REJECTED_DUE_TO_MICRO_STAGE_ISOLATION_OVERSIGHT",
+          "reason": "Agent flattened the document hierarchy during monograph consolidation, mistaking the micro-stage 4.0 section heading for the monograph title."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261001-CH4-PREAMBLE-ROADMAP-COMPRESSION",
+      "decision_type": "METHODOLOGICAL_PREAMBLE_COMPOSITION",
+      "selected_option": "COMPRESS_4_STAGE_ROADMAP_INTO_3_SENTENCE_BOILERPLATE",
+      "rationale": "Rather than presenting the comprehensive 4-stage empirical progression (1. Demographic Profile, 2. Descriptive & Psychometric Parameters, 3. Parametric Assumptions Suite, 4. SEM Model Fit & Hypothesis Testing), academic-writer collapsed the introductory narrative into a generic 3-sentence summary claiming the chapter is divided into 'دو بخش اصلی' (two main parts).",
+      "alternatives_considered": [
+        {
+          "option": "EXHAUSTIVE_4_STAGE_METHODOLOGICAL_ROADMAP_PROSE",
+          "verdict": "OMITTED_DUE_TO_RUSHED_REFACTORING",
+          "reason": "Agent took a shortcut/fastpath during Phase 2 refactoring, reducing narrative length to minimize typography lint errors instead of properly polishing the full text."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261001-NAIVE_LEADING_ZERO_REGEX_APPLICATION",
+      "decision_type": "DECIMAL_TYPOGRAPHY_NORMALIZATION_LOGIC",
+      "selected_option": "NAIVE_GLOBAL_DECIMAL_POINT_ZERO_INJECTION",
+      "rationale": "To enforce Directive 4 (Persian leading zeros: ۰.۰۵, ۰.۰۰۱), academic-writer executed a global substitution script (fix_md.py) that naively injected '۰' before decimal points or replaced '.' with '۰.' without asserting negative lookbehind for preceding digits (?<!\\d). This converted existing valid two-digit percentages (e.g. 71.6) into corrupted values (۷۱۰.۶).",
+      "alternatives_considered": [
+        {
+          "option": "CONTEXT_AWARE_REGEX_WITH_NEGATIVE_LOOKBEHIND",
+          "verdict": "OMITTED_IN_SCRIPT",
+          "reason": "Developer/agent did not use re.sub(r'(?<![0-9\\u06F0-\\u06F9])\\.(\\d+)', r'۰.\\1', text), resulting in wholesale numerical corruption."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Chapter_4_Results.md",
+      "sha256": "8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+      "type": "markdown_deliverable"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "1f2e3d4c5b6a7f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f2e",
+      "type": "openxml_word_deliverable"
+    },
+    {
+      "path": "03_deliverables/00_structural_overview.md",
+      "sha256": "3cb40dbda8ce3d722b5e282aa56bc9cf4fa3764835698b9f1d9777f98e82ef6c",
+      "type": "micro_stage_markdown"
+    },
+    {
+      "path": "03_deliverables/01_demographics.md",
+      "sha256": "d4c82b0e980ec8b74a4ff1d3ff2ad82381283d5a5cfda3a16d8a4369e46a7ce0",
+      "type": "micro_stage_markdown"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Preamble_Source.md",
+      "sha256": "4b9e38f1a8e1cb6df4ce1502476b7e8d2e85871f30206baae4283c70f9df506e",
+      "type": "preamble_source_markdown"
+    },
+    {
+      "path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c",
+      "type": "python_compilation_script"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "automated_openxml_and_typography_auditor",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "bidi_visual_checked": true,
+        "arabic_codepoints_checked": true,
+        "latin_acronym_footnotes_checked": true,
+        "limitation": "Did not check presence of Level-1 chapter title '# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش', did not evaluate 4-stage preamble completeness, and did not check statistical percentage ranges (710.6 > 100%)."
+      }
+    },
+    {
+      "validator_name": "human_supervisor_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-CHAPTER-4-TITLE-ABSENT: Missing '# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش'.",
+        "CHK-PREAMBLE-ROADMAP-TRUNCATION: 4-stage methodological roadmap removed and replaced by 3-sentence stub.",
+        "CHK-DEMOGRAPHIC-PERCENTAGE-CORRUPTION: Table 4-1 and Table 4-7 report impossible percentages (e.g. 710.6%, 280.2%, 1.0% total)."
+      ],
+      "evidence_summary": {
+        "critique_text": "You reduced the introduction of chapter and also remove the head of chapter 4...",
+        "observable_title_defect": "03_deliverables/Chapter_4_Results.md line 1 starts with '# مقدمه و ساختار فصل' instead of Level-1 chapter title.",
+        "observable_intro_defect": "Lines 1-3 contain only 3 sentences collapsing the 4 empirical stages into a generic 'دو بخش اصلی' summary.",
+        "observable_decimal_defect": "Table 4-1 line 16 has '| زن | ۳۴۶ | ۷۱۰.۶ |' and line 19 has '| کل | ۴۸۳ | ۱.۰ |'."
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261001-CH4-PREAMBLE-TRUNCATION-001"
+  ],
+  "outcome": "FAILURE"
+}

@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-OPENXML-TBLPR-SCHEMA-AND-CELL-LEAKAGE-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "QC_FAILURE",
+  "source_experience_id": "BAN-20261001-VAL-FAIL-001",
+  "diagnosis": {
+    "what_happened": "academic-writer generated a gold standard chapter 4 with OpenXML sequence violations, justification stripping due to brittle string heuristics, and untranslated English statistical terms.",
+    "behavior_caused_outcome": "This led to corrupted Word documents, improperly formatted table captions, and violation of Persian academic language standards.",
+    "what_should_have_happened": "The agent should have adhered to CT_TblPr schema ordering, used structural checks instead of string-matching for justification, and translated all statistical abbreviations to Persian.",
+    "rationale_why": "OpenXML relies on strict schema sequencing. Brittle text-matching heuristics fail on narrative text containing keywords. Persian academic texts require complete localization of terms."
+  },
+  "desired_behavior": "Strictly insert <w:bidiVisual/> before <w:tblW> in OpenXML. Use structural heuristics for justification instead of naive string matching. Always translate English statistical abbreviations to Persian in data tuples.",
+  "generalization": "Robust document generation requires strict schema adherence, structural (not string-based) heuristics, and comprehensive localization protocols.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "VALIDATION_AUDIT",
+    "observed_value": "Validation failure with OpenXML schema violation, brittle justification stripping, and untranslated lexicon",
+    "threshold_value": "Zero OpenXML schema errors, robust formatting, and fully translated tables",
+    "supporting_report_ids": [
+      "BAN-20261001-VAL-FAIL-001"
+    ],
+    "supporting_artifact_paths": [
+      "03_deliverables/Chapter_4_Results.docx"
+    ]
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "apa-reporting"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-01T04:20:03Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "apa-reporting"
+  ]
+}

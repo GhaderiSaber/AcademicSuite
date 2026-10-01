@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-01T04:31:04.771491+00:00",
+  "updated_at": "2026-10-01T05:30:49.085229+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1396,6 +1396,29 @@
       "remedy": "Use tblW[0].addprevious(bidi) and ensure all existing bidiVisual elements are removed before insertion.",
       "enabled": true,
       "updated_at": "2026-10-01T04:31:04.771467+00:00"
+    },
+    "CAND-20261001-CH4-PREAMBLE-AND-REGEX-SAFETY-001": {
+      "item_id": "CAND-20261001-CH4-PREAMBLE-AND-REGEX-SAFETY-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Naive decimal regex without lookbehind detected. This corrupts valid numbers. Use negative lookbehind: (?<![0-9\\u06F0-\\u06F9])\\.(\\d+)",
+      "target_agents": [
+        "academic-writer",
+        "data-agent",
+        "statistics-agent"
+      ],
+      "target_skills": [
+        "CHAPTER4_DRAFTING",
+        "PYTHON_SCRIPTING"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "\\.sub\\(['\"]\\\\\\.(\\\\d\\+?)['\"]",
+      "violation_message": "Naive decimal regex without lookbehind detected. This corrupts valid numbers. Use negative lookbehind: (?<![0-9\\u06F0-\\u06F9])\\.(\\d+)",
+      "remedy": "Modify the regex to use a negative lookbehind assertion, e.g., re.sub(r'(?<![0-9\\u06F0-\\u06F9])\\.(\\d+)', r'۰.\\1', text).",
+      "enabled": true,
+      "updated_at": "2026-10-01T05:30:49.085198+00:00"
     }
   }
 }

@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CH4-PREAMBLE-TRUNCATION-AND-CORRUPT-REGEX",
+  "category": "execution",
+  "defective_pattern": "Replacing the exhaustive 4-stage empirical methodological roadmap and canonical Chapter 4 Level-1 heading with a minimal stub, AND naively using regex without lookbehind to inject Persian leading zeros into decimals.",
+  "why_defective": "Violates the Anti-Shortcut Invariant (Directive 25) by destroying established methodological narrative context. Furthermore, naive decimal regex substitution corrupts valid numbers (e.g., converting 71.6 to ۷۱۰.۶).",
+  "observed_symptoms": [
+    "Canonical Level-1 heading '# فصل چهارم: تجزیه و تحلیل داده‌ها و یافته‌های پژوهش' goes missing.",
+    "The 4-stage methodological roadmap is replaced by a brief 3-sentence stub.",
+    "Decimals with existing integer components have a spurious '۰' injected before the decimal point."
+  ],
+  "corrective_remedy": "Strictly preserve the full 4-stage methodological preamble and canonical heading. Use a negative lookbehind assertion for leading zero normalization, e.g., `(?<![0-9\\u06F0-\\u06F9])\\.(\\d+)`.",
+  "detection_heuristic": {
+    "trigger_rule": "Detects naive regex substitution patterns for Persian decimals without negative lookbehind",
+    "regex_patterns": [
+      "\\.sub\\(['\"]\\\\\\.(\\\\d\\+?)['\"]",
+      "\\.replace\\(['\"]\\.(\\d+)['\"]"
+    ],
+    "pattern": "\\.sub\\(['\"]\\\\\\.(\\\\d\\+?)['\"]",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-01T05:26:28Z"
+}

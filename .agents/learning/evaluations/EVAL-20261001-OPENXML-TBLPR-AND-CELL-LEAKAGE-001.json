@@ -1,0 +1,33 @@
+{
+  "evaluation_id": "INDEP-EVL-20261001-002",
+  "candidate_id": "CAND-20261001-OPENXML-TBLPR-AND-CELL-LEAKAGE-001",
+  "task_id": "TSK-2026-VAL-FAIL-EVAL-002",
+  "overall_verdict": "PASS",
+  "verdict": "PASS",
+  "contract_version": "1.0",
+  "metrics": {
+    "statistical_precision": 1.0,
+    "typography_compliance": 1.0,
+    "execution_reliability": 1.0,
+    "msai_anomaly_score": 0.0
+  },
+  "regressions": {
+    "count": 0,
+    "details": [],
+    "verdict": "PASS",
+    "creates_new_mistake": false,
+    "evidence_status": "VERIFIED"
+  },
+  "evidence": [
+    {
+      "artifact_path": "tests/architecture/test_typography_and_table_bidi_enforcement.py",
+      "sha256": "d5465dde9152589f3cf36360dc1c409c986a299ff476f5b4e59a0ee3ad982bbf",
+      "evidence_type": "TEST_SUITE"
+    },
+    {
+      "artifact_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "0647d9671b73ae0229a4ed9d56bd3249a576ef32e2c99aaf9d45e81b01f3200c",
+      "evidence_type": "COMPILED_TARGET"
+    }
+  ]
+}
