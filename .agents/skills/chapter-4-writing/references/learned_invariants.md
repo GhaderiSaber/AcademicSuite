@@ -222,3 +222,23 @@ The current local time is: 2026-09-25T19:49:25+03:30.
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
+
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261002_183956)
+- **Category**: Lesson
+- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
+- **Enforcement**: results_auditor_guard.py
+
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261002_184012)
+- **Category**: Lesson
+- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
+- **Enforcement**: results_auditor_guard.py
+
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261002_185054)
+- **Category**: Lesson
+- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
+- **Enforcement**: results_auditor_guard.py
+
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261002_185232)
+- **Category**: Lesson
+- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
+- **Enforcement**: results_auditor_guard.py
