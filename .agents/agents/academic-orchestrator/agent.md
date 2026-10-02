@@ -56,6 +56,8 @@ hooks:
 9. **Directive 21 (Zero Silent Patches / Core Engine Evolution)**: User critiques trigger learning pipeline (`trajectory-analyzer` → `behavior-analyst` → `knowledge-curator` → `skill-evolver` → `evaluation-agent`) and physical graduation via `academic_graduation_compiler.py`. Ad-hoc post-processing scripts prohibited. [Enforcement: `academic_graduation_compiler.py`]
 10. **Directive 22 (Fail-Closed Mechanical Validation Gate Invariant)**: Reject conversational "PASS". Require verified physical `validation_report.json` with `overall_verdict == "PASS"` and `checks_failed == 0`. [Enforcement: `Stop` hook / `validation_agent_guard.py`]
 11. **Directive 25 (Universal Anti-Shortcut, Zero-Fastpath, No-Rush & Proper Execution Invariant)**: Zero permission to take fastpaths, shortpaths, ad-hoc bypasses, temporary workarounds, or placeholder stubs across all agents and subagents. Strictly no rush in getting the job done; never prioritize speed or turn economy over thoroughness and correctness. Full, thorough, and proper execution of all canonical stages, triads, and validation gates without cutting corners or premature completion. [Enforcement: `Stop` hook / `integrity_hooks.py`]
+12. **Universal Path Portability Mandate**: Zero machine-specific absolute paths (`/home/...` or hardcoded usernames) permitted in generated files, scripts, or commands. All file paths must be machine-independent and resolved relative to `ACTIVE_PROJECT_DIR` or `SUITE_REPO_DIR` (or plugin root `~/.gemini/config/plugins/academic-suite`).
+13. **Strict Filesystem Boundary & Ban on Recursive Home Directory Scans**: Never perform unbounded recursive searches (`find_by_name`, `list_dir`, `find`, `grep`) on `$HOME` or root `/`. Search strictly within `ACTIVE_PROJECT_DIR` (`01_raw_inputs`, `02_analysis_code`, `03_deliverables`, `04_references_and_lit`). If inspecting suite assets, query `SUITE_REPO_DIR` or plugin directory (`~/.gemini/config/plugins/academic-suite`). Never look for `.agents/` inside `ACTIVE_PROJECT_DIR` unless attached.
 
 ---
 
@@ -184,8 +186,10 @@ To eliminate context drift and shortcuts, the Orchestrator MUST NEVER dispatch i
   "task_id": "TSK-2026-CH4-H1",
   "stage": "Stage 4.6 (Hypothesis 1: Multiple Regression)",
   "worker_agent": "statistics-agent",
+  "suite_repo": "$SUITE_REPO_DIR",
+  "project_workspace": "$ACTIVE_PROJECT_DIR",
   "objective": "Execute linear regression modeling predicting burnout from stress",
-  "target_script": "python3 .agents/skills/regression/scripts/run_regression.py --data 02_analysis_code/cleaned_data.xlsx --dv burnout --iv stress",
+  "target_script": "python3 $SUITE_REPO_DIR/.agents/skills/regression/scripts/run_regression.py --data 02_analysis_code/cleaned_data.xlsx --dv burnout --iv stress",
   "inputs": ["02_analysis_code/cleaned_data.xlsx"],
   "required_artifacts": [
     "03_deliverables/06_hypothesis_1.docx",
@@ -200,7 +204,8 @@ To eliminate context drift and shortcuts, the Orchestrator MUST NEVER dispatch i
   "constraints": [
     "Directive 2 (Deterministic calculation via CLI, zero mental math)",
     "Directive 4 (APA 7th Edition typography)",
-    "Directive 6 (English ASCII filenames)"
+    "Directive 6 (English ASCII filenames)",
+    "Universal Path Portability (resolve all paths via $SUITE_REPO_DIR and $ACTIVE_PROJECT_DIR; zero hardcoded machine paths)"
   ]
 }
 ```
@@ -234,7 +239,7 @@ When `validation-agent` reports `FAIL` (or `validation_report.json` indicates `o
 1. **User Critique / Defect (`USER_FEEDBACK_DETECTED`)**:
    - Never execute silent ad-hoc fixes or one-off scratch scripts in deliverable directories.
    - Dispatch diagnostic cascade: `trajectory-analyzer` $\to$ `behavior-analyst` $\to$ `knowledge-curator` $\to$ `skill-evolver` $\to$ `evaluation-agent`.
-   - **Mandatory Graduation Verification**: Before dispatching delivery workers (e.g. `academic-writer`) for remediation, verify that `evaluation-agent` executed `python3 .agents/scripts/academic_graduation_compiler.py compile-candidate <candidate_json_path>` (and `compile-all`) to compile code diffs into target tools and register mechanical rules in `.agents/hooks/rules/enforced_invariants.json`.
+   - **Mandatory Graduation Verification**: Before dispatching delivery workers (e.g. `academic-writer`) for remediation, verify that `evaluation-agent` executed `python3 "$SUITE_REPO_DIR/.agents/scripts/academic_graduation_compiler.py" compile-candidate <candidate_json_path> --project-dir "$ACTIVE_PROJECT_DIR"` (and `compile-all`) to compile code diffs into target tools and register mechanical rules in `.agents/hooks/rules/enforced_invariants.json`.
    - Remediate deliverables exclusively via the permanently evolved canonical tools on disk.
 2. **Validation Failure (`VALIDATION_FAILED`)**:
    - A validation failure report (`overall_verdict: FAIL` or `checks_failed > 0`) is an autonomous defect report.
@@ -268,3 +273,18 @@ Once `validation-agent` issues `PASS`:
 ## 📦 Deliverables & Artifact Hand-off
 1. Output must be saved as structured, machine-readable JSON checkpoints and OpenXML Word artifacts on disk.
 2. Every output must be certified by independent validators and reference exact physical disk paths.
+
+## 🔍 File & Directory Discovery Protocol (Search & Path Resolution)
+When discovering files or executing commands:
+1. **Locating Project Assets**:
+   - Raw datasets: Search `{ACTIVE_PROJECT_DIR}/01_raw_inputs/`.
+   - Analysis scripts / Cleaned data: Search `{ACTIVE_PROJECT_DIR}/02_analysis_code/`.
+   - Deliverables (.docx, .md, .json): Search `{ACTIVE_PROJECT_DIR}/03_deliverables/`.
+   - References / PDFs: Search `{ACTIVE_PROJECT_DIR}/04_references_and_lit/`.
+2. **Locating Suite Assets & Skills**:
+   - Skills & references: Query `{SUITE_REPO_DIR}/.agents/skills/<skill>/` or `~/.gemini/config/plugins/academic-suite/skills/<skill>/`.
+   - Scripts & tools: Query `{SUITE_REPO_DIR}/.agents/scripts/` or `~/.gemini/config/plugins/academic-suite/scripts/`.
+   - NEVER assume `.agents/` exists in `{ACTIVE_PROJECT_DIR}`.
+3. **Command Execution CWD**:
+   - When running project analysis/compilation scripts: Set `Cwd: "{ACTIVE_PROJECT_DIR}"`.
+   - When running suite CLI tools: Reference the script via its resolved suite path or run with appropriate CWD.

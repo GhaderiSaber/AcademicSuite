@@ -112,7 +112,7 @@ def _is_actionable_regex_pattern(pattern: str) -> bool:
 class AcademicGraduationCompiler:
     """Deterministic compilation engine ('The Hands') for Track 1 invariant graduation."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: Optional[str] = None, active_project_dir: Optional[str] = None):
         try:
             from contracts.canonical_paths import resolve_canonical_repo_root, is_isolated_test_dir
         except ImportError:
@@ -128,6 +128,8 @@ class AcademicGraduationCompiler:
         else:
             self.base_dir = resolve_canonical_repo_root()
 
+        self.active_project_dir = os.path.abspath(active_project_dir) if active_project_dir else None
+
         cand_agents = os.path.join(self.base_dir, ".agents")
         self.agents_dir = cand_agents if os.path.isdir(cand_agents) else self.base_dir
         self.skills_dir = os.path.join(self.agents_dir, "skills")
@@ -136,6 +138,59 @@ class AcademicGraduationCompiler:
         self.invariants_file = os.path.join(self.agents_dir, "hooks", "rules", "enforced_invariants.json")
         os.makedirs(self.snapshots_dir, exist_ok=True)
         os.makedirs(os.path.dirname(self.invariants_file), exist_ok=True)
+
+    def resolve_target_component_path(
+        self,
+        target_component: str,
+        active_project_dir: Optional[str] = None
+    ) -> Tuple[Optional[str], str]:
+        """
+        Dynamically resolves target component across Suite Repo, Active Project Dir, and CWD.
+        Works across different machines without hardcoded paths.
+        Returns (resolved_absolute_path, resolution_scope).
+        """
+        if not target_component:
+            return None, "EMPTY_TARGET"
+
+        clean = target_component.strip()
+        suite_root = self.base_dir
+        project_root = (
+            active_project_dir or
+            getattr(self, "active_project_dir", None) or
+            os.environ.get("ACTIVE_PROJECT_DIR") or
+            os.getcwd()
+        )
+
+        # 1. Expand standard path variables
+        clean = clean.replace("${SUITE_ROOT}", suite_root).replace("${WORKSPACE_ROOT}", project_root)
+
+        # 2. Check if clean is already an absolute path that exists
+        if os.path.isabs(clean) and os.path.isfile(clean):
+            return os.path.abspath(clean), "ABSOLUTE_PATH"
+
+        norm = clean.replace("\\", "/").lstrip("/")
+
+        # 3. Check Central Repository Root (suite_root)
+        cand_suite = os.path.join(suite_root, norm)
+        if os.path.isfile(cand_suite):
+            return os.path.abspath(cand_suite), "SUITE_REPO"
+
+        cand_root = os.path.join(ROOT_DIR, norm)
+        if os.path.isfile(cand_root):
+            return os.path.abspath(cand_root), "SUITE_ROOT"
+
+        # 4. Check Active Project Directory (e.g. for 02_analysis_code/, 03_deliverables/)
+        cand_project = os.path.join(project_root, norm)
+        if os.path.isfile(cand_project):
+            return os.path.abspath(cand_project), "PROJECT_WORKSPACE"
+
+        # 5. Check CWD if different from project_root
+        if os.path.abspath(os.getcwd()) != os.path.abspath(project_root):
+            cand_cwd = os.path.join(os.getcwd(), norm)
+            if os.path.isfile(cand_cwd):
+                return os.path.abspath(cand_cwd), "CURRENT_WORKING_DIR"
+
+        return None, "TARGET_NOT_FOUND"
 
     def _prune_snapshots(self, base_name: str, max_keep: int = 3) -> None:
         """Prunes historical snapshots in self.snapshots_dir to prevent disk clutter."""
@@ -357,7 +412,7 @@ class AcademicGraduationCompiler:
                 if os.path.exists(p) and not os.path.relpath(p, self.base_dir).startswith("..")
             ]
             if not rel_files:
-                return {"success": False, "reason": "No files to stage"}
+                return {"success": True, "committed": False, "pushed": False, "reason": "No base repository files to stage"}
 
             subprocess.run(["git", "add"] + rel_files, cwd=self.base_dir, check=True, capture_output=True, text=True)
 
@@ -726,7 +781,8 @@ class AcademicGraduationCompiler:
         self,
         candidate_json_path: str,
         auto_commit: bool = True,
-        dry_run: bool = False
+        dry_run: bool = False,
+        active_project_dir: Optional[str] = None
     ) -> Dict[str, Any]:
         """Compiles/promotes an improvement candidate JSON into its target component."""
         if not os.path.isfile(candidate_json_path):
@@ -741,14 +797,12 @@ class AcademicGraduationCompiler:
         mutation = data.get("mutation", {})
         rationale = data.get("rationale", "")
 
-        norm_target = target_component.replace("\\", "/").lstrip("/")
-        target_path = os.path.join(self.base_dir, norm_target)
-        if not os.path.isfile(target_path):
-            cand_alt = os.path.join(ROOT_DIR, norm_target)
-            if os.path.isfile(cand_alt):
-                target_path = cand_alt
+        target_path, scope = self.resolve_target_component_path(
+            target_component=target_component,
+            active_project_dir=active_project_dir
+        )
 
-        if not os.path.isfile(target_path):
+        if not target_path or not os.path.isfile(target_path):
             return {
                 "candidate_id": candidate_id,
                 "status": "TARGET_NOT_FOUND",
@@ -868,9 +922,17 @@ class AcademicGraduationCompiler:
             data["status"] = "PROMOTED"
             data["graduation_status"] = "GRADUATED"
             data["promoted_at"] = datetime.now(timezone.utc).isoformat()
-            data["promoted_targets"] = [target_path]
-            if hook_registered:
-                data["promoted_targets"].append(self.invariants_file)
+            clean_targets = []
+            for pt in [target_path] + ([self.invariants_file] if hook_registered else []):
+                if pt.startswith(self.base_dir):
+                    clean_targets.append(os.path.relpath(pt, self.base_dir))
+                elif getattr(self, "active_project_dir", None) and pt.startswith(self.active_project_dir):
+                    clean_targets.append(pt.replace(self.active_project_dir, "${WORKSPACE_ROOT}"))
+                elif pt.startswith(os.getcwd()):
+                    clean_targets.append(pt.replace(os.getcwd(), "${WORKSPACE_ROOT}"))
+                else:
+                    clean_targets.append(os.path.basename(pt))
+            data["promoted_targets"] = clean_targets
             with open(candidate_json_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
@@ -1030,6 +1092,7 @@ def main():
     # compile-candidate
     p_cand = subparsers.add_parser("compile-candidate", help="Compile and promote an improvement candidate JSON into target component")
     p_cand.add_argument("file", help="Path to improvement candidate JSON file")
+    p_cand.add_argument("--project-dir", "-p", default=None, help="Active project directory containing target components (e.g. 02_analysis_code/)")
     p_cand.add_argument("--no-git", action="store_true", help="Do not commit or push to Git")
     p_cand.add_argument("--dry-run", action="store_true", help="Simulate compilation without writing files")
 
@@ -1066,7 +1129,12 @@ def main():
             sys.exit(1)
 
     elif args.command == "compile-candidate":
-        res = compiler.graduate_candidate_from_json_file(args.file, auto_commit=not args.no_git, dry_run=args.dry_run)
+        res = compiler.graduate_candidate_from_json_file(
+            args.file,
+            auto_commit=not args.no_git,
+            dry_run=args.dry_run,
+            active_project_dir=args.project_dir
+        )
         print(json.dumps(res, indent=2, ensure_ascii=False))
         if not res.get("all_passed"):
             sys.exit(1)

@@ -1601,6 +1601,18 @@ def cmd_attach(args):
             print(f"\n{RED}Error cloning repository from {repo_url}: {e}{RESET}\n", file=sys.stderr)
             sys.exit(e.returncode)
 
+    # Convert any symlinked root files (e.g. AGENTS.md) into physical files in project root
+    for item in cwd.iterdir():
+        if item.is_symlink():
+            try:
+                target_p = item.resolve()
+                if target_p.exists() and target_p.is_file():
+                    content = target_p.read_bytes()
+                    item.unlink()
+                    item.write_bytes(content)
+            except Exception:
+                pass
+
     # Record attached suite metadata for clean detachment and status inspection
     attached_items = []
     if git_dir.exists():

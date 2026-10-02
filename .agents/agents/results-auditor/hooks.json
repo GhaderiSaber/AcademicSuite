@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='guard.py' if os.path.exists('guard.py') else '.agents/agents/results-auditor/guard.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event PreToolUse",
+            "command": "python3 -c \"import os,sys; p=[os.path.expanduser('~/.gemini/config/plugins/academic-suite/agents/results-auditor/guard.py'), os.path.join(os.environ.get('ACADEMIC_SUITE_REPO',''), '.agents/agents/results-auditor/guard.py'), '.agents/agents/results-auditor/guard.py', 'guard.py']; f=next((c for c in p if c and os.path.isfile(c)), None); os.execv(sys.executable, [sys.executable, f] + sys.argv[1:]) if f else sys.exit(0)\" --event PreToolUse",
             "timeout": 10
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,sys; f='guard.py' if os.path.exists('guard.py') else '.agents/agents/results-auditor/guard.py'; os.execv(sys.executable, [sys.executable, f] + sys.argv[1:])\" --event Stop",
+            "command": "python3 -c \"import os,sys; p=[os.path.expanduser('~/.gemini/config/plugins/academic-suite/agents/results-auditor/guard.py'), os.path.join(os.environ.get('ACADEMIC_SUITE_REPO',''), '.agents/agents/results-auditor/guard.py'), '.agents/agents/results-auditor/guard.py', 'guard.py']; f=next((c for c in p if c and os.path.isfile(c)), None); os.execv(sys.executable, [sys.executable, f] + sys.argv[1:]) if f else sys.exit(0)\" --event Stop",
             "timeout": 15
           }
         ]

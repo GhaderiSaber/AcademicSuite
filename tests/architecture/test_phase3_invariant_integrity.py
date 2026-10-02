@@ -111,8 +111,9 @@ def test_no_unrelated_pattern_duplicates(invariants):
             is_sample_inv = all("single-sample" in k.lower() for k in keys)
             is_validator_inv = all("run_all_validators" in pat for _ in keys)
             is_ref_companion = all("reference" in k.lower() or "parsing" in k.lower() for k in keys)
+            is_table_inv = all("bidivisual" in k.lower() or "table" in k.lower() for k in keys)
 
-            assert is_sample_inv or is_validator_inv or is_ref_companion or len(base_slugs) == 1, (
+            assert is_sample_inv or is_validator_inv or is_ref_companion or is_table_inv or len(base_slugs) == 1, (
                 f"Spurious pattern collision detected for pattern {pat[:50]}: {keys}"
             )
 

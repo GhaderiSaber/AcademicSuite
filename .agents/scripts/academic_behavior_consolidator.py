@@ -140,16 +140,15 @@ class AcademicBehaviorConsolidator:
 
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = os.path.abspath(base_dir or ROOT_DIR)
-        cand_learning = os.path.join(self.base_dir, ".agents", "learning")
-        self.learning_dir = cand_learning if os.path.isdir(cand_learning) else os.path.join(self.base_dir, "learning")
-        self.knowledge_dir = os.path.join(self.learning_dir, "knowledge")
-        self.lessons_dir = os.path.join(self.knowledge_dir, "lessons")
-        self.contradictions_dir = os.path.join(self.knowledge_dir, "contradictions")
+        self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
+        self.learning_dir = self.knowledge_manager.learning_dir
+        self.knowledge_dir = self.knowledge_manager.knowledge_dir
+        self.lessons_dir = self.knowledge_manager.lessons_dir
+        self.contradictions_dir = self.knowledge_manager.contradictions_dir
         self.snapshots_dir = os.path.join(self.learning_dir, "snapshots", "skills")
         cand_skills = os.path.join(self.base_dir, "skills")
         self.skills_dir = cand_skills if os.path.isdir(cand_skills) else os.path.join(self.base_dir, ".agents", "skills")
 
-        self.knowledge_manager = AcademicKnowledgeManager(base_dir=self.base_dir)
         self.generalization_engine = AcademicGeneralizationEngine(base_dir=self.base_dir)
         self.confidence_engine = AcademicConfidenceEngine()
         self.contradiction_engine = AcademicContradictionEngine(base_dir=self.base_dir)

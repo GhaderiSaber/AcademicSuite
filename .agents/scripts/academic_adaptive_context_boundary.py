@@ -33,6 +33,15 @@ try:
 except ImportError:
     from academic_context_token_budgeter import AcademicContextTokenBudgeter
 
+try:
+    from contracts.canonical_paths import resolve_canonical_repo_root, get_canonical_learning_dir
+except ImportError:
+    try:
+        from .contracts.canonical_paths import resolve_canonical_repo_root, get_canonical_learning_dir
+    except ImportError:
+        def resolve_canonical_repo_root(): return os.getcwd()
+        def get_canonical_learning_dir(): return os.path.join(os.getcwd(), ".agents", "learning")
+
 # Canonical mapping from keyword patterns to capability, default task, and primary agent
 ACADEMIC_CAPABILITY_SIGNATURES: List[Dict[str, Any]] = [
     {
@@ -420,45 +429,56 @@ class AcademicAdaptiveContextBoundary:
             type_name = str(sa_copy.get("TypeName", "")).strip()
             prompt = str(sa_copy.get("Prompt", "")).strip()
 
-            if sa_copy.get("adaptive_context_bound") or "DETERMINISTIC ADAPTIVE CONTEXT" in prompt or "Active Learned Behavioral Context" in prompt:
+            suite_root = resolve_canonical_repo_root()
+            learning_dir = get_canonical_learning_dir()
+            project_dir = os.environ.get("ACTIVE_PROJECT_DIR") or os.getcwd()
+            anchors = (
+                f"📂 ACTIVE ENVIRONMENT DIRECTORY ANCHORS:\n"
+                f"- **SUITE_REPO_DIR**: {suite_root}\n"
+                f"- **CANONICAL_LEARNING_DIR**: {learning_dir}\n"
+                f"- **ACTIVE_PROJECT_DIR**: {project_dir}\n"
+                f"- **Directory Scoping Mandate**:\n"
+                f"  * Suite infrastructure, skills, agents, learning store -> strictly SUITE_REPO_DIR / CANONICAL_LEARNING_DIR.\n"
+                f"  * Project assets (01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit) -> strictly ACTIVE_PROJECT_DIR.\n"
+                f"  * NEVER perform recursive scans (find_by_name) on $HOME or root /.\n"
+                f"  * NEVER search for .agents/ inside ACTIVE_PROJECT_DIR unless attached."
+            )
+
+            has_anchors = "ACTIVE ENVIRONMENT DIRECTORY ANCHORS" in prompt
+            has_context = bool(
+                sa_copy.get("adaptive_context_bound") or
+                "DETERMINISTIC ADAPTIVE CONTEXT" in prompt or
+                "Active Learned Behavioral Context" in prompt
+            )
+
+            if has_anchors and has_context:
+                enriched.append(sa_copy)
+                continue
+
+            if not has_anchors and has_context:
+                sa_copy["Prompt"] = f"{anchors}\n\n{prompt}"
+                sa_copy["adaptive_context_bound"] = True
                 enriched.append(sa_copy)
                 continue
 
             intent = self.detect_task_intent(f"{role} {type_name} {prompt}", metadata={"agent": type_name or role})
             if not intent:
                 clean_type = (type_name or role or "").lower().strip()
-                fallback = None
-                for k, v in ROLE_DEFAULT_CAPABILITY_MAP.items():
-                    if k == clean_type or k in clean_type or clean_type in k:
-                        fallback = v
-                        break
-                if fallback:
-                    intent = {
-                        "capability": fallback["capability"], "task": fallback["task"],
-                        "primary_agent": type_name or role, "domain": fallback["domain"],
-                        "project_id": None
-                    }
-                else:
-                    intent = {
-                        "capability": "general_academic", "task": "subagent_execution",
-                        "primary_agent": type_name or role, "domain": "general-methodology",
-                        "project_id": None
-                    }
+                fallback = next((v for k, v in ROLE_DEFAULT_CAPABILITY_MAP.items() if k in clean_type or clean_type in k), None)
+                intent = fallback or {
+                    "capability": "general_academic", "task": "subagent_execution",
+                    "primary_agent": type_name or role, "domain": "general-methodology", "project_id": None
+                }
 
             b_data = self.retrieve_boundary_context(
-                capability=intent["capability"],
-                task=intent.get("task", "subagent_execution"),
-                agent=type_name or role,
-                domain=intent.get("domain"),
-                prompt_text=prompt,
+                capability=intent["capability"], task=intent.get("task", "subagent_execution"),
+                agent=type_name or role, domain=intent.get("domain"), prompt_text=prompt,
                 max_token_budget=self.budgeter.SUBAGENT_TOKEN_BUDGET
             )
             briefing = self.format_boundary_briefing(b_data)
-
-            if briefing and briefing.strip():
-                sa_copy["Prompt"] = f"{briefing.strip()}\n\n---\n### Executable Task Assignment:\n{prompt}"
-                sa_copy["adaptive_context_bound"] = True
-
+            prefix = f"{anchors}\n\n{briefing.strip()}" if briefing and briefing.strip() else anchors
+            sa_copy["Prompt"] = f"{prefix}\n\n---\n### Executable Task Assignment:\n{prompt}"
+            sa_copy["adaptive_context_bound"] = True
             enriched.append(sa_copy)
 
         if is_stringified:

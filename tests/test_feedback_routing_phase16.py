@@ -157,6 +157,8 @@ class TestFeedbackRoutingPhase16(unittest.TestCase):
 
         # Check activity telemetry
         act_file = os.path.join(self.temp_dir, "learning", "telemetry", "activity.jsonl")
+        if not os.path.isfile(act_file):
+            act_file = os.path.join(self.temp_dir, ".agents", "learning", "telemetry", "activity.jsonl")
         self.assertTrue(os.path.isfile(act_file))
         with open(act_file, "r", encoding="utf-8") as f:
             act_lines = [json.loads(l) for l in f if l.strip()]

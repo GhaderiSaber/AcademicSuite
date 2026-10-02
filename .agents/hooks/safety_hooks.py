@@ -363,6 +363,30 @@ def is_dangerous_command(cmd: str) -> Tuple[bool, str]:
     if is_shortcut_violation:
         return True, shortcut_reason
 
+    # Ban unbounded recursive searches in shell commands
+    if re.search(r"\bfind\s+(?:/|~|\$HOME|/home|/Users)(?:\s|$)", cmd) or re.search(r"\bgrep\s+-[^\s]*r[^\s]*\s+.*?(?:\s)(?:/|~|\$HOME|/home|/Users)(?:\s|$)", cmd):
+        return True, (
+            f"CONSTITUTIONAL VIOLATION (Strict Filesystem Boundary & Ban on Recursive Home Scans): "
+            f"Unbounded recursive search command on root or $HOME ('{cmd}') is prohibited. "
+            f"Restrict search paths to ACTIVE_PROJECT_DIR (01_raw_inputs, 02_analysis_code, 03_deliverables) or SUITE_REPO_DIR."
+        )
+
+    return False, ""
+
+
+def is_unbounded_search_target(path: str) -> Tuple[bool, str]:
+    """Detects whether a search target is root or $HOME, which would cause an unbounded recursive scan."""
+    if not path or not isinstance(path, str):
+        return False, ""
+    raw = path.strip()
+    clean = os.path.abspath(os.path.expanduser(raw)).rstrip(os.sep)
+    home_dir = os.path.abspath(os.path.expanduser("~")).rstrip(os.sep)
+    if clean in ("", "/", "/home", "/Users") or clean == home_dir or raw in ("~", "/", "/home", "$HOME"):
+        return True, (
+            f"Unbounded recursive search on root or home directory ('{path}') is prohibited. "
+            f"Target your search strictly to ACTIVE_PROJECT_DIR (01_raw_inputs, 02_analysis_code, 03_deliverables) "
+            f"or SUITE_REPO_DIR."
+        )
     return False, ""
 
 
@@ -2054,6 +2078,25 @@ class SafetyHooks:
                                             f"'knowledge-curator' -> 'skill-evolver' -> 'evaluation-agent' to evolve canonical tools on disk."
                                         )
                                     }
+
+        # 6. Strict Filesystem Boundary & Runaway Search Guard (find_by_name, grep_search, list_dir)
+        if name in ("find_by_name", "grep_search", "list_dir"):
+            search_target = ""
+            if name == "find_by_name":
+                search_target = args.get("SearchDirectory", "")
+            elif name == "grep_search":
+                search_target = args.get("SearchPath", "")
+            elif name == "list_dir":
+                search_target = args.get("DirectoryPath", "")
+
+            if search_target:
+                is_unbounded, reason = is_unbounded_search_target(search_target)
+                if is_unbounded:
+                    if not (is_main and name == "list_dir"):
+                        return {
+                            "decision": "deny",
+                            "reason": f"CONSTITUTIONAL VIOLATION (Strict Filesystem Boundary & Ban on Recursive Home Scans): {reason}"
+                        }
 
         if was_redirected:
             return {"decision": "allow", "overwrite": {"args": args}}
