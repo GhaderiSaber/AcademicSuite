@@ -285,7 +285,11 @@ class TestAcademicWriterExecutionGuard(unittest.TestCase):
             "python3 scripts/academic_docgen.py compile-presentation --input slides.json",
             "python3 scripts/academic_docgen.py scaffold-apa-tables --input spec.json",
             "python3 scripts/academic_docgen.py polish-tone --in draft.md --out polished.md",
+            "python3 scripts/academic_docgen.py inspect-docx --docx document.docx",
+            "python3 scripts/academic_docgen.py patch-docx-dom --docx document.docx --action set-table-rtl",
             "python3 .agents/scripts/academic_docgen.py render-docx --md input.md --docx output.docx",
+            "python3 .agents/scripts/academic_docgen.py inspect-docx --docx document.docx",
+            "python3 .agents/scripts/academic_docgen.py patch-docx-dom --docx document.docx --action set-table-rtl",
         ]
         for cmd in valid_docgen_commands:
             payload = {

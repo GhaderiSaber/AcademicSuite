@@ -96,7 +96,30 @@ DOMAIN_COLLOCATION_EXCLUSIONS = [
     r"رابطه(?:[‌ ])?ای وجود ندارد",
     r"رابطه معناداری وجود ندارد",
     r"تفاوتی وجود ندارد",
-    r"اثری وجود ندارد"
+    r"اثری وجود ندارد",
+    # Document styling, layout and formatting instructions (interactive drafting revisions)
+    r"\btable direction\b",
+    r"\bdirection (?:of|for) (?:the )?table\b",
+    r"\bchange (?:the )?(?:table )?direction\b",
+    r"\bchange (?:the )?rtl\b",
+    r"\bchange (?:the )?ltr\b",
+    r"\btables? (?:is|are|still) (?:left-to-right|right-to-left|ltr|rtl)\b",
+    r"\b(?:make|set|flip) (?:the )?tables? (?:to )?(?:rtl|right-to-left|ltr)\b",
+    r"\b(?:separate|seperate) (?:the |this )?(?:variables?|subscales?|columns?)\b",
+    r"\brestore (?:the )?(?:previous )?(?:introduction|heading|roadmap|section)\b",
+    r"\badd (?:the )?(?:previous )?(?:introduction|heading|roadmap) back\b",
+    r"جهت جدول",
+    r"تغییر جهت جدول",
+    r"راست[‌ ]به[‌ ]چپ",
+    r"چپ[‌ ]به[‌ ]راست",
+    r"تنظیمات جدول",
+    r"جداسازی ستون(?:[‌ ]ها)?",
+    r"ستون متغیر",
+    r"ستون مؤلفه",
+    r"ستون خرده‌مقیاس",
+    r"بازگرداندن مقدمه",
+    r"مقدمه را برگردان",
+    r"سرتیتر فصل"
 ]
 
 # High-precision patterns asserting a defect in agent deliverable, output, or execution

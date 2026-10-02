@@ -1809,6 +1809,9 @@ class SafetyHooks:
                             "compile-presentation",
                             "scaffold-apa-tables",
                             "polish-tone",
+                            "batch-fix",
+                            "inspect-docx",
+                            "patch-docx-dom",
                         }
                         subcmd = tokens[2] if len(tokens) > 2 else ""
                         if subcmd not in allowed_subcommands:

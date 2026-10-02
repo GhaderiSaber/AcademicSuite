@@ -43,6 +43,31 @@ if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
 
+def sync_deliverable_to_root(docx_path: str) -> None:
+    """Mirrors a deliverable .docx to project root workspace, checking for active file locks."""
+    if not docx_path or not os.path.exists(docx_path):
+        return
+    norm = os.path.abspath(docx_path).replace("\\", "/")
+    if "03_deliverables" not in norm:
+        return
+    parts = norm.split("/03_deliverables")
+    project_root = parts[0]
+    filename = os.path.basename(docx_path)
+    root_target = os.path.join(project_root, filename)
+
+    lock_file = os.path.join(project_root, f".~lock.{filename}#")
+    if os.path.exists(lock_file):
+        print(f"NOTICE: Active document viewer lock '{os.path.basename(lock_file)}' detected in project root. "
+              f"Updated file saved to '{docx_path}'. Please close and reopen Word/ONLYOFFICE to view updates.")
+
+    try:
+        import shutil
+        shutil.copy2(docx_path, root_target)
+        print(f"SUCCESS: Synchronized deliverable to workspace root: {root_target}")
+    except Exception as e:
+        print(f"WARNING: Could not copy deliverable to root ({e})")
+
+
 def cmd_render_docx(args: argparse.Namespace) -> int:
     """Compile Markdown and/or JSON into OpenXML DOCX."""
     out_docx = args.docx or args.out
@@ -58,6 +83,7 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
         from structured_docx_generator import build_structured_docx, build_openxml_document
         if json_path and os.path.exists(json_path):
             result = build_structured_docx(json_path=json_path, md_path=md_path, out_docx_path=out_docx)
+            sync_deliverable_to_root(out_docx)
             print(f"SUCCESS: Rendered structured DOCX via structured_docx_generator: {result}")
             return 0
     except ImportError:
@@ -74,8 +100,12 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
 
         for section in doc.sections:
             bidi = OxmlElement('w:bidi')
-            bidi.set(qn('w:val'), '1')
-            section._sectPr.append(bidi)
+            sectPr = section._sectPr
+            docGrid = sectPr.find(qn('w:docGrid'))
+            if docGrid is not None:
+                docGrid.addprevious(bidi)
+            else:
+                sectPr.append(bidi)
 
         def set_rtl(paragraph):
             pPr = paragraph._p.get_or_add_pPr()
@@ -149,7 +179,6 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
                             tblPr = table._tbl.tblPr
                             if tblPr is not None:
                                 bidiVisual = OxmlElement('w:bidiVisual')
-                                bidiVisual.set(qn('w:val'), '1')
                                 tblW_idx = -1
                                 for idx, child in enumerate(tblPr):
                                     if child.tag == qn('w:tblW'):
@@ -201,7 +230,6 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
                 tblPr = table._tbl.tblPr
                 if tblPr is not None:
                     bidiVisual = OxmlElement('w:bidiVisual')
-                    bidiVisual.set(qn('w:val'), '1')
                     tblW_idx = -1
                     for idx, child in enumerate(tblPr):
                         if child.tag == qn('w:tblW'):
@@ -230,6 +258,7 @@ def cmd_render_docx(args: argparse.Namespace) -> int:
 
         os.makedirs(os.path.dirname(os.path.abspath(out_docx)), exist_ok=True)
         doc.save(out_docx)
+        sync_deliverable_to_root(out_docx)
         print(f"SUCCESS: Rendered DOCX via python-docx AST Parser: {out_docx}")
         return 0
     except Exception as e:
@@ -490,6 +519,18 @@ def build_parser() -> argparse.ArgumentParser:
     # batch-fix
     p_batch = subparsers.add_parser("batch-fix", help="Batch polish and re-render all deliverables")
 
+    # inspect-docx
+    p_insp = subparsers.add_parser("inspect-docx", help="Inspect OpenXML DOM of Word document (.docx)")
+    p_insp.add_argument("--docx", help="Target DOCX file to inspect")
+    p_insp.add_argument("--file", help="Alias for --docx")
+
+    # patch-docx-dom
+    p_patch = subparsers.add_parser("patch-docx-dom", help="Surgically patch OpenXML DOM in Word document (.docx)")
+    p_patch.add_argument("--docx", help="Target DOCX file to patch")
+    p_patch.add_argument("--file", help="Alias for --docx")
+    p_patch.add_argument("--action", default="set-table-rtl", help="Patch action: set-table-rtl, remove-vertical-borders, all, sync-root")
+    p_patch.add_argument("--sync-root", dest="sync_root", action="store_true", help="Mirror updated file to workspace root")
+
     return parser
 
 def cmd_batch_fix(args: argparse.Namespace) -> int:
@@ -511,6 +552,235 @@ def cmd_batch_fix(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_inspect_docx(args: argparse.Namespace) -> int:
+    """Inspect OpenXML DOM structures of a Word document (.docx)."""
+    docx_path = args.docx or getattr(args, "file", None)
+    if not docx_path or not os.path.exists(docx_path):
+        print(f"ERROR: Target docx file does not exist: {docx_path}", file=sys.stderr)
+        return 1
+
+    import zipfile
+    import xml.etree.ElementTree as ET
+
+    try:
+        with zipfile.ZipFile(docx_path, "r") as zf:
+            namelist = zf.namelist()
+            if "word/document.xml" not in namelist:
+                print(f"ERROR: 'word/document.xml' not found in {docx_path}", file=sys.stderr)
+                return 1
+
+            doc_xml = zf.read("word/document.xml")
+            root = ET.fromstring(doc_xml)
+
+            ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+            
+            paragraphs = root.findall(".//w:p", ns)
+            tables = root.findall(".//w:tbl", ns)
+            
+            has_settings = "word/settings.xml" in namelist
+            theme_font_bidi = False
+            if has_settings:
+                try:
+                    s_root = ET.fromstring(zf.read("word/settings.xml"))
+                    tfl = s_root.find(".//w:themeFontLang", ns)
+                    if tfl is not None and tfl.attrib.get(f"{{{ns['w']}}}bidi") in ("fa-IR", "ar-SA"):
+                        theme_font_bidi = True
+                except Exception:
+                    pass
+
+            has_footnotes = "word/footnotes.xml" in namelist
+            footnote_count = 0
+            if has_footnotes:
+                try:
+                    fn_root = ET.fromstring(zf.read("word/footnotes.xml"))
+                    fns = [fn for fn in fn_root.findall(".//w:footnote", ns) if fn.attrib.get(f"{{{ns['w']}}}id") not in ("-1", "0")]
+                    footnote_count = len(fns)
+                except Exception:
+                    pass
+
+            table_reports = []
+            for idx, tbl in enumerate(tables, 1):
+                tblPr = tbl.find("w:tblPr", ns)
+                bidi_visual = False
+                bidi_visual_val = None
+                if tblPr is not None:
+                    bv = tblPr.find("w:bidiVisual", ns)
+                    if bv is not None:
+                        bidi_visual = True
+                        bidi_visual_val = bv.attrib.get(f"{{{ns['w']}}}val")
+
+                borders = tblPr.find("w:tblBorders", ns) if tblPr is not None else None
+                inside_v = borders.find("w:insideV", ns) is not None if borders is not None else False
+                
+                rows = tbl.findall("w:tr", ns)
+                cell_count = 0
+                cell_bidi_count = 0
+                for r in rows:
+                    cells = r.findall("w:tc", ns)
+                    cell_count += len(cells)
+                    for c in cells:
+                        for p in c.findall("w:p", ns):
+                            pPr = p.find("w:pPr", ns)
+                            if pPr is not None and pPr.find("w:bidi", ns) is not None:
+                                cell_bidi_count += 1
+
+                table_reports.append({
+                    "table_index": idx,
+                    "rows": len(rows),
+                    "cells": cell_count,
+                    "has_bidiVisual": bidi_visual,
+                    "bidiVisual_val": bidi_visual_val,
+                    "is_rtl_compliant": bidi_visual and (bidi_visual_val is None),
+                    "has_vertical_borders": inside_v,
+                    "cells_with_p_bidi": cell_bidi_count
+                })
+
+            report = {
+                "file": docx_path,
+                "paragraphs_count": len(paragraphs),
+                "tables_count": len(tables),
+                "settings_themeFontLang_bidi": theme_font_bidi,
+                "footnotes_count": footnote_count,
+                "tables": table_reports
+            }
+
+            print(json.dumps(report, indent=2, ensure_ascii=False))
+            return 0
+    except Exception as e:
+        print(f"ERROR: Failed to inspect docx: {e}", file=sys.stderr)
+        return 1
+
+
+def cmd_patch_docx_dom(args: argparse.Namespace) -> int:
+    """Surgically patches the OpenXML DOM of an existing Word document (.docx)."""
+    docx_path = args.docx or getattr(args, "file", None)
+    if not docx_path or not os.path.exists(docx_path):
+        print(f"ERROR: Target docx file does not exist: {docx_path}", file=sys.stderr)
+        return 1
+
+    action = (args.action or "set-table-rtl").lower().strip()
+    sync_root = getattr(args, "sync_root", False) or action in ("sync-root", "sync_root")
+
+    import zipfile
+    import tempfile
+    import xml.etree.ElementTree as ET
+
+    ns_w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+    ET.register_namespace("w", ns_w)
+
+    try:
+        temp_dir = tempfile.mkdtemp(prefix="docx_patch_")
+        with zipfile.ZipFile(docx_path, "r") as zf:
+            zf.extractall(temp_dir)
+
+        doc_xml_path = os.path.join(temp_dir, "word", "document.xml")
+        if not os.path.exists(doc_xml_path):
+            print(f"ERROR: 'word/document.xml' not found in extracted archive", file=sys.stderr)
+            return 1
+
+        tree = ET.parse(doc_xml_path)
+        root = tree.getroot()
+
+        tables_modified = 0
+        if action in ("set-table-rtl", "all", "fix-tables"):
+            for tbl in root.iter(f"{{{ns_w}}}tbl"):
+                tblPr = tbl.find(f"{{{ns_w}}}tblPr")
+                if tblPr is None:
+                    tblPr = ET.Element(f"{{{ns_w}}}tblPr")
+                    tbl.insert(0, tblPr)
+
+                existing_bv = tblPr.findall(f"{{{ns_w}}}bidiVisual")
+                for ebv in existing_bv:
+                    tblPr.remove(ebv)
+                new_bv = ET.Element(f"{{{ns_w}}}bidiVisual")
+                tblPr.insert(0, new_bv)
+
+                for tc in tbl.iter(f"{{{ns_w}}}tc"):
+                    for p in tc.findall(f"{{{ns_w}}}p"):
+                        pPr = p.find(f"{{{ns_w}}}pPr")
+                        if pPr is None:
+                            pPr = ET.Element(f"{{{ns_w}}}pPr")
+                            p.insert(0, pPr)
+                        if pPr.find(f"{{{ns_w}}}bidi") is None:
+                            bidi_p = ET.Element(f"{{{ns_w}}}bidi")
+                            bidi_p.set(f"{{{ns_w}}}val", "1")
+                            pPr.insert(0, bidi_p)
+
+                tables_modified += 1
+
+            for sectPr in root.iter(f"{{{ns_w}}}sectPr"):
+                existing_bidi = sectPr.find(f"{{{ns_w}}}bidi")
+                doc_grid = sectPr.find(f"{{{ns_w}}}docGrid")
+                if existing_bidi is None:
+                    new_bidi = ET.Element(f"{{{ns_w}}}bidi")
+                    if doc_grid is not None:
+                        idx = list(sectPr).index(doc_grid)
+                        sectPr.insert(idx, new_bidi)
+                    else:
+                        sectPr.append(new_bidi)
+
+        if action in ("remove-vertical-borders", "all", "fix-tables", "apa7-borders"):
+            for tbl in root.iter(f"{{{ns_w}}}tbl"):
+                tblPr = tbl.find(f"{{{ns_w}}}tblPr")
+                if tblPr is not None:
+                    borders = tblPr.find(f"{{{ns_w}}}tblBorders")
+                    if borders is not None:
+                        for b_name in ("insideV", "left", "right"):
+                            b_elem = borders.find(f"{{{ns_w}}}{b_name}")
+                            if b_elem is not None:
+                                borders.remove(b_elem)
+
+        tree.write(doc_xml_path, encoding="utf-8", xml_declaration=True)
+
+        settings_path = os.path.join(temp_dir, "word", "settings.xml")
+        if os.path.exists(settings_path):
+            try:
+                s_tree = ET.parse(settings_path)
+                s_root = s_tree.getroot()
+                tfl = s_root.find(f"{{{ns_w}}}themeFontLang")
+                if tfl is None:
+                    tfl = ET.Element(f"{{{ns_w}}}themeFontLang")
+                    tfl.set(f"{{{ns_w}}}bidi", "fa-IR")
+                    s_root.insert(0, tfl)
+                else:
+                    tfl.set(f"{{{ns_w}}}bidi", "fa-IR")
+                s_tree.write(settings_path, encoding="utf-8", xml_declaration=True)
+            except Exception:
+                pass
+        else:
+            settings_xml_content = (
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+                f'<w:settings xmlns:w="{ns_w}">\n'
+                '  <w:themeFontLang w:bidi="fa-IR"/>\n'
+                '</w:settings>'
+            )
+            with open(settings_path, "w", encoding="utf-8") as sf:
+                sf.write(settings_xml_content)
+
+        patched_docx = docx_path + ".tmp"
+        with zipfile.ZipFile(patched_docx, "w", zipfile.ZIP_DEFLATED) as new_zf:
+            for root_dir, _, files in os.walk(temp_dir):
+                for file in files:
+                    full_path = os.path.join(root_dir, file)
+                    rel_path = os.path.relpath(full_path, temp_dir)
+                    new_zf.write(full_path, rel_path)
+
+        import shutil
+        shutil.move(patched_docx, docx_path)
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+        print(f"SUCCESS: Patched OpenXML DOM in {docx_path} (Action: {action}, Tables modified: {tables_modified})")
+
+        norm_path = os.path.abspath(docx_path).replace("\\", "/")
+        if "03_deliverables" in norm_path or sync_root:
+            sync_deliverable_to_root(docx_path)
+
+        return 0
+    except Exception as e:
+        print(f"ERROR: Failed to patch docx DOM: {e}", file=sys.stderr)
+        return 1
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
@@ -524,6 +794,8 @@ def main() -> int:
         "scaffold-apa-tables": cmd_scaffold_apa_tables,
         "polish-tone": cmd_polish_tone,
         "batch-fix": cmd_batch_fix,
+        "inspect-docx": cmd_inspect_docx,
+        "patch-docx-dom": cmd_patch_docx_dom,
     }
 
     handler = handlers.get(args.subcommand)

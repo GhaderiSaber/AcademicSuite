@@ -22,6 +22,7 @@ def build_openxml_document(title, items, out_docx_path):
         '  <Default Extension="xml" ContentType="application/xml"/>\n'
         '  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>\n'
         '  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>\n'
+        '  <Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>\n'
         '</Types>'
     )
 
@@ -36,7 +37,15 @@ def build_openxml_document(title, items, out_docx_path):
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
         '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n'
         '  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>\n'
+        '  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>\n'
         '</Relationships>'
+    )
+
+    settings_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+        '<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n'
+        '  <w:themeFontLang w:bidi="fa-IR"/>\n'
+        '</w:settings>'
     )
 
     styles_xml = (
@@ -180,7 +189,7 @@ def build_openxml_document(title, items, out_docx_path):
             tbl_xml = [
                 '    <w:tbl>',
                 '      <w:tblPr>',
-                '        <w:bidiVisual w:val="1"/>',
+                '        <w:bidiVisual/>',
                 '        <w:tblW w:w="0" w:type="auto"/>',
                 '        <w:jc w:val="center"/>',
                 '        <w:tblBorders>',
@@ -256,6 +265,7 @@ def build_openxml_document(title, items, out_docx_path):
         '  <w:body>\n'
         + "\n".join(body_xml_parts) + '\n'
         '    <w:sectPr>\n'
+        '      <w:bidi/>\n'
         '      <w:pgSz w:w="11906" w:h="16838"/>\n'
         '      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>\n'
         '      <w:cols w:space="720"/>\n'
@@ -284,6 +294,9 @@ def build_openxml_document(title, items, out_docx_path):
             
         with open(os.path.join(word_dir, "styles.xml"), "w", encoding="utf-8") as f:
             f.write(styles_xml)
+
+        with open(os.path.join(word_dir, "settings.xml"), "w", encoding="utf-8") as f:
+            f.write(settings_xml)
             
         with open(os.path.join(word_dir, "document.xml"), "w", encoding="utf-8") as f:
             f.write(document_xml)
@@ -420,5 +433,22 @@ def build_structured_docx(json_path: str, md_path: Optional[str] = None, out_doc
     # The auditor just looks at the paragraph before the table.
     
     build_openxml_document(title, items, out_docx_path)
+
+    # Automatic sync to project root if deliverable
+    try:
+        norm = os.path.abspath(out_docx_path).replace("\\", "/")
+        if "03_deliverables" in norm:
+            parts = norm.split("/03_deliverables")
+            project_root = parts[0]
+            filename = os.path.basename(out_docx_path)
+            root_target = os.path.join(project_root, filename)
+            lock_file = os.path.join(project_root, f".~lock.{filename}#")
+            if os.path.exists(lock_file):
+                print(f"NOTICE: Active document viewer lock '{os.path.basename(lock_file)}' detected in project root.")
+            import shutil
+            shutil.copy2(out_docx_path, root_target)
+    except Exception:
+        pass
+
     return out_docx_path
 

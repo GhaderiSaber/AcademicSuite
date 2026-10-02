@@ -175,6 +175,24 @@ class TestCritiqueDetectionPrecision(unittest.TestCase):
             f"orch_guard falsely detected critique on '{clean_txt}'"
         )
 
+    def test_10_editorial_styling_queries_immunity(self):
+        """Editorial layout and table styling instructions must not trigger defect critiques."""
+        styling_queries = [
+            "In Microsoft Word, there is an option for changing table direction. Please change the RTL for table.",
+            "The table is Left-to-Right still, please flip the table to RTL.",
+            "There is some tables that have both variables and subscale in one column. You should separate the columns.",
+            "Please restore the previous introduction paragraph that was shortened.",
+            "جهت جدول را راست به چپ تنظیم کن.",
+            "ستون متغیر و ستون مؤلفه را از هم جدا کن."
+        ]
+        for query in styling_queries:
+            is_crit, term = is_meaningful_user_critique(query, caller="academic-orchestrator")
+            self.assertFalse(
+                is_crit,
+                f"Styling instruction '{query}' was falsely classified as critique on term '{term}'"
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
+
