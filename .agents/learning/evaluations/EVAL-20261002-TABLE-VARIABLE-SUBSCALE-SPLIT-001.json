@@ -10,7 +10,7 @@
   "regressions": 0,
   "overall_verdict": "PASS",
   "evidence": [
-    "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/02_analysis_code/compile_gold_standard_chapter4.py",
-    "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/Chapter_4_Results.md"
+    "02_analysis_code/compile_gold_standard_chapter4.py",
+    "03_deliverables/Chapter_4_Results.md"
   ]
 }

@@ -17,5 +17,5 @@ The candidate successfully refactored `compile_gold_standard_chapter4.py` to enf
 **PASS**
 
 ## 5. Artifacts Assessed
-- `/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/02_analysis_code/compile_gold_standard_chapter4.py`
-- `/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/03_deliverables/*.md`
+- `02_analysis_code/compile_gold_standard_chapter4.py`
+- `03_deliverables/Chapter_4_Results.md`

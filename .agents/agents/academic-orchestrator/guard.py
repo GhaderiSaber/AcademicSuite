@@ -208,7 +208,7 @@ def is_validation_failure_active(records: List[Dict[str, Any]], workspaces: List
 def get_defect_and_learning_lifecycle_state(
     records: List[Dict[str, Any]],
     workspaces: Optional[List[str]] = None
-) -> Tuple[str, List[str], str]:
+) -> Tuple[str, List[str], str, str]:
     """
     Evaluates global multi-turn conversation state machine across turn boundaries.
     
@@ -224,6 +224,7 @@ def get_defect_and_learning_lifecycle_state(
     latest_val_idx = -1
     latest_val_txt = ""
     latest_eval_idx = -1
+    latest_delivery_idx = -1
 
     for idx, r in enumerate(records):
         t = r.get("type", "")
@@ -237,9 +238,14 @@ def get_defect_and_learning_lifecycle_state(
                 latest_crit_idx = idx
                 latest_crit_txt = clean
 
-        # Check for evaluation-agent invocation in this record
+        # Check for evaluation-agent and delivery worker invocations in this record
+        has_eval_agent = False
         for tc in r.get("tool_calls", []):
-            if (tc.get("name") or "").lower() == "invoke_subagent":
+            tc_name = (tc.get("name") or "").lower()
+            if tc_name == "invoke_subagent":
+                tc_str = json.dumps(tc.get("args", {})) if isinstance(tc.get("args"), dict) else str(tc)
+                if any(k in tc_str.lower() for k in ("evaluation-agent", "candidate evaluator")):
+                    has_eval_agent = True
                 subs = tc.get("args", {}).get("Subagents", [])
                 if isinstance(subs, str):
                     try:
@@ -247,8 +253,21 @@ def get_defect_and_learning_lifecycle_state(
                     except Exception:
                         subs = []
                 for s in (subs if isinstance(subs, list) else []):
-                    if isinstance(s, dict) and "evaluation-agent" in (s.get("TypeName") or s.get("Role") or "").lower():
-                        latest_eval_idx = idx
+                    if isinstance(s, dict) and any(k in (s.get("TypeName") or s.get("Role") or "").lower() for k in ("evaluation-agent", "candidate evaluator")):
+                        has_eval_agent = True
+                        break
+
+            if any(w in str(tc).lower() for w in ("academic-writer", "data-agent", "statistics-agent")):
+                latest_delivery_idx = idx
+
+        # Truncation-resilient evaluation detection: also check completion messages
+        if not has_eval_agent and (r.get("source") == "SUBAGENT" or "[Message]" in content or t in ("SYSTEM_MESSAGE", "GENERIC", "PLANNER_RESPONSE")):
+            if any(k in content.lower() for k in ("evaluation-agent", "candidate evaluator")):
+                if any(ev in content.lower() for ev in ("eval-", "overall_verdict", "evaluation report", "graduated", "compiled candidate", "acceptance criteria")):
+                    has_eval_agent = True
+
+        if has_eval_agent:
+            latest_eval_idx = idx
 
         # Check for validation failures in transcript (skip ephemerals, system SDK prompt injections, code previews)
         if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
@@ -275,13 +294,26 @@ def get_defect_and_learning_lifecycle_state(
                 latest_val_idx = -1
                 latest_val_txt = ""
             elif has_fail:
-                latest_val_idx = idx
-                summary = "Validation failed: overall_verdict is FAIL"
-                m_failed = re.search(r'(\d+)\s+total\s+`?checks_failed`?|checks_failed[\'":\s]+(\d+)', content, re.IGNORECASE)
-                if m_failed:
-                    num = m_failed.group(1) or m_failed.group(2)
-                    summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
-                latest_val_txt = summary
+                # Check if this validation message is an Actionable Repair Prescription (ARP) directing delivery worker
+                is_arp = any(k in content.lower() for k in (
+                    "correction required (academic-writer",
+                    "correction required: academic-writer",
+                    "actionable repair prescription",
+                    "re-generate",
+                    "recompile"
+                ))
+                # If evaluation already completed, an ARP directs academic-writer to recompile and belongs to REMEDIATION_PHASE
+                if is_arp and latest_eval_idx >= 0:
+                    latest_val_idx = -1
+                    latest_val_txt = "Actionable Repair Prescription for delivery worker"
+                else:
+                    latest_val_idx = idx
+                    summary = "Validation failed: overall_verdict is FAIL"
+                    m_failed = re.search(r'(\d+)\s+total\s+`?checks_failed`?|checks_failed[\'":\s]+(\d+)', content, re.IGNORECASE)
+                    if m_failed:
+                        num = m_failed.group(1) or m_failed.group(2)
+                        summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
+                    latest_val_txt = summary
 
     # Check on-disk validation failure
     disk_val_fail = False
@@ -334,9 +366,6 @@ def get_defect_and_learning_lifecycle_state(
         defect_desc = disk_val_summary
         defect_label = "Validation Failure"
 
-    if defect_idx < 0 and not disk_val_fail:
-        return "NO_DEFECT", [], "", ""
-
     # Check pending candidates on disk
     pending_cands = []
     cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
@@ -353,11 +382,17 @@ def get_defect_and_learning_lifecycle_state(
                 except Exception:
                     pass
 
+    # Check if a new user critique arrived AFTER the latest evaluation
+    has_new_critique_after_eval = (latest_crit_idx >= 0 and latest_crit_idx > latest_eval_idx)
+
     # Compare evaluation timing with defect occurrence
-    if latest_eval_idx >= 0 and latest_eval_idx >= defect_idx:
+    if latest_eval_idx >= 0 and not has_new_critique_after_eval:
         if pending_cands:
             return "PENDING_GRADUATION", pending_cands, defect_desc, defect_label
         return "REMEDIATION_PHASE", [], defect_desc, defect_label
+
+    if defect_idx < 0 and not disk_val_fail:
+        return "NO_DEFECT", [], "", ""
 
     return "LEARNING_REQUIRED", [], defect_desc, defect_label
 
@@ -614,6 +649,110 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
     return {"decision": "allow"}
 
 
+def is_orchestrator_yielding_to_subagent(
+    active_records: List[Dict[str, Any]],
+    last_record: Dict[str, Any]
+) -> bool:
+    """
+    Determines whether the academic orchestrator is yielding turn execution
+    to await asynchronous background subagent completion.
+    
+    Returns True if:
+    1. last_record tool calls explicitly include invoke_subagent or manage_subagents.
+    2. A subagent was invoked in active_records and has NOT sent a completion message yet.
+    3. Orchestrator text explicitly states it is awaiting, paused, or waiting for workers.
+    
+    Returns False if:
+    - The orchestrator text is presenting a Stage Completion Report, Directive 11 summary,
+      or attempting to conclude a stage.
+    """
+    last_calls = [tc.get("name") for tc in last_record.get("tool_calls", [])]
+    if "invoke_subagent" in last_calls or "manage_subagents" in last_calls:
+        return True
+
+    model_text = (last_record.get("content") or "").strip()
+    model_text_lower = model_text.lower()
+
+    # If the orchestrator is presenting a stage completion report or concluding a stage,
+    # it is addressing the user (not yielding to a subagent).
+    stage_completion_patterns = [
+        r"\bstage\b.*\bcompleted\b",
+        r"\bstage\b.*\bfinished\b",
+        r"\bwhat\s+was\s+done\b",
+        r"\bwhat\s+will\s+be\s+done\s+next\b",
+        r"\bwhat\s+is\s+next\b",
+        r"\bplease\s+confirm\b",
+        r"\bconfirm\s+to\s+proceed\b",
+        r"\bwe\s+are\s+moving\s+immediately\b",
+        r"\bstage\s+completion\s+report\b",
+        r"\bstage\s+transition\b",
+        r"\bcompleted\s+stage\b",
+        r"گزارش اتمام مرحله",
+        r"مرحله.*تکمیل شد",
+        r"اقدامات انجام‌شده",
+        r"اقدامات بعدی"
+    ]
+    if any(re.search(pat, model_text_lower, re.IGNORECASE) for pat in stage_completion_patterns):
+        return False
+
+    # Check for launched subagents vs completed subagents in active_records
+    launched_conv_ids = set()
+    completed_conv_ids = set()
+    last_invoke_idx = -1
+    last_subagent_msg_idx = -1
+
+    for idx, r in enumerate(active_records):
+        content = str(r.get("content", ""))
+        for tc in r.get("tool_calls", []):
+            if (tc.get("name") or "").lower() == "invoke_subagent":
+                last_invoke_idx = idx
+
+        # Tool result of invoke_subagent contains "conversationId": "<uuid>"
+        for m in re.finditer(r'["\']conversationId["\']\s*:\s*["\']([a-f0-9\-]+)["\']', content):
+            launched_conv_ids.add(m.group(1))
+
+        # Subagent message contains sender=<uuid>
+        for m in re.finditer(r'sender=([a-f0-9\-]+)', content):
+            completed_conv_ids.add(m.group(1))
+            last_subagent_msg_idx = idx
+
+        if r.get("source") == "SUBAGENT" or "[Message]" in content:
+            last_subagent_msg_idx = idx
+
+    # If any launched subagent has not yet completed:
+    pending_subagents = launched_conv_ids - completed_conv_ids
+    if pending_subagents:
+        return True
+
+    # Check model text for explicit yielding / awaiting phrasing
+    awaiting_patterns = (
+        "awaiting worker completion",
+        "awaiting completion",
+        "execution is paused",
+        "paused awaiting",
+        "waiting for worker",
+        "waiting for subagent",
+        "waiting for results",
+        "delegating task",
+        "delegated task",
+        "initiated the continuous learning cascade",
+        "initiated by delegating",
+        "dispatched task",
+        "running in the background",
+        "running in background",
+        "pause to wait",
+        "pausing to wait"
+    )
+    if any(p in model_text_lower for p in awaiting_patterns):
+        return True
+
+    # If invoke_subagent was called and no subagent message arrived after it:
+    if last_invoke_idx >= 0 and last_invoke_idx >= last_subagent_msg_idx:
+        return True
+
+    return False
+
+
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
     # Check if there is a transcript available to verify Directive 0 or stage completion
     transcript_path = payload.get("transcriptPath")
@@ -776,14 +915,17 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                         "reason": msg
                     }
 
-                # Directive 11: Interactive Stage-Gate Protocol
-                # If subagents were invoked in this turn and orchestrator is speaking to user, verify report and confirmation
+                # Directive 11: Interactive Stage-Gate Protocol & Directive 3: Triad Artifact Completion Audit
                 had_delegation = any(
                     any((tc.get("name") or "").lower() == "invoke_subagent" for tc in r.get("tool_calls", []))
                     for r in active_records
                 )
-                last_calls = [tc.get("name") for tc in last_record.get("tool_calls", [])]
-                is_yielding_to_subagent = "invoke_subagent" in last_calls or "manage_subagents" in last_calls
+                is_yielding_to_subagent = is_orchestrator_yielding_to_subagent(active_records, last_record)
+                if is_yielding_to_subagent:
+                    # Orchestrator is yielding turn to await asynchronous background subagent execution.
+                    # Stop MUST be allowed cleanly so the reactive messaging engine can sleep and wake up on subagent message.
+                    return {"decision": "allow"}
+
                 has_text_response = bool((last_record.get("content") or "").strip())
 
                 if had_delegation and has_text_response and not is_yielding_to_subagent:
