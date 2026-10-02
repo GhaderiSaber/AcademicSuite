@@ -10,7 +10,7 @@ These domain rules are automatically loaded and applied across all conversations
 - **Anti-pattern (AP-2026-ISOLATED-PROSE-POLISHING)**: When an academic tone issue is flagged, conduct a global chapter-wide sweep to apply the validated scholarly standard across all sections uniformly. [Enforcement: dynamic_invariant_guard.py (AP-2026-ISOLATED-PROSE-POLISHING)]
 - **Anti-pattern (AP-2026-INLINE-COLON-LISTICLES)**: Transform label-colon pairs into continuous scholarly narrative using transitional connectives (در ارزیابی تفاوت‌های جنسیتی، ... در ادامه، بررسی متغیر پایه تحصیلی نشان داد ... سرانجام، در خصوص نوع مدرسه، ...). [Enforcement: dynamic_invariant_guard.py (AP-2026-INLINE-COLON-LISTICLES)]
 - **Anti-pattern (AP-2026-CONVERSATIONAL-LANGUAGE-BLEED)**: Decouple artifact target language from conversational orchestration language. After parsing non-English artifacts, switch conversational output language back to English before emitting messages to the user. [Enforcement: dynamic_invariant_guard.py (AP-2026-CONVERSATIONAL-LANGUAGE-BLEED)]
-- **Lesson (LSN-COMPANION-RESOLVE-TEST-001)**: Enforce strict companion resolution. [Enforcement: dynamic_invariant_guard.py (LSN-COMPANION-RESOLVE-TEST-001)]
+- **Anti-pattern (AP-2026-CONCATENATED-ROW-AND-NONIDEMPOTENT-TABLE-REGEX)**: 1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively upon generation. 2. Row numbers must be strictly decoupled from variable/subscale text strings. 3. Total prohibition of non-idempotent regex string manipulation on tables. 4. Mandate DOM-based parsing or pristine array regeneration for table restructuring. [Enforcement: dynamic_invariant_guard.py (AP-2026-CONCATENATED-ROW-AND-NONIDEMPOTENT-TABLE-REGEX)]
 - **Anti-pattern (AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN)**: Expand the table to have 3 distinct prefix columns before numbering/data: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'مؤلفه' (or 'خرده‌مقیاس'). [Enforcement: dynamic_invariant_guard.py (AP-2026-CORRELATION-TABLE-SINGLE-LABEL-COLUMN)]
 - **Anti-pattern (AP-2026-VALIDATOR-REGRESSION-TABLE-BLINDSPOT)**: Implement mandatory fail-closed assertion in validator: every regression hypothesis deliverable MUST contain Table 1 (Correlations), Table 2 (Model Summary & Combined ANOVA with 11 columns), and Table 3 (Coefficients & Collinearity with 8 columns). [Enforcement: dynamic_invariant_guard.py (AP-2026-VALIDATOR-REGRESSION-TABLE-BLINDSPOT)]
 - **Anti-pattern (AP-2026-VERBOSE-REGRESSION-ANOVA-PARENTHETICALS)**: Simplify row labels: First row: '[Criterion Variable Name]' (e.g. 'رفتارهای خودآسیبی'); Second row: 'باقیمانده'; Third row: 'کل'. [Enforcement: dynamic_invariant_guard.py (AP-2026-VERBOSE-REGRESSION-ANOVA-PARENTHETICALS)]
@@ -28,7 +28,6 @@ These domain rules are automatically loaded and applied across all conversations
 - **Anti-pattern (AP-2026-INVERTED-TABLE-NUMBERING)**: Enforce 'جدول [فصل]- [شماره]' (e.g. 'جدول ۴- ۳۱') in all captions and narrative citations. [Enforcement: dynamic_invariant_guard.py (AP-2026-INVERTED-TABLE-NUMBERING)]
 
 ---
-
 ## 2. Constitutional Directives (0 through 25)
 
 ### Core Governance & Honesty

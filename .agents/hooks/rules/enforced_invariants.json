@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-01T11:37:55.792894+00:00",
+  "updated_at": "2026-10-02T17:35:40.324415+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1547,6 +1547,25 @@
       "remedy": "Expand the table to have 3 distinct prefix columns before numbering/data: Col 1: 'ردیف', Col 2: 'متغیر', Col 3: 'مؤلفه' (or 'خرده‌مقیاس').",
       "enabled": true,
       "updated_at": "2026-10-01T11:37:55.792874+00:00"
+    },
+    "AP-2026-CONCATENATED-ROW-AND-NONIDEMPOTENT-TABLE-REGEX": {
+      "item_id": "AP-2026-CONCATENATED-ROW-AND-NONIDEMPOTENT-TABLE-REGEX",
+      "category": "Anti-Pattern",
+      "statement": "1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively upon generation. 2. Row numbers must be strictly decoupled from variable/subscale text strings. 3. Total prohibition of non-idempotent regex string manipulation on tables. 4. Mandate DOM-based parsing or pristine array regeneration for table restructuring.",
+      "target_agents": [
+        "academic-writer",
+        "coding-agent"
+      ],
+      "target_skills": [],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^.*(?:re\\.sub|replace).*\\|.*\\|.*$",
+      "violation_message": "1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively upon generation. 2. Row numbers must be strictly decoupled from variable/subscale text strings. 3. Total prohibition of non-idempotent regex string manipulation on tables. 4. Mandate DOM-based parsing or pristine array regeneration for table restructuring.",
+      "remedy": "1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively upon generation. 2. Row numbers must be strictly decoupled from variable/subscale text strings. 3. Total prohibition of non-idempotent regex string manipulation on tables. 4. Mandate DOM-based parsing or pristine array regeneration for table restructuring.",
+      "enabled": true,
+      "updated_at": "2026-10-02T17:35:40.324385+00:00"
     }
   }
 }

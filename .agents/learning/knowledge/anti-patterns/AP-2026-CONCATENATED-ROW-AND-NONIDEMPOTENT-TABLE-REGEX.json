@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CONCATENATED-ROW-AND-NONIDEMPOTENT-TABLE-REGEX",
+  "category": "execution",
+  "defective_pattern": "Attempting to retrofit or restructure markdown/DOCX tables using naive, unanchored regex prepends and non-idempotent string concatenations without idempotency guards.",
+  "why_defective": "Non-idempotent regex table mutations lack state awareness. Successive batch executions recursively duplicate header and data cell tokens (e.g., repeating prefixes up to 9 times), severely corrupting deliverables instead of restructuring them safely.",
+  "observed_symptoms": [
+    "Table tokens (headers, data cells) duplicated multiple times in the output file.",
+    "Recursive string concatenation of 'ردیف' or other row prefixes.",
+    "Corrupted table structures after repeated script executions."
+  ],
+  "corrective_remedy": "1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively upon generation. 2. Row numbers must be strictly decoupled from variable/subscale text strings. 3. Total prohibition of non-idempotent regex string manipulation on tables. 4. Mandate DOM-based parsing or pristine array regeneration for table restructuring.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect non-idempotent regex prepends or repeated string concatenations in table mutation scripts.",
+    "regex_patterns": [
+      "(?m)^.*(?:re\\.sub|replace).*\\|.*\\|.*$"
+    ],
+    "pattern": "(?m)^.*(?:re\\.sub|replace).*\\|.*\\|.*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "coding-agent",
+  "target_agents": [
+    "coding-agent",
+    "academic-writer",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-02T17:35:00Z"
+}
