@@ -29,7 +29,7 @@ from typing import Dict, Any, Optional, Tuple, List
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
-for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents", "hooks")):
+for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents", "hooks"), os.path.join(ROOT_DIR, ".agents")):
     if p not in sys.path:
         sys.path.insert(0, p)
 
@@ -38,6 +38,12 @@ try:
 except ImportError:
     def is_root_script_target(p, w=None): return False, ""
     def is_deliverables_script_target(p): return False, ""
+
+try:
+    from contracts.hook_identity_contract import extract_subagent_info, resolve_hook_identity
+except ImportError:
+    def extract_subagent_info(p): return False, None
+    def resolve_hook_identity(p): return None
 
 FORBIDDEN_AI_CLICHES = [
     "شایان ذکر است که",
@@ -377,8 +383,21 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
-    # Antigravity 2.18.1: Subagents always terminate cleanly
-    if payload.get("isSubagent") or payload.get("parentConversationId"):
+    is_subagent = bool(payload.get("isSubagent") or payload.get("parentConversationId"))
+    if not is_subagent:
+        try:
+            is_sub, _ = extract_subagent_info(payload)
+            if is_sub:
+                is_subagent = True
+            else:
+                ident = resolve_hook_identity(payload)
+                if ident and ident.is_subagent:
+                    is_subagent = True
+        except Exception:
+            pass
+
+    # Antigravity 2.18.1: Subagents always terminate cleanly and return payload to orchestrator
+    if is_subagent:
         return {"decision": "allow"}
 
     transcript_path = payload.get("transcriptPath")
@@ -522,19 +541,31 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
         pass
 
     # 7. Directive 5: OpenXML DOM Integrity, Non-Empty Body & Native Footnotes across .docx deliverables
-    # Scoped strictly to deliverables (03_deliverables/), never inspecting raw inputs or literature
+    # Scoped strictly to deliverables targeted in this task or modified during the current session
     try:
+        target_docx_files = set()
+        if transcript_path and os.path.exists(transcript_path):
+            try:
+                with open(transcript_path, "r", encoding="utf-8") as tf:
+                    t_text = tf.read()
+                    for m in re.findall(r'[\'"]([^\'"\s]+\.docx)[\'"]', t_text):
+                        target_docx_files.add(os.path.basename(m).lower())
+            except Exception:
+                pass
+
         cand_dirs = []
         for ws in workspaces:
             if not ws or not os.path.exists(ws):
                 continue
             deliv_dir = os.path.join(ws, "03_deliverables")
             if os.path.isdir(deliv_dir):
-                cand_dirs.append(deliv_dir)
+                cand_dirs.append((ws, deliv_dir))
             else:
-                cand_dirs.append(ws)
+                cand_dirs.append((ws, ws))
 
-        for d_dir in cand_dirs:
+        import time
+        now = time.time()
+        for ws, d_dir in cand_dirs:
             for root, _, files in os.walk(d_dir):
                 rel = os.path.relpath(root, ws) if ws else root
                 parts = rel.split(os.sep)
@@ -543,6 +574,16 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                 for f in files:
                     if f.lower().endswith(".docx"):
                         fpath = os.path.join(root, f)
+                        # If specific docx targets were referenced in the transcript, strictly audit only those targets
+                        if target_docx_files and f.lower() not in target_docx_files:
+                            continue
+                        elif not target_docx_files:
+                            try:
+                                mtime = os.path.getmtime(fpath)
+                                if (now - mtime) > 7200:  # Skip untouched historical files older than 2 hours
+                                    continue
+                            except Exception:
+                                pass
                         ok, reason = check_docx_openxml_integrity(fpath)
                         if not ok:
                             return {

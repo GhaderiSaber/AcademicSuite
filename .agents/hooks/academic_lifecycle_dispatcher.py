@@ -92,7 +92,36 @@ except ImportError:
             return False, None
 
 
+def enrich_payload_identity(payload: Dict[str, Any]) -> Dict[str, Any]:
+    if not isinstance(payload, dict):
+        return payload
+    try:
+        ident = resolve_hook_identity(payload)
+        if ident:
+            if not payload.get("caller") and ident.agent_name and ident.agent_name != "unknown":
+                payload["caller"] = ident.agent_name
+            if not payload.get("agentName") and ident.agent_name and ident.agent_name != "unknown":
+                payload["agentName"] = ident.agent_name
+            if "isSubagent" not in payload:
+                payload["isSubagent"] = bool(ident.is_subagent)
+            if "parentConversationId" not in payload and ident.parent_conversation_id:
+                payload["parentConversationId"] = ident.parent_conversation_id
+    except Exception:
+        pass
+    if "isSubagent" not in payload:
+        try:
+            is_sub, p_id = extract_subagent_info(payload)
+            if is_sub:
+                payload["isSubagent"] = True
+                if p_id and "parentConversationId" not in payload:
+                    payload["parentConversationId"] = p_id
+        except Exception:
+            pass
+    return payload
+
+
 def resolve_agent_caller(payload: Dict[str, Any]) -> str:
+    enrich_payload_identity(payload)
     caller = (payload.get("caller") or payload.get("agentName") or "").strip().lower()
     if not caller:
         try:

@@ -635,12 +635,22 @@ def cmd_inspect_docx(args: argparse.Namespace) -> int:
                     "cells_with_p_bidi": cell_bidi_count
                 })
 
+            justified_br_count = 0
+            for p in paragraphs:
+                pPr = p.find("w:pPr", ns)
+                if pPr is not None:
+                    jc = pPr.find("w:jc", ns)
+                    if jc is not None and jc.attrib.get(f"{{{ns['w']}}}val") in ("both", "distribute"):
+                        if p.findall(".//w:br", ns):
+                            justified_br_count += 1
+
             report = {
                 "file": docx_path,
                 "paragraphs_count": len(paragraphs),
                 "tables_count": len(tables),
                 "settings_themeFontLang_bidi": theme_font_bidi,
                 "footnotes_count": footnote_count,
+                "justified_paragraphs_with_br": justified_br_count,
                 "tables": table_reports
             }
 
@@ -730,6 +740,32 @@ def cmd_patch_docx_dom(args: argparse.Namespace) -> int:
                             if b_elem is not None:
                                 borders.remove(b_elem)
 
+        linebreaks_fixed = 0
+        if action in ("fix-linebreaks", "fix-justified-br", "all", "fix-all"):
+            for p in root.iter(f"{{{ns_w}}}p"):
+                pPr = p.find(f"{{{ns_w}}}pPr")
+                if pPr is not None:
+                    jc = pPr.find(f"{{{ns_w}}}jc")
+                    if jc is not None:
+                        val = jc.attrib.get(f"{{{ns_w}}}val")
+                        if val in ("both", "distribute"):
+                            brs = p.findall(f".//{{{ns_w}}}br")
+                            if brs:
+                                p_text = "".join(t.text or "" for t in p.iter(f"{{{ns_w}}}t"))
+                                if len(p_text.strip()) < 400:
+                                    jc.set(f"{{{ns_w}}}val", "center")
+                                    linebreaks_fixed += len(brs)
+                                else:
+                                    for r in p.findall(f".//{{{ns_w}}}r"):
+                                        r_brs = r.findall(f"{{{ns_w}}}br")
+                                        for b in r_brs:
+                                            r.remove(b)
+                                            space_t = ET.Element(f"{{{ns_w}}}t")
+                                            space_t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+                                            space_t.text = " "
+                                            r.append(space_t)
+                                            linebreaks_fixed += 1
+
         tree.write(doc_xml_path, encoding="utf-8", xml_declaration=True)
 
         settings_path = os.path.join(temp_dir, "word", "settings.xml")
@@ -769,7 +805,7 @@ def cmd_patch_docx_dom(args: argparse.Namespace) -> int:
         shutil.move(patched_docx, docx_path)
         shutil.rmtree(temp_dir, ignore_errors=True)
 
-        print(f"SUCCESS: Patched OpenXML DOM in {docx_path} (Action: {action}, Tables modified: {tables_modified})")
+        print(f"SUCCESS: Patched OpenXML DOM in {docx_path} (Action: {action}, Tables modified: {tables_modified}, Linebreaks fixed: {linebreaks_fixed})")
 
         norm_path = os.path.abspath(docx_path).replace("\\", "/")
         if "03_deliverables" in norm_path or sync_root:
