@@ -648,11 +648,20 @@ def verify_pipeline_stage_prerequisites(stage_str: str, workspaces: List[str]) -
 
 
 # ─── CANONICAL CAPABILITY ROUTING SPECIFICATIONS ───
+LEARNING_WORKERS_SET = {
+    "trajectory-analyzer",
+    "behavior-analyst",
+    "knowledge-curator",
+    "skill-evolver",
+    "evaluation-agent",
+    "curriculum-builder",
+}
+
 CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
     "computational_statistics": {
         "name": "Computational Statistics & Modeling",
         "allowed_workers": {"statistics-agent", "statistical-expert"},
-        "forbidden_workers": {"academic-writer", "research-agent", "project-organizer", "literature-expert"},
+        "forbidden_workers": {"academic-writer", "research-agent", "project-organizer", "literature-expert"} | LEARNING_WORKERS_SET,
         "script_patterns": [
             r"run_regression\.py",
             r"run_sem\.py",
@@ -683,7 +692,7 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
     "data_simulation": {
         "name": "Psychometric Data Simulation",
         "allowed_workers": {"data-agent", "statistical-expert", "data-curator"},
-        "forbidden_workers": {"academic-writer", "statistics-agent", "research-agent", "literature-expert"},
+        "forbidden_workers": {"academic-writer", "statistics-agent", "research-agent", "literature-expert"} | LEARNING_WORKERS_SET,
         "script_patterns": [
             r"simulate_psychometric_data\.py",
             r"simulate_rct_data\.py",
@@ -699,7 +708,7 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
     "data_curation_and_cleaning": {
         "name": "Data Curation, Cleaning & Auditing",
         "allowed_workers": {"data-agent", "data-curator", "statistical-auditor"},
-        "forbidden_workers": {"academic-writer", "statistics-agent"},
+        "forbidden_workers": {"academic-writer", "statistics-agent"} | LEARNING_WORKERS_SET,
         "script_patterns": [
             r"clean_dataset\.py",
             r"reverse_code\.py",
@@ -719,13 +728,14 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
     "scholarly_writing_and_assembly": {
         "name": "Scholarly Narrative Drafting & Document Assembly",
         "allowed_workers": {"academic-writer", "research-agent", "literature-expert"},
-        "forbidden_workers": {"statistics-agent", "data-agent"},
+        "forbidden_workers": {"statistics-agent", "data-agent"} | LEARNING_WORKERS_SET,
         "script_patterns": [
             r"build_thesis\.py",
             r"build_discussion\.py",
             r"build_proposal\.py",
             r"polish_academic_tone\.py",
             r"format_apa_table\.py",
+            r"compile_.*chapter.*\.py",
         ],
         "keyword_patterns": [
             r"\bpersian-thesis-builder\b",
@@ -737,13 +747,14 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
             r"\bassemble master thesis\b",
             r"\bdraft chapter 5\b",
             r"\bdraft chapter 2\b",
+            r"\bcompile.*chapter\b",
         ],
         "remedy": "Scholarly narrative drafting, tone polishing, and document assembly must be delegated to 'academic-writer'."
     },
     "adversarial_validation_and_audit": {
         "name": "Adversarial Validation & Integrity Auditing",
         "allowed_workers": {"validation-agent", "statistical-auditor", "results-auditor", "evidence-auditor", "final-judge"},
-        "forbidden_workers": {"academic-writer", "statistics-agent", "data-agent"},
+        "forbidden_workers": {"academic-writer", "statistics-agent", "data-agent"} | LEARNING_WORKERS_SET,
         "script_patterns": [
             r"verify_thesis_integrity\.py",
             r"audit_statistical_results\.py",
@@ -762,7 +773,7 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
     "academic_revision": {
         "name": "Universal Academic Revision & Rebuttal",
         "allowed_workers": {"academic-writer", "statistics-agent", "validation-agent", "data-agent", "literature-expert"},
-        "forbidden_workers": set(),
+        "forbidden_workers": LEARNING_WORKERS_SET,
         "script_patterns": [
             r"extract_docx_comments\.py",
             r"generate_revision_response_docx\.py",
@@ -779,6 +790,35 @@ CANONICAL_CAPABILITY_ROUTING: Dict[str, Dict[str, Any]] = {
             r"\bجدول پاسخ به داوران\b",
         ],
         "remedy": "Academic revision tasks should be coordinated through the Universal Academic Revision Pipeline (Stages R.0 – R.6)."
+    },
+    "autonomous_learning_and_evolution": {
+        "name": "Autonomous Continuous Learning & Candidate Evolution",
+        "allowed_workers": {
+            "trajectory-analyzer",
+            "behavior-analyst",
+            "knowledge-curator",
+            "skill-evolver",
+            "evaluation-agent",
+            "curriculum-builder",
+        },
+        "forbidden_workers": {
+            "academic-writer",
+            "statistics-agent",
+            "data-agent",
+            "results-auditor",
+        },
+        "script_patterns": [
+            r"academic_graduation_compiler\.py",
+            r"run_eval\.py",
+        ],
+        "keyword_patterns": [
+            r"\bcontinuous learning\b",
+            r"\bskill evolution\b",
+            r"\bcandidate evaluation\b",
+            r"\bcompile-candidate\b",
+            r"\bcompile-lesson\b",
+        ],
+        "remedy": "Continuous learning and candidate evolution must be routed through the canonical learning cascade (trajectory-analyzer -> behavior-analyst -> knowledge-curator -> skill-evolver -> evaluation-agent)."
     }
 }
 
@@ -876,6 +916,45 @@ def verify_capability_routing(
                     f"Academic-Writer is strictly 'The Voice' and produces ONLY scholarly narratives (.docx, .md).\n"
                     f"All numerical and analytical JSON files are immutable outputs of Phase 4A–4C and belong strictly under 'inputs' as read-only anchors."
                 )
+
+    # Directive 19 / Directive 24 — Learning Subagent Deliverable Immutability Invariant
+    if worker in LEARNING_WORKERS_SET:
+        req_artifacts = []
+        if envelope and isinstance(envelope, dict):
+            req_artifacts = (
+                envelope.get("required_artifacts")
+                or envelope.get("expected_triad")
+                or envelope.get("deliverables")
+                or envelope.get("expected_artifacts")
+                or []
+            )
+        if isinstance(req_artifacts, list):
+            forbidden_deliv_targets = []
+            for art in req_artifacts:
+                art_name = art.get("path", "") if isinstance(art, dict) else str(art)
+                art_norm = art_name.replace("\\", "/").lower()
+                if "03_deliverables" in art_norm:
+                    forbidden_deliv_targets.append(art_name)
+            if forbidden_deliv_targets:
+                return False, (
+                    f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Task Pollution / Deliverable Immutability Invariant):\n"
+                    f"Delegation envelope for learning subagent '{worker_agent}' lists production deliverable artifact(s) in 'required_artifacts': {forbidden_deliv_targets}.\n"
+                    f"Learning subagents operate strictly on '.agents/learning/' and test suites. Deliverable production and remediation "
+                    f"belong exclusively to 'academic-writer' (or 'statistics-agent' for numerical payloads) after candidate graduation."
+                )
+
+        deliv_violation_match = re.search(
+            r"\b(?:03_deliverables|clean up.*(?:markdown|\.md|table|deliverable)|refactor.*(?:markdown|\.md|table|deliverable)|corrupt tokens.*(?:03_deliverables|\.md)|patch.*compile_gold_standard|compile_gold_standard_chapter4|build_hypothesis_triad|recompile.*chapter)\b",
+            text_to_check,
+            re.IGNORECASE
+        )
+        if deliv_violation_match:
+            return False, (
+                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Task Pollution / Deliverable Immutability Invariant):\n"
+                f"Delegation prompt for learning subagent '{worker_agent}' contains deliverable mutation directives ('{deliv_violation_match.group(0)}').\n"
+                f"Learning subagents operate strictly on '.agents/learning/' and test suites. Deliverable production and remediation "
+                f"belong exclusively to 'academic-writer' (or 'statistics-agent' for numerical payloads) after candidate graduation."
+            )
 
     # Phase 4D Gate 3 Clearance Check for academic-writer
     if worker == "academic-writer" and workspaces:

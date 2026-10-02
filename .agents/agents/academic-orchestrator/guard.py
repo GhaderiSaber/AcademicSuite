@@ -31,20 +31,23 @@ for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents"), os.path.join(ROOT_DIR, ".
         sys.path.insert(0, p)
 
 try:
-    from contracts.delegation_envelope_parser import validate_delegation_prompt
+    from contracts.delegation_envelope_parser import validate_delegation_prompt, extract_envelope_json
 except ImportError:
     try:
-        from delegation_envelope_parser import validate_delegation_prompt
+        from delegation_envelope_parser import validate_delegation_prompt, extract_envelope_json
     except ImportError:
         def validate_delegation_prompt(p, expected_worker=None):
             return True, "Validator unavailable", None
+        def extract_envelope_json(p):
+            return None
 
 try:
     from contracts.canonical_pipelines import (
         verify_pipeline_stage_prerequisites,
         verify_capability_routing,
         find_files_matching,
-        verify_chapter4_gate3_clearance
+        verify_chapter4_gate3_clearance,
+        LEARNING_WORKERS_SET
     )
 except ImportError:
     try:
@@ -52,7 +55,8 @@ except ImportError:
             verify_pipeline_stage_prerequisites,
             verify_capability_routing,
             find_files_matching,
-            verify_chapter4_gate3_clearance
+            verify_chapter4_gate3_clearance,
+            LEARNING_WORKERS_SET
         )
     except ImportError:
         def verify_pipeline_stage_prerequisites(s, w):
@@ -63,6 +67,10 @@ except ImportError:
             return []
         def verify_chapter4_gate3_clearance(w):
             return True, "Gate 3 validator unavailable", []
+        LEARNING_WORKERS_SET = {
+            "trajectory-analyzer", "behavior-analyst", "knowledge-curator",
+            "skill-evolver", "evaluation-agent", "curriculum-builder"
+        }
 try:
     from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
 except ImportError:
@@ -497,6 +505,13 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                         )
                     }
 
+                # Try extracting envelope for non-execution subagents if prompt contains a JSON envelope
+                if env is None and prompt:
+                    try:
+                        env = extract_envelope_json(prompt)
+                    except Exception:
+                        env = None
+
                 # 3. Capability Routing Verification & Gate Clearance (Directive 19 / Directive 12 / Directive 3)
                 workspaces = payload.get("workspacePaths")
                 ok_cap, cap_reason = verify_capability_routing(target_type, prompt, env, workspaces)
@@ -505,6 +520,60 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                         "decision": "deny",
                         "reason": cap_reason
                     }
+
+                # 3b. Directive 19 / Directive 24: Learning Subagent Deliverable Isolation Guard
+                is_learning_worker = (
+                    target_type in LEARNING_WORKERS_SET
+                    or any(la in target_type.lower() for la in (
+                        "trajectory-analyzer", "behavior-analyst", "knowledge-curator",
+                        "skill-evolver", "evaluation-agent", "curriculum-builder"
+                    ))
+                )
+                if is_learning_worker:
+                    req_artifacts = []
+                    if env and isinstance(env, dict):
+                        req_artifacts = (
+                            env.get("required_artifacts")
+                            or env.get("expected_triad")
+                            or env.get("deliverables")
+                            or env.get("expected_artifacts")
+                            or []
+                        )
+                    if isinstance(req_artifacts, list):
+                        forbidden_deliv = []
+                        for art in req_artifacts:
+                            art_str = art.get("path", "") if isinstance(art, dict) else str(art)
+                            art_norm = art_str.replace("\\", "/").lower()
+                            if "03_deliverables" in art_norm or art_norm.endswith(".docx"):
+                                forbidden_deliv.append(art_str)
+                        if forbidden_deliv:
+                            return {
+                                "decision": "deny",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Task Pollution / Deliverable Immutability Invariant):\n"
+                                    f"Delegation envelope for learning subagent '{target_type}' lists production deliverable artifact(s) in 'required_artifacts': {forbidden_deliv}.\n"
+                                    f"Learning subagents operate strictly on '.agents/learning/' and test suites. Deliverable production and remediation "
+                                    f"belong exclusively to 'academic-writer' (or 'statistics-agent' for numerical payloads) after candidate graduation.\n"
+                                    f"You are strictly prohibited from delegating deliverable tasks to learning subagents."
+                                )
+                            }
+                    # Also inspect raw prompt text
+                    prompt_lower = (prompt or "").lower()
+                    deliv_match = re.search(
+                        r"\b(?:03_deliverables|clean up.*(?:markdown|\.md|table|deliverable)|refactor.*(?:markdown|\.md|table|deliverable)|corrupt tokens.*(?:03_deliverables|\.md)|patch.*compile_gold_standard|compile_gold_standard_chapter4|build_hypothesis_triad|recompile.*chapter)\b",
+                        prompt_lower
+                    )
+                    if deliv_match:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Task Pollution / Deliverable Immutability Invariant):\n"
+                                f"Delegation prompt for learning subagent '{target_type}' contains deliverable mutation directives ('{deliv_match.group(0)}').\n"
+                                f"Learning subagents operate strictly on '.agents/learning/' and test suites. Deliverable production and remediation "
+                                f"belong exclusively to 'academic-writer' (or 'statistics-agent' for numerical payloads) after candidate graduation.\n"
+                                f"You are strictly prohibited from delegating deliverable tasks to learning subagents."
+                            )
+                        }
 
                 # 4. Directive 19 / Directive 2: Statistical Immobility Invariant for Delegation to Academic-Writer
                 if target_type == "academic-writer":
