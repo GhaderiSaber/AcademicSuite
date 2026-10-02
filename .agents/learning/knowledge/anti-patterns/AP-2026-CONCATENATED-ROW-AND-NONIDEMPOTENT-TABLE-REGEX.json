@@ -27,5 +27,10 @@
     "chapter-4-writing"
   ],
   "reusable": true,
-  "updated_at": "2026-10-02T17:35:00Z"
+  "updated_at": "2026-10-02T17:35:00Z",
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-10-02T17:35:41.761611+00:00",
+  "graduated_targets": [
+    ".agents/plugins/academic-suite/rules/AGENTS.md"
+  ]
 }

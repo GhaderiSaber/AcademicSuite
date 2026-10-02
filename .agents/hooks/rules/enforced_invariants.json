@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-02T17:35:40.324415+00:00",
+  "updated_at": "2026-10-02T17:35:49.938534+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1566,6 +1566,27 @@
       "remedy": "1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively upon generation. 2. Row numbers must be strictly decoupled from variable/subscale text strings. 3. Total prohibition of non-idempotent regex string manipulation on tables. 4. Mandate DOM-based parsing or pristine array regeneration for table restructuring.",
       "enabled": true,
       "updated_at": "2026-10-02T17:35:40.324385+00:00"
+    },
+    "CAND-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001": {
+      "item_id": "CAND-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Corrupted table formatting detected with repeated column tokens or merged variable/subscale columns.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "CHAPTER4",
+        "TABLE_GENERATION"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.md|.*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "\\|\\s*۱\\s*\\|\\s*۱\\s*\\|\\s*۱\\s*\\||\\|\\s*ردیف\\s*\\|\\s*متغیر\\s*\\|[\\s|]*\\n\\|\\s*ردیف\\s*\\|\\s*متغیر\\s*\\|",
+      "violation_message": "Corrupted table formatting detected with repeated column tokens or merged variable/subscale columns.",
+      "remedy": "Ensure tables have distinct Column 1 (ردیف), Column 2 (متغیر), and Column 3 (مؤلفه). Avoid duplicating the header rows or placeholder values.",
+      "enabled": true,
+      "updated_at": "2026-10-02T17:35:49.938508+00:00"
     }
   }
 }

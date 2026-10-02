@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001",
+  "target_agent": "coding-agent",
+  "target_skill": "chapter-4-writing",
+  "capability": "CHAPTER4",
+  "trajectory_id": "TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001",
+  "observable_failure_step": {
+    "step_number": 8,
+    "action_type": "SCRIPT_EXECUTION",
+    "tool_name": "write_to_file",
+    "description": "Agent executed non-idempotent patch scripts applying regex prepends to markdown tables without checking for existing column structures."
+  },
+  "failure_signature": "MERGED_VARIABLE_SUBSCALE_COLUMN, CONCATENATED_ROW_NUMBER_TEXT, NON_IDEMPOTENT_REGEX_TABLE_MUTATION",
+  "root_cause_diagnosis": "The agent attempted to retrofit a 3-column table structure by executing naive, unanchored regex prepends and string concatenations across markdown deliverables. Because the scripts lacked idempotency guards, successive batch executions recursively duplicated the header and data cell tokens up to 9 times. Initial table generation failed to structurally separate the parent variable from the subscale, instead merging them into a single column and embedding row numbers directly into text strings.",
+  "prescribed_behavior": "1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively during initial table generation in compilers and skills. 2. Completely prohibit non-idempotent regex string manipulation on markdown/DOCX tables. 3. Mandate complete structured table regeneration from pristine arrays or deterministic DOM-based parsing for any post-hoc table mutations. 4. Update validators to fail-close if tables contain merged variable/subscale text or lack isolated row numbers.",
+  "created_at": "2026-10-02T17:28:42Z"
+}
