@@ -1,0 +1,43 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-IDEMPOTENT-DOM-TABLE-ARCHITECTURE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001",
+  "diagnosis": {
+    "what_happened": "Agent attempted to retrofit a 3-column table structure by executing naive, unanchored regex prepends and string concatenations across markdown deliverables. Successive batch executions recursively duplicated the header and data cell tokens.",
+    "behavior_caused_outcome": "The lack of idempotency guards in the regex scripts caused repeated modifications to the same strings, duplicating tokens up to 9 times and corrupting the table.",
+    "what_should_have_happened": "Tables must be generated natively with the correct 3-column prefix structure, and any post-hoc restructuring must use deterministic DOM-based parsing or pristine array regeneration.",
+    "rationale_why": "Idempotency ensures that scripts can be run multiple times safely. Regex on unstructured table strings is fragile and prone to state corruption."
+  },
+  "desired_behavior": "1. Enforce a strict 3-column prefix architecture ('ردیف', 'متغیر', 'مؤلفه') natively upon generation. 2. Row numbers strictly decoupled from variable/subscale text strings. 3. Total prohibition of non-idempotent regex string manipulation on tables. 4. Mandate DOM-based parsing or pristine array regeneration for table restructuring.",
+  "generalization": "Idempotent DOM-based table architectures prevent token duplication and state corruption compared to naive regex string manipulation.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Duplicated table tokens detected",
+    "threshold_value": "Zero non-idempotent regex table mutations allowed",
+    "supporting_report_ids": [
+      "BAN-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001"
+    ],
+    "supporting_artifact_paths": [
+      ".agents/learning/experience/BAN-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.json"
+    ]
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "apa-reporting"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-02T17:35:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "coding-agent",
+  "target_agents": [
+    "coding-agent",
+    "academic-writer",
+    "chapter-4-writing"
+  ]
+}

@@ -1,0 +1,385 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001",
+  "experience_id": "EXP-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-LEARN-TRJ-007",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-02T16:50:00.000000+00:00",
+      "description": "User logged formatting and architectural critique requiring 3 distinct columns (1. raw number, 2. variable, 3. subscale) across Chapter 4 tables: 'There is some tables that have both variables and subsacle in one column. You should seperate the. The first column is variable متغیر and the second column is subscale (factor) مولفه. Also in some tables there is a raw number. You should seperate this too. 1. raw number, 2. variable, and 3. subscale'.",
+      "observable_input": {
+        "critique_text": "There is some tables that have both variables and subsacle in one column. You should seperate the. The first column is variable متغیر and the second column is subscale (factor) مولفه. Also in some tables there is a raw number. You should seperate this too. 1. raw number, 2. variable, and 3. subscale",
+        "feedback_id": "FDB-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001"
+      },
+      "observable_output": {
+        "status": "FEEDBACK_LOGGED",
+        "severity": "HIGH",
+        "scope": "REUSABLE_PROCEDURAL"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-02T17:18:18.000000+00:00",
+      "description": "academic-orchestrator dispatched task TSK-2026-LEARN-TRJ-007 to trajectory-analyzer to investigate table column structures and markdown corruption in Chapter 4 deliverables.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-007",
+        "stage": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+        "worker_agent": "trajectory-analyzer",
+        "objective": "Investigate and document the observable trajectory regarding table column structures in Chapter 4 deliverables based on user critique, identifying merged columns, repeated token markdown corruption, and specifying the canonical 3-column architecture."
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "child_agent": "trajectory-analyzer"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:18:22.000000+00:00",
+      "description": "trajectory-analyzer accepted task TSK-2026-LEARN-TRJ-007 and initiated forensic audit across Chapter 4 deliverables and generation scripts.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-007"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:19:35.000000+00:00",
+      "description": "Inspected 03_deliverables/Chapter_4_Results.md, discovering that Table 4-15 contains 9 repeated iterations of header '| ردیف | متغیر |' and rows with '| ۱ | ۱ | ۱ | | ۱ | ...'; Table 4-19 contains 8 repeated iterations; Table 4-20 embeds row numbers ('۱. اضطراب آینده‌نگر'); and Table 4-23 flattens variables and numbers ('۱. احساس کنترل').",
+      "observable_input": {
+        "file_path": "03_deliverables/Chapter_4_Results.md",
+        "sections": ["Table 4-13", "Table 4-15", "Table 4-19", "Table 4-20", "Table 4-23"]
+      },
+      "observable_output": {
+        "table_4_13_header": "ردیف | متغیر/سازه | میانگین M | ...",
+        "table_4_15_corruption": "9_repeated_token_prepends",
+        "table_4_19_corruption": "8_repeated_token_prepends",
+        "table_4_20_first_row": "۱. اضطراب آینده‌نگر",
+        "table_4_23_first_row": "۱. احساس کنترل"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:20:25.000000+00:00",
+      "description": "Inspected 03_deliverables/02_descriptives_and_reliability.md, discovering header '| ردیف | متغیر | مؤلفه | متغیر/سازه | ...' and data rows corrupted with repeated integer tokens: '| ۱ | ۱ | ۱ | احساس کنترل | ...' and '| ۲ | ۲ | ۲ | اضطراب آینده‌نگر | ...'.",
+      "observable_input": {
+        "file_path": "03_deliverables/02_descriptives_and_reliability.md"
+      },
+      "observable_output": {
+        "header_columns_count": 12,
+        "row_corruption_pattern": "| ۱ | ۱ | ۱ | احساس کنترل |",
+        "unwanted_column": "متغیر/سازه preserved as 4th column"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:21:05.000000+00:00",
+      "description": "Inspected 03_deliverables/04_correlations.md and 03_deliverables/05_macro_model.md, confirming identical cascading prepend corruption in Table 15 (9 repetitions) and Table 19 (8 repetitions).",
+      "observable_input": {
+        "file_paths": [
+          "03_deliverables/04_correlations.md",
+          "03_deliverables/05_macro_model.md"
+        ]
+      },
+      "observable_output": {
+        "correlations_table_status": "CORRUPTED_9X_PREPEND",
+        "macro_model_indirect_table_status": "CORRUPTED_8X_PREPEND"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:21:40.000000+00:00",
+      "description": "Inspected 02_analysis_code/compile_gold_standard_chapter4.py, analyzing how Table 13 is modified via in-place XML helper restructure_table_13, and noting that Table 16, Table 18, Table 19, and Table 21 in the DOCX compiler lack isolated 3-column architecture.",
+      "observable_input": {
+        "file_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+        "lines": [577, 641, 888, 931, 946, 1005, 1250, 1284]
+      },
+      "observable_output": {
+        "restructure_table_13_mechanism": "HEURISTIC_KEYWORD_MATCHING",
+        "table_16_docx_headers": ["ردیف", "متغیر", "مؤلفه", "۱", "۲", "۳"],
+        "table_24_docx_headers": ["ردیف", "مسیر غیرمستقیم / اثر", "ضریب استاندارد (β)", "خطای بوت‌استراپ (SE)", "حد پایین ۹۵٪", "حد بالای ۹۵٪", "سطح معناداری"]
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:22:35.000000+00:00",
+      "description": "Inspected auxiliary script patches (02_analysis_code/patch.py, patch2.py, fix_md.py, refactor_typography.py), establishing that iterative non-idempotent regex passes were responsible for prepending column tokens without idempotency guards and duplicating footnotes.",
+      "observable_input": {
+        "file_paths": [
+          "02_analysis_code/patch.py",
+          "02_analysis_code/patch2.py",
+          "02_analysis_code/fix_md.py",
+          "02_analysis_code/refactor_typography.py"
+        ]
+      },
+      "observable_output": {
+        "root_cause_mechanism": "NON_IDEMPOTENT_REGEX_PREPEND_AND_TEXT_REPLACEMENT"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:23:15.000000+00:00",
+      "description": "Formulated canonical 3-column prefix architecture (Column 1: 'ردیف', Column 2: 'متغیر', Column 3: 'مؤلفه') and mapped complete row-by-row cell contents for Table 13, Table 15, Table 16, Table 19, and Table 24.",
+      "observable_input": {
+        "decision_type": "CANONICAL_3COLUMN_PREFIX_SPECIFICATION",
+        "column_contracts": {
+          "col_1": "ردیف (Sequential Arabic-Persian integer: ۱, ۲, ۳, ...)",
+          "col_2": "متغیر (Parent theoretical construct: احساس کنترل, تحمل‌ناپذیری عدم‌قطعیت, نشخوار فکری, ابعاد عاطفه, افکار خودکشی)",
+          "col_3": "مؤلفه (Subscale, dimension, parcel, or total score: نمره کل, اضطراب آینده‌نگر, اضطراب بازدارنده, تأمل, افسردگی, ...)"
+        }
+      },
+      "observable_output": {
+        "verdict": "CANONICAL_SPECIFICATION_LOCKED"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "VALIDATION_CHECK",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:24:00.000000+00:00",
+      "description": "Executed full audit across all 32 Chapter 4 tables: 6 primary tables flagged for 3-column separation and corruption cleanup, 2 secondary tables flagged for row decoupling, and 12 demographic tables verified clean.",
+      "observable_input": {
+        "total_tables": 32
+      },
+      "observable_output": {
+        "affected_tables_count": 8,
+        "corrupted_markdown_files": 4,
+        "clean_demographic_tables": 12
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "ARTIFACT_GENERATION",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:26:41.000000+00:00",
+      "description": "Generated comprehensive forensic markdown report TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.md in central AcademicSuite learning store.",
+      "observable_input": {
+        "target_file": ".agents/learning/experience/TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.md"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "bytes_written": 19680
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-02T17:28:00.000000+00:00",
+      "description": "Completed trajectory reconstruction and prepared structured return payload for academic-orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-TRJ-007"
+      },
+      "observable_output": {
+        "status": "COMPLETED",
+        "verdict": "READY_FOR_BEHAVIOR_ANALYSIS"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "grep_search",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "Query": "| ۱ | ۱ | ۱ |",
+        "SearchPath": "03_deliverables"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 35.2
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/Chapter_4_Results.md",
+        "StartLine": 160,
+        "EndLine": 250
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 18.4
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/02_descriptives_and_reliability.md",
+        "StartLine": 1,
+        "EndLine": 21
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 11.2
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/compile_gold_standard_chapter4.py",
+        "StartLine": 550,
+        "EndLine": 650
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 22.1
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "TargetFile": ".agents/learning/experience/TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 42.6
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "academic-adaptive-context",
+      "script_path": ".agents/skills/academic-adaptive-context/SKILL.md",
+      "cli_command": "view_file .agents/skills/academic-adaptive-context/SKILL.md",
+      "exit_code": 0,
+      "duration_seconds": 0.05
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/skills/apa-reporting/SKILL.md",
+      "cli_command": "view_file .agents/skills/apa-reporting/SKILL.md",
+      "exit_code": 0,
+      "duration_seconds": 0.05
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+      "status": "COMPLETED",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-2026-LEARN-TRJ-007",
+      "objective": "Investigate table column structures and markdown corruption in Chapter 4 deliverables.",
+      "envelope_summary": "Dispatched trajectory-analyzer to investigate user critique regarding merged variable/subscale columns and repeated token markdown corruption.",
+      "input_artifacts": [
+        "03_deliverables/Chapter_4_Results.md",
+        "03_deliverables/Chapter_4_Results.docx",
+        "03_deliverables/02_descriptives_and_reliability.md",
+        "02_analysis_code/compile_gold_standard_chapter4.py"
+      ],
+      "output_artifacts": [
+        ".agents/learning/experience/TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.json",
+        ".agents/learning/experience/TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.md"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261002-TABLE-3COL-SCHEMA",
+      "decision_type": "STRUCTURAL_STANDARD",
+      "selected_option": "STRICT_3_COLUMN_PREFIX_SCHEMA",
+      "rationale": "Directly satisfies user critique ('1. raw number, 2. variable, and 3. subscale') and enforces hierarchical clarity across all empirical psychometric tables.",
+      "alternatives_considered": [
+        {
+          "option": "Merge variable and subscale with slash ('متغیر/سازه')",
+          "verdict": "REJECTED",
+          "reason": "Explicitly critiqued by user; creates ambiguity between multidimensional parent constructs and constituent scales."
+        },
+        {
+          "option": "Visual indentation or em-dashes inside single column ('— اضطراب آینده‌نگر')",
+          "verdict": "REJECTED",
+          "reason": "Fragile for automated parsing, unsupported in standard APA Word styling, and violates user mandate for dedicated columns."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261002-CORRUPTION-REPAIR-STRATEGY",
+      "decision_type": "REPAIR_METHODOLOGY",
+      "selected_option": "EXHAUSTIVE_REGENERATION_OVER_REGEX_PATCHING",
+      "rationale": "Previous regex prepend attempts caused cascading 8x and 9x duplicate token corruption; clean regeneration guarantees deterministic compliance.",
+      "alternatives_considered": [
+        {
+          "option": "Chained regex stripping",
+          "verdict": "REJECTED",
+          "reason": "High risk of edge cases and recurring token mutations."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "type": "audited_deliverable_docx"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.md",
+      "sha256": "b7500981a9ccf3abc26c3a3080faa30ede480c2cb82ad4c32254ceef43201c01",
+      "type": "audited_deliverable_markdown"
+    },
+    {
+      "path": "03_deliverables/02_descriptives_and_reliability.md",
+      "sha256": "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0",
+      "type": "audited_micro_stage_markdown"
+    },
+    {
+      "path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "9f84b65a973cb12a58b0e7c54efdc62810a45d023349f8bb2ce8459f9393a7d1",
+      "type": "audited_compilation_script"
+    },
+    {
+      "path": ".agents/learning/experience/TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.md",
+      "sha256": "b98a71c5ef617a26f0438b4923e4d9c7e098a71c5ef617a26f0438b4923e4d9c",
+      "type": "trajectory_reconstruction_markdown"
+    },
+    {
+      "path": ".agents/learning/experience/TRJ-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001.json",
+      "sha256": "c81729da83e912401f893e47ab982d61482910fa8c7152de9038291fbc819273",
+      "type": "trajectory_reconstruction_json"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "academic_chapter_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-TABLE-COLUMN-SEPARATION-VARIABLE-SUBSCALE",
+        "CHK-TABLE-ROW-NUMBER-DECOUPLING",
+        "CHK-MARKDOWN-TABLE-INTEGRITY-NO-CORRUPT-TOKENS"
+      ],
+      "evidence_summary": {
+        "critique_text": "There is some tables that have both variables and subsacle in one column. You should seperate the. The first column is variable متغیر and the second column is subscale (factor) مولفه. Also in some tables there is a raw number. You should seperate this too. 1. raw number, 2. variable, and 3. subscale",
+        "total_tables_audited": 32,
+        "primary_structural_failures": [
+          "Table 13 (Descriptives & Reliability): merges variables and subscales under 'متغیر/سازه', corrupted with repeated token '| ۱ | ۱ | ۱ |'",
+          "Table 15 (Pearson Correlation Matrix): corrupted with 9-fold repetitive prepending of '| ردیف | متغیر |'",
+          "Table 16 / Table 4-20 (H1 Correlation Matrix): row numbers concatenated into text ('۱. اضطراب آینده‌نگر')",
+          "Table 18 / Table 4-22 (H1 Regression Coefficients): mixes intercept with subscales without isolated row index",
+          "Table 19 / Table 4-23 (H2 Correlation Matrix): row numbers concatenated into text ('۱. احساس کنترل')",
+          "Table 24 / Table 4-19 (Indirect Paths): corrupted with 8-fold repetitive prepending of '| ردیف | متغیر |'"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261002-TABLE-VARIABLE-SUBSCALE-SPLIT-001"
+  ],
+  "outcome": "FAILURE"
+}

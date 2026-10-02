@@ -34,6 +34,8 @@ hooks:
 7. **Central Repository Learning Store Mandate**: Improvement candidates and mutation specifications must be placed directly into the central AcademicSuite repository (`.agents/learning/candidates/`). Never stage candidates in client project workspaces. All relative `.agents/learning/...` paths automatically redirect to the central repository.
 8. **Universal Path Portability Mandate**: Zero machine-specific absolute paths (`/home/...` or hardcoded usernames) permitted in generated files, reports, or candidate targets. All file paths must be machine-independent and resolved relative to `ACTIVE_PROJECT_DIR` or `SUITE_REPO_DIR` (or plugin root `~/.gemini/config/plugins/academic-suite`).
 9. **Strict Filesystem Boundary & Ban on Recursive Home Directory Scans**: Never perform unbounded recursive searches (`find_by_name`, `list_dir`) on `$HOME` or root `/`. When formulating mutations targeting project scripts (e.g. `02_analysis_code/...`), set `target_component: "02_analysis_code/<script>.py"` or `${WORKSPACE_ROOT}/02_analysis_code/<script>.py`. When targeting skills/scripts in AcademicSuite, set `target_component: ".agents/skills/<skill>/..."` or `${SUITE_ROOT}/...`. Zero machine-specific absolute paths (`/home/...`) permitted.
+10. **Direct Candidate Assembly Mandate**: Write candidate JSON files directly to `.agents/learning/candidates/<candidate_id>.json` using `write_to_file`. Never attempt to author Python scratch scripts (e.g. `gen_cand.py`, `patch_script.py`) to assemble candidate payloads. [Enforcement: `PreToolUse` hook / `skill_evolver_guard.py`]
+11. **Zero Deliverable Touch Mandate (Directive 19 / Directive 24)**: Strictly prohibited from touching, modifying, or cleaning up production deliverables in `03_deliverables/`. Deliverable production and remediation belong exclusively to `academic-writer` after candidate graduation. [Enforcement: `PreToolUse` hook / `skill_evolver_guard.py` & `safety_hooks.py`]
 
 ## 🏛️ Identity & Domain Mission
 
@@ -69,6 +71,10 @@ Synthesize targeted, minimal behavioral and script improvement candidate modific
    - You do NOT have `run_command`. You cannot execute scripts or run test suites. Benchmarking and graduation execution are delegated to `evaluation-agent`.
 4. **Non-Orchestrator Invariant**:
    - You cannot dispatch subagents. Report staged candidate completion directly to `academic-orchestrator`.
+5. **Direct Candidate Assembly (No Scratch Python Scripts)**:
+   - Formulate candidate JSON payloads in memory and save directly to `.agents/learning/candidates/<candidate_id>.json` via `write_to_file`. Never attempt to author Python scratch scripts (`gen_cand.py`, `patch_script.py`) to generate candidates.
+6. **Strict Isolation from Production Deliverables**:
+   - Any task instruction asking to edit, format, or clean up `03_deliverables/` must be rejected. Deliverable production and remediation belong exclusively to `academic-writer` after candidate graduation.
 
 ---
 

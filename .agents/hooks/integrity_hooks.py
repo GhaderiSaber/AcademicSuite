@@ -1289,15 +1289,29 @@ class IntegrityHooks:
         learning_already_completed = False
         latest_eval_idx = -1
         for idx, r in enumerate(records):
+            content = str(r.get("content", ""))
+            has_eval_agent = False
             for tc in r.get("tool_calls", []):
                 if (tc.get("name") or "").lower() == "invoke_subagent":
+                    tc_str = json.dumps(tc.get("args", {})) if isinstance(tc.get("args"), dict) else str(tc)
+                    if any(k in tc_str.lower() for k in ("evaluation-agent", "candidate evaluator")):
+                        has_eval_agent = True
                     subs = tc.get("args", {}).get("Subagents", [])
                     if isinstance(subs, str):
-                        try: subs = json.loads(subs)
+                        try: subs = json.loads(subs, strict=False)
                         except Exception: subs = []
                     for s in (subs if isinstance(subs, list) else []):
-                        if isinstance(s, dict) and "evaluation-agent" in (s.get("TypeName") or s.get("Role") or "").lower():
-                            latest_eval_idx = idx
+                        if isinstance(s, dict) and any(k in (s.get("TypeName") or s.get("Role") or "").lower() for k in ("evaluation-agent", "candidate evaluator")):
+                            has_eval_agent = True
+                            break
+
+            if not has_eval_agent and (r.get("source") == "SUBAGENT" or "[Message]" in content or r.get("type") in ("SYSTEM_MESSAGE", "GENERIC", "PLANNER_RESPONSE")):
+                if any(k in content.lower() for k in ("evaluation-agent", "candidate evaluator")):
+                    if any(ev in content.lower() for ev in ("eval-", "overall_verdict", "evaluation report", "graduated", "compiled candidate", "acceptance criteria")):
+                        has_eval_agent = True
+
+            if has_eval_agent:
+                latest_eval_idx = idx
 
         if latest_eval_idx >= 0:
             new_defect_after_eval = False
@@ -1316,8 +1330,16 @@ class IntegrityHooks:
                     if "File Path: `file:///" not in content and "Total Lines:" not in content:
                         if any(k in content.lower() for k in ("validation_report.json", "overall_verdict", "checks_failed")):
                             if re.search(r'\boverall_verdict[\'":\s]+fail\b', content, re.IGNORECASE):
-                                new_defect_after_eval = True
-                                break
+                                is_arp = any(k in content.lower() for k in (
+                                    "correction required (academic-writer",
+                                    "correction required: academic-writer",
+                                    "actionable repair prescription",
+                                    "re-generate",
+                                    "recompile"
+                                ))
+                                if not is_arp:
+                                    new_defect_after_eval = True
+                                    break
             if not new_defect_after_eval:
                 cand_dir = os.path.join(ROOT_DIR, ".agents", "learning", "candidates")
                 has_pending = False

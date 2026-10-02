@@ -1122,11 +1122,22 @@ def check_caller_policy(caller: str, tool_name: str, args: Dict[str, Any]) -> Op
 
         # 2b. Learning Subagent JSON & Markdown File Restriction Guard
         # Learning subagents are permitted to write JSON (.json, .jsonl) and Markdown (.md) files.
-        # Writing Word documents (.doc, .docx) or non-documentation binaries is strictly forbidden.
+        # Writing Word documents (.doc, .docx), binaries, or ANY files in 03_deliverables/ is strictly forbidden.
         if tool_name in MUTATION_TOOLS and is_learning_subagent(target):
             targets = extract_target_paths(tool_name, args)
             for t_path in targets:
                 t_norm = os.path.normpath(t_path).replace("\\", "/").lower()
+                if "03_deliverables" in t_norm:
+                    t_base = os.path.basename(t_norm)
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Deliverable Immutability Invariant): "
+                            f"Learning subagent '{caller}' is strictly forbidden from writing to or modifying production deliverables "
+                            f"in '03_deliverables/' ('{t_base}'). Deliverable remediation belongs exclusively to production delivery agents "
+                            f"after candidate graduation."
+                        )
+                    }
                 if not (t_norm.endswith(".json") or t_norm.endswith(".jsonl") or t_norm.endswith(".md")):
                     t_base = os.path.basename(t_norm)
                     return {
@@ -1546,9 +1557,19 @@ class SafetyHooks:
                             )
                         }
 
-                # Learning Subagent File Restriction Guard (JSON and Markdown permitted)
+                # Learning Subagent File Restriction Guard (JSON and Markdown permitted, 03_deliverables forbidden)
                 if caller and is_learning_subagent(caller):
                     target_lower = target_norm.lower()
+                    if "03_deliverables" in target_lower:
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Deliverable Immutability Invariant): "
+                                f"Learning subagent '{caller}' is strictly forbidden from writing to or modifying production deliverables "
+                                f"in '03_deliverables/' ('{target_base}'). Deliverable remediation belongs exclusively to production delivery agents "
+                                f"after candidate graduation."
+                            )
+                        }
                     if not (target_lower.endswith(".json") or target_lower.endswith(".jsonl") or target_lower.endswith(".md")):
                         return {
                             "decision": "deny",
@@ -1930,6 +1951,63 @@ class SafetyHooks:
                             f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
                             f"Binary '{raw_bin}' is strictly forbidden for academic-writer. "
                             f"Only Python document generation scripts and document utilities (pandoc, soffice, mkdir, cp) are permitted."
+                        )
+                    }
+
+            # Learning Subagent Execution Boundary Guard (Directive 19 / Directive 24)
+            if caller and is_learning_subagent(caller):
+                cmd_clean = cmd.strip()
+
+                # Case A: Deliverable shell mutations (sed -i, awk, redirects targeting 03_deliverables)
+                if '03_deliverables' in cmd_clean:
+                    is_val_report_rm = bool(re.search(r'\brm\s+(?:-f\s+)?[\'"]?[^\s;&|]*03_deliverables[^\s;&|]*validation_report\.json[\'"]?', cmd_clean))
+                    if not is_val_report_rm:
+                        shell_deliv_match = re.search(
+                            r'(?:>|>>|\btee\b|\bsed\s+-i|\bawk\b|\bperl\s+-i|\bcp\b|\bmv\b|\bcat\s+.*>|\btruncate\b|\btouch\b).*03_deliverables',
+                            cmd_clean,
+                            re.IGNORECASE
+                        )
+                        if shell_deliv_match or any(op in cmd_clean for op in ('>', '>>', 'sed -i')):
+                            return {
+                                "decision": "deny",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Deliverable Immutability Invariant): "
+                                    f"Learning subagent '{caller}' is strictly forbidden from executing shell commands that mutate production deliverables "
+                                    f"in '03_deliverables/' ('{cmd_clean}'). Deliverable remediation belongs exclusively to production delivery workers "
+                                    f"after candidate graduation."
+                                )
+                            }
+
+                # Case B: Document generation / compilation invocations
+                doc_compile_pats = (
+                    r"\bcompile_.*chapter.*\.py\b",
+                    r"\bbuild_thesis\.py\b",
+                    r"\bbuild_discussion\.py\b",
+                    r"\bbuild_hypothesis_triad.*\.py\b",
+                    r"\bscaffold_chapter4.*\.py\b",
+                    r"\bacademic_docgen\.py\b",
+                    r"\bformat_apa.*\.py\b",
+                    r"\bopenxml_docx_engine\.py\b",
+                    r"\bpersian_docx_engine\.py\b",
+                )
+                for doc_pat in doc_compile_pats:
+                    if re.search(doc_pat, cmd_clean, re.IGNORECASE):
+                        return {
+                            "decision": "deny",
+                            "reason": (
+                                f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Execution Boundary Guard): "
+                                f"Learning subagent '{caller}' is strictly forbidden from running production document compilation scripts ('{cmd_clean}'). "
+                                f"Document compilation belongs exclusively to academic-writer."
+                            )
+                        }
+
+                # Case C: Ad-hoc patch script creation & execution
+                if re.search(r'\b(?:cat\s+<<.*patch_script|python3?\s+.*patch_script|python3?\s+.*gen_cand)\b', cmd_clean, re.IGNORECASE):
+                    return {
+                        "decision": "deny",
+                        "reason": (
+                            f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Execution Boundary Guard): "
+                            f"Learning subagent '{caller}' cannot author or execute ad-hoc patch scripts ('{cmd_clean}')."
                         )
                     }
 
