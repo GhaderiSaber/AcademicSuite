@@ -60,6 +60,9 @@ Every individual research hypothesis or question must have its own dedicated, is
 - The introductory paragraph and blockquotes in each decoupled section must strictly introduce that specific question/hypothesis.
 - Never allow legacy multi-question introductions, leaked blockquotes of other questions, or orphaned subsection numbers to remain.
 
+### 4.4 Strict Demographic Table Separation Invariant
+When reporting demographic profiles and frequency distributions (Stage 4.2), you MUST generate a distinct, individual table for each demographic feature (e.g., one dedicated table for Age, a separate table for Gender). Combining demographic variables into composite grouping tables is strictly prohibited. If a study has 12 demographic variables, there MUST be 12 individual demographic tables.
+
 ---
 
 ## 5. CANONICAL REGRESSION REPORTING STANDARDS
