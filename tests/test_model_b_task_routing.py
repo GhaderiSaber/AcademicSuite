@@ -107,7 +107,14 @@ class TestModelBTaskRouting:
 
         # Verify physical plan artifact exists
         plan_path = os.path.join(ROOT_DIR, "academic-state", "routing_plan.json")
-        assert os.path.isfile(plan_path), "academic-state/routing_plan.json must exist"
+        try:
+            assert os.path.isfile(plan_path), "academic-state/routing_plan.json must exist"
+        finally:
+            if os.path.isfile(plan_path):
+                os.remove(plan_path)
+            state_dir = os.path.join(ROOT_DIR, "academic-state")
+            if os.path.isdir(state_dir) and not os.listdir(state_dir):
+                os.rmdir(state_dir)
 
     def test_05_orchestrator_frontmatter_non_execution_invariant(self):
         """academic-orchestrator frontmatter MUST NOT possess run_command or any mutation tool."""
