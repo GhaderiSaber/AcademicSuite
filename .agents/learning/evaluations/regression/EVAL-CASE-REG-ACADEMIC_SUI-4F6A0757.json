@@ -1,0 +1,64 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-4F6A0757",
+  "capability": "academic-suite-orchestrator",
+  "suite_type": "regression",
+  "difficulty": "L2_INTERDEPENDENT_MODELS",
+  "tags": [
+    "methodology",
+    "regression_test"
+  ],
+  "task": {
+    "prompt": "Execute analytical task verifying problems:_evaluation, there_evaluation, ennglish_evaluation, inline_evaluation.",
+    "research_question": "Does analytical modeling satisfy rigorous methodological standards?",
+    "hypothesis": "Analytical procedures will strictly adhere to verified methodological prerequisites."
+  },
+  "inputs": {
+    "dataset_path": "evals/regression/data_4f6a0757.xlsx",
+    "dataset_sha256": "4f6a0757c774e4a42566f7890bfdf9026cec26fd6b1a2ec91257de3a1c5ad006",
+    "spec_parameters": {
+      "check_domain": "general_methodology"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "reasoning_properties_evaluated": true
+    },
+    "required_reasoning_properties": [
+      "problems:_evaluation",
+      "there_evaluation",
+      "ennglish_evaluation",
+      "inline_evaluation"
+    ],
+    "required_artifacts": [
+      "03_model_comparison.json",
+      "03_model_comparison.md"
+    ],
+    "typography_rules": [
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "unverified_methodological_shortcut"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": [
+      "--suite",
+      "regression",
+      "--case",
+      "EVAL-CASE-REG-ACADEMIC_SUI-4F6A0757"
+    ],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-10-03T03:10:40.651281+00:00",
+  "originating_lesson_id": "LSN-20261003-F4E2D7",
+  "originating_experience_id": "EXP-FAST-20261003-CB1A00",
+  "originating_feedback_id": "FDB-20261003-47DD06",
+  "status": "candidate",
+  "expected_behavior": "Ensure thorough methodological compliance and verification of problems:_evaluation, there_evaluation, ennglish_evaluation, inline_evaluation.",
+  "forbidden_behavior": "unverified_methodological_shortcut",
+  "repeat_count": 1,
+  "last_seen_at": "2026-10-03T03:10:40.651281+00:00"
+}

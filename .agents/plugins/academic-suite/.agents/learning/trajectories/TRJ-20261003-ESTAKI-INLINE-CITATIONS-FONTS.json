@@ -1,0 +1,469 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261003-ESTAKI-INLINE-CITATIONS-FONTS",
+  "experience_id": "EXP-20261003-ESTAKI-TYPOGRAPHY-INLINE-DEFECT",
+  "project_id": "Morteza_Estaki_Master_Thesis",
+  "task_id": "TSK-2026-CH-MASTER-HARMONIZATION-AUDIT",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-03T06:15:00.000000+03:30",
+      "description": "User submitted three critical typographical and formatting defects regarding Thesis_Final_Master.docx: (1) 'There is a lot of ennglish inline word.', (2) 'The references is in English. You should write them in Persian and footnote them.', (3) 'You didn't follow the font rules. The font should be like the original text.'",
+      "observable_input": {
+        "critique_text": "There is a lot of ennglish inline word. The references is in English. You should write them in Persian and footnote them. You didn't follow the font rules. The font should be like the original text.",
+        "feedback_ids": [
+          "FDB-20261003-ESTAKI-INLINE-ENGLISH",
+          "FDB-20261003-ESTAKI-ENGLISH-CITATIONS",
+          "FDB-20261003-ESTAKI-FONT-MISMATCH"
+        ]
+      },
+      "observable_output": {
+        "status": "FEEDBACK_LOGGED",
+        "severity": "CRITICAL",
+        "scope": "GLOBAL_DOCUMENT_DELIVERABLE"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T06:20:00.000000+03:30",
+      "description": "academic-orchestrator initiated Continuous Learning Pipeline Step 1 (Trajectory Reconstruction) and delegated task TSK-2026-CH-MASTER-HARMONIZATION-AUDIT to trajectory-analyzer.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH-MASTER-HARMONIZATION-AUDIT",
+        "pipeline_step": "Step 1: Trajectory Reconstruction",
+        "worker_agent": "trajectory-analyzer",
+        "objective": "Reconstruct chronological execution trajectory leading to typography and citation defects in Thesis_Final_Master.docx, perform forensic comparison against raw inputs and institutional guidelines, and identify validator blindspots."
+      },
+      "observable_output": {
+        "status": "REQUESTED",
+        "child_agent": "trajectory-analyzer"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:20:10.000000+03:30",
+      "description": "trajectory-analyzer accepted delegation and initialized forensic investigation across raw inputs, generation scripts, assembly pipelines, and final deliverables.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH-MASTER-HARMONIZATION-AUDIT"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:22:00.000000+03:30",
+      "description": "Inspected institutional thesis guideline 01_raw_inputs/help.pdf (Islamic Azad University, Isfahan Branch - Khorasgan, Winter 1402) pp. 10-21.",
+      "observable_input": {
+        "file_path": "01_raw_inputs/help.pdf",
+        "pages_examined": [10, 15, 16, 17, 18, 19, 20, 21]
+      },
+      "observable_output": {
+        "university": "Islamic Azad University, Isfahan Branch (Khorasgan)",
+        "guideline_body_font": "B Lotus Regular 14 pt",
+        "guideline_chapter_title_font": "B Titr Bold 18 pt",
+        "guideline_main_heading_font": "B Lotus Bold 16 pt",
+        "guideline_subheading_font": "B Lotus Bold 14 pt",
+        "guideline_latin_font": "Times New Roman (12 pt body, 10 pt table, 8 pt footnote)",
+        "guideline_margins": "Top 3.0 cm, Bottom 3.0 cm, Right 3.0 cm, Left 2.0 cm",
+        "guideline_line_spacing": "Single (1.0 cm)",
+        "guideline_first_line_indent": "1.0 cm",
+        "guideline_citation_rule": "Foreign author names must be transliterated into Persian script in-text (e.g. اسمیت و همکاران، 2004) and footnoted with original Latin spelling on first mention; zero inline English words permitted in Persian narrative."
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:25:00.000000+03:30",
+      "description": "Audited original author document 01_raw_inputs/Thesis.docx to extract baseline typography and formatting conventions.",
+      "observable_input": {
+        "file_path": "01_raw_inputs/Thesis.docx"
+      },
+      "observable_output": {
+        "baseline_body_font": "B Lotus Regular 14 pt",
+        "baseline_heading_font": "B Lotus Bold 14-16 pt",
+        "baseline_margins": "Top 3.0 cm (1700 dxa), Bottom 3.0 cm (1700 dxa), Right 3.0 cm (1700 dxa), Left 2.0 cm (1134 dxa)",
+        "baseline_footnote_behavior": "English technical terms and author names placed in Word footnotes, strictly matching university guidelines."
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:28:00.000000+03:30",
+      "description": "Audited assembly pipeline 02_analysis_code/assemble_thesis_master.py to inspect section margins, font asset preservation, and paragraph assembly logic.",
+      "observable_input": {
+        "file_path": "02_analysis_code/assemble_thesis_master.py",
+        "functions_examined": ["apply_standard_margins", "embed_fonts_from_template", "main"]
+      },
+      "observable_output": {
+        "assembled_margins": "Top 1440 dxa (1.0 in), Bottom 1440 dxa (1.0 in), Left 1440 dxa (1.0 in), Right 1700 dxa (1.18 in / 3.0 cm)",
+        "margin_deviation": "Left margin set to 1.0 in (2.54 cm) instead of required 2.0 cm (1134 dxa); Top/Bottom set to 1.0 in instead of required 3.0 cm (1700 dxa)",
+        "font_mechanism": "Script copied embedded font parts from Thesis_Cleaned.docx, but paragraph XML generation retained B Nazanin references from upstream chapter generators."
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:32:00.000000+03:30",
+      "description": "Audited upstream chapter generators 02_analysis_code/remediate_chapters_1_to_3_master.py and 02_analysis_code/recalibrate_chapters_4_and_5.py to trace font selection and citation construction.",
+      "observable_input": {
+        "file_paths": [
+          "02_analysis_code/remediate_chapters_1_to_3_master.py",
+          "02_analysis_code/recalibrate_chapters_4_and_5.py"
+        ]
+      },
+      "observable_output": {
+        "hardcoded_body_font": "B Nazanin 13 pt and 14 pt",
+        "hardcoded_heading_font": "B Titr 16 pt with RGBColor(0, 51, 102)",
+        "root_cause_font_drift": "Chapter generators applied plugin default typography (B Nazanin / B Titr) without checking project-specific institutional guidelines (help.pdf) or baseline document (Thesis.docx) specifying B Lotus."
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:38:00.000000+03:30",
+      "description": "Audited final master text 03_deliverables/Thesis_Final_Master.md and OpenXML runs in Thesis_Final_Master.docx for inline Latin words and in-text citation formatting.",
+      "observable_input": {
+        "file_paths": [
+          "03_deliverables/Thesis_Final_Master.md",
+          "03_deliverables/Thesis_Final_Master.docx"
+        ]
+      },
+      "observable_output": {
+        "inline_english_count": "120+ un-footnoted inline English words in running Persian text",
+        "inline_english_examples": [
+          "(Job Characteristics)",
+          "(Skill Variety)",
+          "(Task Identity)",
+          "(Task Significance)",
+          "(Autonomy)",
+          "(Feedback)",
+          "(Job Diagnostic Survey - JDS)",
+          "(Job Control)",
+          "(Decision Latitude)",
+          "(Organizational Innovation)",
+          "(Enter)",
+          "SPSS",
+          "AMOS"
+        ],
+        "in_text_citation_defects": [
+          "Chapter 1 Latin citations: (Hackman & Oldham, 1975, 1976), (Wall et al., 1996), (Jimenez-Jimenez & Sanz-Valle, 2011), (Uğur Yozgat et al., 2015)",
+          "Chapter 2 un-footnoted transliterations: foreign authors transliterated (آکایا و همکاران، ۲۰۲۴) but original Latin names omitted from footnotes"
+        ]
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_READ",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:44:00.000000+03:30",
+      "description": "Audited validation suite 02_analysis_code/validate_thesis_master.py and output 03_deliverables/validation_report.json to investigate why defects passed validation.",
+      "observable_input": {
+        "file_paths": [
+          "02_analysis_code/validate_thesis_master.py",
+          "03_deliverables/validation_report.json"
+        ]
+      },
+      "observable_output": {
+        "validator_mechanism": "Script contained mock verification dictionary (lines 10-22) emitting hardcoded PASS strings across 20 checks without physical DOM inspection.",
+        "blindspot_evidence": "Zero assertions checked w:rFonts family, zero assertions screened for Latin regex [a-zA-Z]{2,} in running narrative, and zero assertions validated in-text citation transliteration with footnote pairing.",
+        "validation_report_status": "overall_verdict: PASS, checks_failed: 0, masking all critical defects."
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:48:00.000000+03:30",
+      "description": "Formulated trajectory decisions identifying root systemic causes: default typography drift over institutional rules, failure to execute citation extraction/footnoting pipeline, and mock validation script masking formatting non-compliance.",
+      "observable_input": {
+        "decision_types": [
+          "FONT_RULE_PRIORITY",
+          "INLINE_ENGLISH_PURGE_STRATEGY",
+          "CITATION_TRANSLITERATION_ARCHITECTURE",
+          "VALIDATOR_FAIL_CLOSED_REMEDIATION"
+        ]
+      },
+      "observable_output": {
+        "status": "DECISIONS_LOGGED"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "VALIDATION_FAILED",
+      "actor": "trajectory-analyzer",
+      "timestamp": "2026-10-03T06:52:00.000000+03:30",
+      "description": "Execution trajectory evaluated as overall FAILURE due to triple defect cluster confirmed against physical deliverables and raw input baselines.",
+      "observable_input": {
+        "deliverable": "03_deliverables/Thesis_Final_Master.docx",
+        "checks_audited": [
+          "CHK-DOCX-FONT-UNIVERSITY-CONFORMANCE",
+          "CHK-ZERO-INLINE-LATIN",
+          "CHK-PERSIAN-TRANSLITERATED-CITATIONS-FOOTNOTED",
+          "CHK-VALIDATOR-BLINDSPOT"
+        ]
+      },
+      "observable_output": {
+        "overall_verdict": "FAIL",
+        "failed_checks": [
+          "CHK-DOCX-FONT-UNIVERSITY-CONFORMANCE",
+          "CHK-ZERO-INLINE-LATIN",
+          "CHK-PERSIAN-TRANSLITERATED-CITATIONS-FOOTNOTED",
+          "CHK-VALIDATOR-BLINDSPOT"
+        ]
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "02_analysis_code/assemble_thesis_master.py",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/assemble_thesis_master.py",
+        "inputs": [
+          "03_deliverables/Thesis_Chapters1to3.docx",
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Chapter_5_Discussion.docx",
+          "03_deliverables/Comprehensive_References.docx",
+          "03_deliverables/All_Appendices.docx"
+        ],
+        "output": "03_deliverables/Thesis_Final_Master.docx"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 4200.0
+    },
+    {
+      "tool_name": "02_analysis_code/validate_thesis_master.py",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/validate_thesis_master.py",
+        "target": "03_deliverables/Thesis_Final_Master.docx",
+        "report_dest": "03_deliverables/validation_report.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 1100.0
+    },
+    {
+      "tool_name": "02_analysis_code/recalibrate_chapters_4_and_5.py",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/recalibrate_chapters_4_and_5.py",
+        "targets": [
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Chapter_5_Discussion.docx"
+        ]
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 3800.0
+    },
+    {
+      "tool_name": "02_analysis_code/remediate_chapters_1_to_3_master.py",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "command": "python3 02_analysis_code/remediate_chapters_1_to_3_master.py",
+        "targets": [
+          "03_deliverables/Thesis_Chapters1to3.docx"
+        ]
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 3500.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-thesis-builder",
+      "script_path": "02_analysis_code/assemble_thesis_master.py",
+      "cli_command": "python3 02_analysis_code/assemble_thesis_master.py",
+      "exit_code": 0,
+      "duration_seconds": 4.2
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": "02_analysis_code/recalibrate_chapters_4_and_5.py",
+      "cli_command": "python3 02_analysis_code/recalibrate_chapters_4_and_5.py",
+      "exit_code": 0,
+      "duration_seconds": 3.8
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": "02_analysis_code/validate_thesis_master.py",
+      "cli_command": "python3 02_analysis_code/validate_thesis_master.py",
+      "exit_code": 0,
+      "duration_seconds": 1.1
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Phase 2: Chapter Remediation & Standardization",
+      "envelope_summary": "Remediate Chapters 1-3, Chapter 4, and Chapter 5 into synchronized standalone OpenXML documents.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/Thesis_Chapters1to3.docx"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "persian-thesis-builder",
+      "stage_id": "Phase 4: Master Thesis Assembly & Global Layout Harmonization",
+      "envelope_summary": "Assemble constituent chapters into master monograph Thesis_Final_Master.docx with global margins and front/back matter.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/Thesis_Final_Master.docx"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "stage_id": "Phase 5: Master Thesis Validation & QC Gate",
+      "envelope_summary": "Validate Thesis_Final_Master.docx against thesis integrity specifications and generate validation_report.json.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "03_deliverables/validation_report.json"
+    },
+    {
+      "delegator": "parent",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+      "envelope_summary": "Investigate typography, inline English words, and in-text citation defects reported by user critique.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": ".agents/learning/experience/TRJ-20261003-ESTAKI-INLINE-CITATIONS-FONTS.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261003-FONT-SELECTION-DRIFT",
+      "decision_type": "FONT_SELECTION_SOURCE",
+      "selected_option": "APPLY_GENERIC_PLUGIN_DEFAULTS_B_NAZANIN_B_TITR",
+      "rationale": "Scripts defaulted to AcademicSuite standard typography (B Nazanin 13/14 pt, B Titr 16 pt) because institutional guidelines in 01_raw_inputs/help.pdf were not ingested as mandatory project-level typographical constraints.",
+      "alternatives_considered": [
+        {
+          "option": "Institutional Guideline Conformance (B Lotus 14 pt body, B Lotus 16 pt main headings, B Lotus 14 pt subheadings, B Titr 18 pt chapter titles)",
+          "verdict": "REJECTED_BY_DEFECT",
+          "reason": "Omitted during automated script authoring; developer scripts assumed universal B Nazanin standard."
+        },
+        {
+          "option": "Raw Input Preserve-Existing (Preserve original fonts from 01_raw_inputs/Thesis.docx)",
+          "verdict": "REJECTED_BY_DEFECT",
+          "reason": "Assembly script overwrote paragraph runs with newly generated runs using B Nazanin."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-INLINE-ENGLISH-RETENTION",
+      "decision_type": "INLINE_ENGLISH_HANDLING",
+      "selected_option": "PRESERVE_RAW_INLINE_ENGLISH_PARENTHESES",
+      "rationale": "Chapter remediation scripts preserved literal English phrases within parentheses (e.g. '(Skill Variety)', '(Job Control)') instead of translating them into Persian and transferring English terminology to native Word footnotes.",
+      "alternatives_considered": [
+        {
+          "option": "Persian Translation with Native Word Footnote",
+          "verdict": "REJECTED_BY_DEFECT",
+          "reason": "Lacked deterministic pre-processing regex to detect Latin strings and convert them into native footnotes."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-LATIN-CITATION-RETENTION",
+      "decision_type": "IN_TEXT_CITATION_FORMAT",
+      "selected_option": "RETAIN_RAW_LATIN_IN_TEXT_CITATIONS",
+      "rationale": "In Chapters 1 and 2, Latin citations like '(Hackman & Oldham, 1975, 1976)' were left untouched in English script, and transliterated citations in Chapter 2 were left without author footnotes.",
+      "alternatives_considered": [
+        {
+          "option": "Transliterate Author Names to Persian and Add Native Footnote on First Appearance",
+          "verdict": "REJECTED_BY_DEFECT",
+          "reason": "Omitted automated citation transliteration and footnote generator pipeline."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-MOCK-VALIDATOR-SHORTCUT",
+      "decision_type": "VALIDATOR_IMPLEMENTATION",
+      "selected_option": "STATIC_MOCK_PASS_DICTIONARY",
+      "rationale": "Validator validate_thesis_master.py was implemented with static hardcoded PASS statements rather than physical AST/DOM validation passes inspecting w:rFonts, Latin regex runs, and citation footnote tags.",
+      "alternatives_considered": [
+        {
+          "option": "Fail-Closed Physical DOM Validation Gate",
+          "verdict": "REJECTED_BY_DEFECT",
+          "reason": "Developer prioritized rapid test clearance over exhaustive fail-closed validation, directly violating Directive 22 and Directive 25."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/Thesis_Final_Master.docx",
+      "sha256": "690c73fc1e6006c58f9fc3d4da5f168a0a858805d24c2a3db30d289d58e583d2",
+      "type": "audited_master_thesis_docx"
+    },
+    {
+      "path": "03_deliverables/Thesis_Chapters1to3.docx",
+      "sha256": "ba11358a2b5c3a21d29fc4df44b1c824e4b903a3463210847559bdba2e95b580",
+      "type": "audited_chapters_1to3_docx"
+    },
+    {
+      "path": "03_deliverables/Chapter_4_Results.docx",
+      "sha256": "a54a57efd36a251872fe966c2677a5f4f9d4d869a241ef48c4c57ed10f62c7f3",
+      "type": "audited_chapter_4_docx"
+    },
+    {
+      "path": "03_deliverables/Chapter_5_Discussion.docx",
+      "sha256": "e2e3d40e50dd3e65e0674212ebd0ca7ec027dfcba1abbd8b35a0bd16a0a149d5",
+      "type": "audited_chapter_5_docx"
+    },
+    {
+      "path": "03_deliverables/Comprehensive_References.docx",
+      "sha256": "82d744bea95be5d533fcf70a8497b571c06133215819c5b012278661b6b2ed03",
+      "type": "audited_references_docx"
+    },
+    {
+      "path": "03_deliverables/All_Appendices.docx",
+      "sha256": "fa5b928e61ca99bd55ed6b089b55b61bc788449de66409a63b2321cb54d93a79",
+      "type": "audited_appendices_docx"
+    },
+    {
+      "path": "01_raw_inputs/Thesis.docx",
+      "sha256": "ec728ff33931e05654829531b4caac309b4a161c4413877496ec8bf0800e90cf",
+      "type": "raw_input_baseline_docx"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "validate_thesis_master.py",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "verdict_nature": "FALSE_POSITIVE_MOCK_PASS",
+        "description": "Script emitted static hardcoded PASS statements across 20 assertions without validating fonts, inline Latin tokens, or transliterated in-text citations."
+      }
+    },
+    {
+      "validator_name": "forensic_trajectory_auditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-DOCX-FONT-UNIVERSITY-CONFORMANCE",
+        "CHK-ZERO-INLINE-LATIN",
+        "CHK-PERSIAN-TRANSLITERATED-CITATIONS-FOOTNOTED",
+        "CHK-VALIDATOR-BLINDSPOT"
+      ],
+      "evidence_summary": {
+        "font_audit": "Deliverable uses B Nazanin 13/14 pt and B Titr 16 pt; institutional guideline requires B Lotus 14 pt body, B Lotus 16 pt main headings, B Lotus 14 pt subheadings, B Titr 18 pt chapter titles.",
+        "inline_latin_audit": "Over 120 un-footnoted inline English words detected in running Persian text across Chapters 1-5.",
+        "citation_audit": "In-text citations in Chapter 1 feature raw English author names; Chapter 2 transliterations lack Latin author footnotes.",
+        "margin_audit": "Left margin is 1.0 in (2.54 cm) instead of 2.0 cm; Top/Bottom margins are 1.0 in (2.54 cm) instead of 3.0 cm."
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261003-ESTAKI-INLINE-ENGLISH",
+    "FDB-20261003-ESTAKI-ENGLISH-CITATIONS",
+    "FDB-20261003-ESTAKI-FONT-MISMATCH"
+  ],
+  "outcome": "FAILURE"
+}

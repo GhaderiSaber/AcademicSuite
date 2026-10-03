@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-MOCK-VALIDATOR-BLINDSPOT",
+  "category": "validation",
+  "defective_pattern": "Using hardcoded or static dictionary validations that simply return 'PASS' without conducting physical DOM inspections.",
+  "why_defective": "Produces false positives for compliance checks. Mechanical failures (like missing w:rFonts, leaked inline Latin strings, or broken bidirectional footnote ID cross-references) go undetected in the final deliverable.",
+  "observed_symptoms": [
+    "Validation scripts output PASS but the resulting DOCX contains formatting errors.",
+    "Missing w:rFonts elements or unlinked footnote references."
+  ],
+  "corrective_remedy": "Implement fail-closed physical DOM inspections (lxml or ElementTree). Assert explicitly that `w:rFonts` matches institutional standards, scan runs for inline Latin strings, and programmatically verify footnote reference IDs against the footnotes.xml part.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of dummy validation stubs or missing DOM parsing imports in validation scripts.",
+    "regex_patterns": ["return\\s+['\"]PASS['\"]"],
+    "pattern": "return\\s+['\"]PASS['\"]",
+    "check_type": "substring_ban",
+    "file_pattern": ".*_validator\\.py",
+    "event": "Both"
+  },
+  "target_agent": "validation-agent",
+  "target_agents": [
+    "validation-agent",
+    "results-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T03:40:00Z"
+}

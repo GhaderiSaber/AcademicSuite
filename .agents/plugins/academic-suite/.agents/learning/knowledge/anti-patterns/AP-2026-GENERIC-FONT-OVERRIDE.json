@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-GENERIC-FONT-OVERRIDE",
+  "category": "typography",
+  "defective_pattern": "Hardcoding generic font defaults (e.g., B Nazanin 14 pt, B Titr 16 pt, 1.0-inch margins) when processing manuscripts.",
+  "why_defective": "Ignores explicit institutional typography templates (e.g., Thesis.docx or help.pdf) which mandate specific font families (e.g., B Lotus) and exact centimeter-based margins (e.g., Top/Bottom/Right 3.0 cm, Left 2.0 cm), leading to format rejection by the graduate school.",
+  "observed_symptoms": [
+    "Generated DOCX files default to B Nazanin instead of the institutional standard.",
+    "Margins are set to generic 1-inch instead of specific metric margins.",
+    "Title pages and headings disregard institutional hierarchy."
+  ],
+  "corrective_remedy": "Before applying typography, explicitly extract institutional typography rules from 01_raw_inputs/help.pdf or baseline Thesis.docx. Apply the extracted fonts (e.g., B Lotus) and margins dynamically.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of hardcoded 'B Nazanin' or 'B Titr' or '1 inch' assignments without verifying the institutional template.",
+    "regex_patterns": ["(?i)font\\.name\\s*=\\s*['\"]B Nazanin['\"]", "(?i)font\\.name\\s*=\\s*['\"]B Titr['\"]"],
+    "pattern": "(?i)font\\.name\\s*=\\s*['\"]B Nazanin['\"]",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T03:40:00Z"
+}

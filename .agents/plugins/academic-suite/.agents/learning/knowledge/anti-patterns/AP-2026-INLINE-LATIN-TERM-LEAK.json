@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-INLINE-LATIN-TERM-LEAK",
+  "category": "typography",
+  "defective_pattern": "Including parenthetical Latin (English) words inline within running Persian narrative text.",
+  "why_defective": "Violates strict Persian typography rules (Directive 5). Latin characters disrupt RTL paragraph layout and bi-directional text alignment, breaking formal scholarly presentation.",
+  "observed_symptoms": [
+    "English text inside parentheses scattered across Persian paragraphs.",
+    "Disrupted RTL rendering in Word."
+  ],
+  "corrective_remedy": "All foreign terms must be translated or transliterated to Persian in the main text. The original English terminology must be strictly placed in native OpenXML footnotes.",
+  "detection_heuristic": {
+    "trigger_rule": "Regex detection of Latin characters in Persian markdown or DOCX narrative blocks.",
+    "regex_patterns": ["(?P<latin>[a-zA-Z]+)"],
+    "pattern": "(?P<latin>[a-zA-Z]+)",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-academic-translation"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T03:40:00Z"
+}

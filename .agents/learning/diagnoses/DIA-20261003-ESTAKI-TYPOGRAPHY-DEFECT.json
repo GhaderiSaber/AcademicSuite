@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "DIA-20261003-ESTAKI-TYPOGRAPHY-DEFECT",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261003-ESTAKI-INLINE-ENGLISH",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-thesis-builder",
+  "capability": "THESIS_ASSEMBLY_AND_VALIDATION",
+  "trajectory_id": "TRJ-20261003-ESTAKI-INLINE-CITATIONS-FONTS",
+  "observable_failure_step": {
+    "step_number": 11,
+    "action_type": "VALIDATION_FAILED",
+    "description": "Execution trajectory evaluated as overall FAILURE due to triple defect cluster confirmed against physical deliverables and raw input baselines."
+  },
+  "failure_signature": "TYPOGRAPHY_AND_INLINE_LATIN_VIOLATION",
+  "root_cause_diagnosis": "The defect cluster (Font drift, inline English words, unfootnoted citations) occurred because: 1. Authoring scripts applied standard default plugin typography (B Nazanin) instead of referencing the project's institutional guidelines (B Lotus). 2. Scripts preserved literal inline English terms in parentheses instead of applying a transliteration and native Word footnote architecture. 3. Latin citations were left untouched or without footnotes. 4. The validator used a static dictionary mock that falsely reported 'PASS' instead of executing physical fail-closed DOM queries.",
+  "prescribed_behavior": "1. Authoring scripts must query and apply project-specific institutional typographical rules (e.g. from 01_raw_inputs/help.pdf) over generic plugin defaults. 2. All inline English terms must be transliterated into Persian, with original Latin terms placed in native Word footnotes (word/footnotes.xml). 3. The validation script must perform fail-closed physical DOM/XML inspection for w:rFonts, regex scans for inline Latin strings in Persian text, and cross-reference checks between text transliterations and footnotes without relying on static mock passes.",
+  "created_at": "2026-10-03T07:15:00Z"
+}

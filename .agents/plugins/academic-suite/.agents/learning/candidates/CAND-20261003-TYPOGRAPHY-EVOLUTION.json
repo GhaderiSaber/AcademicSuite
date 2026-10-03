@@ -1,0 +1,44 @@
+{
+  "candidate_id": "CAND-20261003-TYPOGRAPHY-EVOLUTION",
+  "target_type": "SKILL_PROCEDURAL_SPECIFICATION",
+  "target_component": "multiple",
+  "mutations": [
+    {
+      "target": ".agents/skills/persian-thesis-builder/SKILL.md",
+      "diff_type": "STRING_REPLACE",
+      "target_content": "### A. Font System & Hierarchy\n- **Chapter Titles (`Heading 1`)**: Font `B Titr` 16 or 18 pt Bold, Centered, Space Before: 24 pt, Space After: 14 pt.\n- **Major Headings (`Heading 2`)**: Font `B Titr` 14 pt Bold, Right-aligned, Space Before: 14 pt, Space After: 6 pt.\n- **Subheadings (`Heading 3`)**: Font `B Nazanin Bold` 13 pt Bold, Right-aligned, Space Before: 8 pt, Space After: 4 pt.\n- **Body Paragraphs (`Normal`)**: Font `B Nazanin` or `B Lotus` 13–14 pt Regular, Line Spacing: 1.25, Justified (`WD_ALIGN_PARAGRAPH.JUSTIFY`).",
+      "replacement_content": "### A. Font System & Hierarchy\n- **Institutional Typography Extraction Protocol**: Never assume `B Nazanin` when university guidelines (e.g., `help.pdf` or baseline `Thesis.docx`) mandate specific fonts such as `B Lotus` (14 pt Regular body, 16 pt Bold headings, 18 pt `B Titr` chapter titles, Left 2.0 cm / Top-Bottom-Right 3.0 cm margins). Always dynamically extract and adapt to the target profile.\n- **Chapter Titles (`Heading 1`)**: Font `B Titr` 16 or 18 pt Bold, Centered, Space Before: 24 pt, Space After: 14 pt.\n- **Major Headings (`Heading 2`)**: Font `B Titr` 14 pt Bold, Right-aligned, Space Before: 14 pt, Space After: 6 pt.\n- **Subheadings (`Heading 3`)**: Font `B Nazanin Bold` 13 pt Bold, Right-aligned, Space Before: 8 pt, Space After: 4 pt.\n- **Body Paragraphs (`Normal`)**: Font `B Nazanin` or `B Lotus` 13–14 pt Regular, Line Spacing: 1.25, Justified (`WD_ALIGN_PARAGRAPH.JUSTIFY`)."
+    },
+    {
+      "target": ".agents/skills/persian-thesis-builder/SKILL.md",
+      "diff_type": "STRING_REPLACE",
+      "target_content": "3. **Table BiDi**: Enforce `<w:bidiVisual/>` on table properties to guarantee Right-to-Left column ordering.",
+      "replacement_content": "3. **Table BiDi**: Enforce `<w:bidiVisual/>` on table properties to guarantee Right-to-Left column ordering.\n4. **Strict Elimination of Inline English Words**: Running Persian text must contain strictly zero inline English words. Transliterate or translate foreign names/terms to Persian and insert native OpenXML footnotes for the Latin text.\n5. **Persian In-Text Foreign Citation Standard**: Transliterate foreign author surnames into Persian characters and insert native OpenXML footnotes for the Latin names."
+    },
+    {
+      "target": ".agents/skills/thesis-integrity-auditor/SKILL.md",
+      "diff_type": "STRING_REPLACE",
+      "target_content": "7. Forensic Audit Requirements (Document Truncation & OpenXML Standards)\n- **Table Count & Anti-Truncation Audit (`CRITICAL`)**: Auditors must assert exact **table count** and **row count per table** against the source markdown specification. Reject any document with missing or truncated tables.\n- **Compiler Inputs**: Compilers must always receive both `--md` and `--json`.\n- **OpenXML Cell Alignment Verification (`MAJOR`)**: Verify explicit `<w:jc>` on all cells (Col 1 = right, Col 2+ = center).",
+      "replacement_content": "7. Forensic Audit Requirements (Document Truncation & OpenXML Standards)\n- **Table Count & Anti-Truncation Audit (`CRITICAL`)**: Auditors must assert exact **table count** and **row count per table** against the source markdown specification. Reject any document with missing or truncated tables.\n- **Compiler Inputs**: Compilers must always receive both `--md` and `--json`.\n- **OpenXML Cell Alignment Verification (`MAJOR`)**: Verify explicit `<w:jc>` on all cells (Col 1 = right, Col 2+ = center).\n- **Fail-Closed Mechanical DOM Assertions (`CRITICAL`)**: Inspect `<w:rFonts>` against the exact institutional target font profile. Ban hardcoded static dictionaries returning 'PASS'.\n- **Inline Latin Word Zero-Tolerance (`CRITICAL`)**: Implement regex scan asserting count of inline Latin words `[a-zA-Z]{2,}` in running Persian narrative is strictly 0 (except inside native footnote elements or designated Latin sections).\n- **Bidirectional Footnote Cross-Referencing (`MAJOR`)**: Every foreign in-text citation must have a corresponding footnote ID in `word/footnotes.xml`."
+    }
+  ],
+  "mechanical_rule": {
+    "event": "Both",
+    "tool_match": "write_to_file|replace_file_content|run_command",
+    "file_pattern": ".*\\.docx",
+    "check_type": "regex_ban",
+    "pattern": "[a-zA-Z]{2,}",
+    "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
+    "remedy": "Extract the English word, insert its Persian transliteration in the body text, and create a native OpenXML footnote containing the English text.",
+    "target_agents": [
+      "*"
+    ]
+  },
+  "expected_improvement": "Ensure 100% compliance with institutional typography rules and strict zero-inline-English policy with robust native footnote cross-referencing.",
+  "affected_capabilities": [
+    "GENERAL_ACADEMIC",
+    "THESIS_BUILDING",
+    "QUALITY_ASSURANCE"
+  ],
+  "status": "STAGED"
+}

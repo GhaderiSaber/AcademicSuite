@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-UNFOOTNOTED-FOREIGN-IN-TEXT-CITATION",
+  "category": "typography",
+  "defective_pattern": "Using raw English in-text citations or transliterated foreign author citations without corresponding native OpenXML footnotes.",
+  "why_defective": "Violates Persian academic citation standards which require phonetic transliteration of foreign authors in the text alongside an immediate footnote containing the original English name to maintain traceability and RTL integrity.",
+  "observed_symptoms": [
+    "English author names like '(Smith, 2021)' appearing in Persian text.",
+    "Persian transliterations like '(اسمیت، 2021)' without a corresponding footnote providing 'Smith'."
+  ],
+  "corrective_remedy": "Transliterate foreign author names in the Persian text (e.g., 'اسمیت و همکاران، ۲۰۲۱') and immediately attach a native OpenXML footnote with the original English name.",
+  "detection_heuristic": {
+    "trigger_rule": "Detection of English citations or missing footnote linkage for transliterated citations.",
+    "regex_patterns": ["\\([A-Za-z]+,?\\s*\\d{4}\\)"],
+    "pattern": "\\([A-Za-z]+,?\\s*\\d{4}\\)",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "persian-academic-translation"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T03:40:00Z"
+}

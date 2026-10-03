@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-INSTITUTIONAL-TYPOGRAPHY-EXTRACTION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-20261003-ESTAKI",
+  "diagnosis": {
+    "what_happened": "Manuscript was generated using generic defaults (B Nazanin 14 pt, 1-inch margins) ignoring the institutional template.",
+    "behavior_caused_outcome": "The generated document failed institutional formatting checks because it didn't align with the required font (B Lotus) and specific metric margins.",
+    "what_should_have_happened": "The system should have extracted formatting parameters from 01_raw_inputs/help.pdf or Thesis.docx before generating the output.",
+    "rationale_why": "Institutional formatting guidelines supercede generic defaults and must be programmatically respected to ensure acceptance."
+  },
+  "desired_behavior": "Always extract institutional typography profiles (fonts, margins, heading hierarchies) from provided templates (help.pdf, baseline DOCX) prior to document compilation, rather than falling back on generic font/margin assignments.",
+  "generalization": "Institutional rules strictly override generic academic defaults.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "INSTITUTIONAL_TEMPLATE_EXTRACTION",
+    "observed_value": "Generic fonts applied",
+    "threshold_value": "Template-specific fonts applied",
+    "supporting_report_ids": ["DIA-20261003-ESTAKI-TYPOGRAPHY-DEFECT"],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-thesis-builder",
+    "academic-article-writer"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T03:40:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator"
+  ]
+}
