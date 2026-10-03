@@ -1,0 +1,32 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-STALE-PRE-REVISION-SEM-FIT-REPORTING",
+  "category": "validation",
+  "defective_pattern": "Hardcoding raw SEM fit indices in task delegation envelopes and verifying deliverables circularly against these CDE expectations instead of the physical canonical output file (fit_measures_sem.csv).",
+  "why_defective": "This creates a circular validation blindspot where the orchestrator's stale or hallucinated metrics are passed off as verified, overriding the actual calculated parameters.",
+  "observed_symptoms": [
+    "CDE contains raw fit numbers",
+    "Validation script asserts against CDE expectations rather than loading CSV",
+    "Deliverable matches CDE but contradicts CSV"
+  ],
+  "corrective_remedy": "Mandate that macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths, and forbid circular validator assertions based on unverified CDE criteria.",
+  "detection_heuristic": {
+    "trigger_rule": "Validator circularly checking CDE instead of disk CSV",
+    "regex_patterns": [
+      "(?m)^.*circular_validation.*$"
+    ],
+    "pattern": "(?m)^.*circular_validation.*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.json",
+    "event": "Both"
+  },
+  "target_agent": "validation-agent",
+  "target_agents": [
+    "validation-agent",
+    "academic-orchestrator",
+    "statistics-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T15:18:00Z",
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+}

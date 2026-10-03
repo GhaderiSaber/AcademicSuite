@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T14:46:04.793228+00:00",
+  "updated_at": "2026-10-03T15:19:10.301705+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1762,6 +1762,26 @@
       "remedy": "Stop immediately. Generate only the .json analytical payload. Delegate the narrative prose, .md compilation, and .docx generation to academic-writer.",
       "enabled": true,
       "updated_at": "2026-10-03T14:46:04.793200+00:00"
+    },
+    "AP-2026-STALE-PRE-REVISION-SEM-FIT-REPORTING": {
+      "item_id": "AP-2026-STALE-PRE-REVISION-SEM-FIT-REPORTING",
+      "category": "Anti-Pattern",
+      "statement": "Mandate that macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths, and forbid circular validator assertions based on unverified CDE criteria.",
+      "target_agents": [
+        "academic-orchestrator",
+        "statistics-agent",
+        "validation-agent"
+      ],
+      "target_skills": [],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|patch|edit_file",
+      "file_pattern": ".*\\.json",
+      "check_type": "regex_ban",
+      "pattern": "(?m)^.*circular_validation.*$",
+      "violation_message": "Mandate that macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths, and forbid circular validator assertions based on unverified CDE criteria.",
+      "remedy": "Mandate that macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths, and forbid circular validator assertions based on unverified CDE criteria.",
+      "enabled": true,
+      "updated_at": "2026-10-03T15:19:10.301690+00:00"
     }
   }
 }
