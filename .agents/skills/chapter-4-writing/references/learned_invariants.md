@@ -298,77 +298,57 @@ The current local time is: 2026-09-25T19:49:25+03:30.
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_025326)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_025401)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_025421)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_031319)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_025451)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_031453)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_031128)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_032722)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_033453)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_032906)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_033528)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_033148)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_033655)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_033509)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_033924)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_035327)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_033944)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_035807)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_034133)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_035855)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py
 
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_034452)
-- **Category**: Lesson
-- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
-- **Enforcement**: results_auditor_guard.py
-
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_034459)
-- **Category**: Lesson
-- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
-- **Enforcement**: results_auditor_guard.py
-
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_034648)
-- **Category**: Lesson
-- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
-- **Enforcement**: results_auditor_guard.py
-
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_041228)
-- **Category**: Lesson
-- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
-- **Enforcement**: results_auditor_guard.py
-
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_041240)
+### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_035941)
 - **Category**: Lesson
 - **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
 - **Enforcement**: results_auditor_guard.py

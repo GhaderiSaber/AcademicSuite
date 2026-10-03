@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-TABLE-NOTE-PREFIX-AND-PERSIAN-TRANSLITERATION-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "RECURRING_MISTAKE",
+  "source_experience_id": "BAN-20261003-TABLE-NOTE-ENGLISH-LEAKAGE-001",
+  "diagnosis": {
+    "what_happened": "Table notes were generated without the mandatory Persian prefix 'یادداشت.' and contained untranslated English text (English leakage) instead of proper Persian transliteration or translation.",
+    "behavior_caused_outcome": "Omitting the 'یادداشت.' prefix violates Persian APA 7th Edition formatting standards. Leaving English text in the notes violates the strict Persian typography and transliteration mandate.",
+    "what_should_have_happened": "Every table note must strictly begin with the prefix 'یادداشت. ' (Note.). Any explanatory text within the note must be strictly in Persian, with any necessary foreign terms transliterated into Persian script.",
+    "rationale_why": "Persian academic standards strictly require adherence to translated APA formats, meaning 'Note.' becomes 'یادداشت.' and all prose must remain in Persian to ensure a uniform scholarly register."
+  },
+  "desired_behavior": "When generating or formatting table notes, always start the note with the prefix 'یادداشت. '. Ensure all explanatory text is in Persian and any foreign terms or author names are properly transliterated. Retain Latin script only for standardized statistical symbols (e.g., M, SD).",
+  "generalization": "All table notes in Persian academic documents must follow the 'یادداشت.' prefix format and strictly prohibit English prose leakage.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "APA_PERSIAN_TABLE_NOTE_FORMAT",
+    "observed_value": "English text and missing prefix",
+    "threshold_value": "100% Persian prose with 'یادداشت.' prefix",
+    "supporting_report_ids": [
+      "BAN-20261003-TABLE-NOTE-ENGLISH-LEAKAGE-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T03:29:57Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ]
+}

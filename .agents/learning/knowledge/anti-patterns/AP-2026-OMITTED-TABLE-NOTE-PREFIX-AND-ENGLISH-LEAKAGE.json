@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-OMITTED-TABLE-NOTE-PREFIX-AND-ENGLISH-LEAKAGE",
+  "category": "typography",
+  "defective_pattern": "Omitting the 'یادداشت.' prefix from table notes or leaving English prose (English leakage) inside the note body.",
+  "why_defective": "Violates Persian APA 7th Edition guidelines which mandate the specific 'یادداشت.' prefix, and violates the zero-inline-Latin directive for Persian academic narrative.",
+  "observed_symptoms": [
+    "Table notes beginning directly with text instead of 'یادداشت.'",
+    "English phrases or sentences appearing in the table note rather than Persian translation or transliteration"
+  ],
+  "corrective_remedy": "Prefix every table note with 'یادداشت. ' (italicized where applicable) and fully translate or transliterate all English explanatory text into Persian. Only retain Latin script for universal statistical symbols (e.g., *p*, *M*).",
+  "detection_heuristic": {
+    "trigger_rule": "Regex detecting table notes that lack the prefix or contain English alphabetical characters in the explanatory prose.",
+    "regex_patterns": [
+      "(?m)^(?!(یادداشت\\.)).+?[a-zA-Z]{3,}.*$"
+    ],
+    "pattern": "(?m)^(?!(یادداشت\\.)).+?[a-zA-Z]{3,}.*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T03:29:57Z"
+}
