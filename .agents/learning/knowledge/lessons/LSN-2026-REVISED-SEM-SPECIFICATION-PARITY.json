@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-REVISED-SEM-SPECIFICATION-PARITY",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261003-REVISED-SEM-FIT-001",
+  "diagnosis": {
+    "what_happened": "academic-orchestrator dispatched statistics-agent with hardcoded unrevised fit indices, overriding the canonical metrics from fit_measures_sem.csv, and validators circularly checked against the orchestrator's expectations.",
+    "behavior_caused_outcome": "Stale pre-revision SEM fit metrics were published and validated circularly, masking the revised canonical model metrics.",
+    "what_should_have_happened": "Macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths, and validators must verify deliverables against physical data sources.",
+    "rationale_why": "Single Source of Truth ensures data integrity. Circular validation masks regressions."
+  },
+  "desired_behavior": "Macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths. Forbid circular validator assertions based on unverified CDE criteria.",
+  "generalization": "All reporting and validation assertions must anchor physically to authoritative canonical CSV output on disk, never circularly against transient orchestrator CDE expectations.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.95,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Unrevised SEM parameters in deliverable despite correct model existing",
+    "threshold_value": "Zero tolerance for stale SEM model reporting",
+    "supporting_report_ids": [
+      "BAN-20261003-REVISED-SEM-FIT-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "sem",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T15:18:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "statistics-agent",
+    "validation-agent"
+  ],
+  "graduation_track": "TRACK_1_IMMEDIATE_GRADUATION"
+}
