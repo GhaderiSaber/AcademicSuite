@@ -418,7 +418,22 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
             )
         }
 
-    # Anti-Polling Circuit Breaker on manage_subagents
+    # Directive 12 / Zero Active Polling Safeguards:
+    # 1. Block peeking into background subagent internal execution transcripts
+    if tool_name == "view_file":
+        target_path = (args.get("AbsolutePath") or args.get("file_path") or args.get("path") or "").replace("\\", "/")
+        if "transcript" in target_path and any(p in target_path for p in (".system_generated/logs", "/brain/", ".gemini/antigravity")):
+            return {
+                "decision": "deny",
+                "reason": (
+                    "CONSTITUTIONAL SAFEGUARD (Zero Active Polling & Subagent Context Isolation):\n"
+                    "Peeking into background subagent transcript logs ('transcript.jsonl') in a polling loop is strictly prohibited.\n"
+                    "Antigravity automatically notifies you with the subagent's return message upon completion.\n"
+                    "Stop calling tools now and yield execution to wait for reactive notification."
+                )
+            }
+
+    # 2. Anti-Polling Circuit Breaker on manage_subagents
     if tool_name == "manage_subagents":
         action = (args.get("Action") or "").lower().strip()
         if action == "list":
@@ -439,6 +454,17 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     try:
                         with open(t_target, "r", encoding="utf-8") as tf:
                             t_records = [json.loads(tl.strip()) for tl in tf if tl.strip()]
+                        
+                        launched_conv_ids = set()
+                        completed_conv_ids = set()
+                        for r in t_records:
+                            cnt = str(r.get("content", ""))
+                            for m in re.finditer(r'["\']conversationId["\']\s*:\s*["\']([a-f0-9\-]+)["\']', cnt):
+                                launched_conv_ids.add(m.group(1))
+                            for m in re.finditer(r'sender=([a-f0-9\-]+)', cnt):
+                                completed_conv_ids.add(m.group(1))
+                        pending_subagents = launched_conv_ids - completed_conv_ids
+
                         consecutive_lists = 0
                         for r in reversed(t_records):
                             calls = [tc.get("name") for tc in r.get("tool_calls", [])]
@@ -448,14 +474,21 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 continue
                             else:
                                 break
-                        if consecutive_lists >= 3:
+
+                        recent_lists = 0
+                        for r in t_records[-25:]:
+                            calls = [tc.get("name") for tc in r.get("tool_calls", [])]
+                            if "manage_subagents" in calls:
+                                recent_lists += 1
+
+                        if consecutive_lists >= 2 or (pending_subagents and recent_lists >= 2):
                             return {
                                 "decision": "deny",
                                 "reason": (
-                                    "CONSTITUTIONAL SAFEGUARD (Anti-Polling Circuit Breaker): "
-                                    "Repeatedly polling manage_subagents in a tight loop is prohibited to prevent quota exhaustion. "
-                                    "Antigravity subagents notify automatically upon completion. "
-                                    "Please stop calling tools and wait for the subagent's message."
+                                    "CONSTITUTIONAL SAFEGUARD (Anti-Polling Circuit Breaker & Zero Active Polling):\n"
+                                    "Repeatedly checking 'manage_subagents' in a polling loop is strictly prohibited to prevent quota exhaustion.\n"
+                                    "Antigravity subagents notify automatically upon completion via reactive messaging.\n"
+                                    "Stop calling tools now and yield execution to wait for the subagent's return message."
                                 )
                             }
                     except Exception:
@@ -1013,6 +1046,11 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                 worker_type in LEARNING_WORKERS_SET or
                                                 any(k in worker_type for k in ("trajectory", "behavior", "curator", "evolver", "evaluation"))
                                             )
+                                            if is_learning_worker and state == "REMEDIATION_PHASE":
+                                                # The learning cascade was already verified and graduated on disk.
+                                                # Do not let historical learning envelopes block deliverable stage conclusion.
+                                                continue
+
                                             for art in req_arts:
                                                 art_str = str(art.get("path") if isinstance(art, dict) else art).strip()
                                                 if not art_str:
@@ -1051,6 +1089,64 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                         clean_rel = art_str.replace("\\", "/").lstrip("./")
                                                         suffix_pat = r"(?:^|/)" + re.escape(clean_rel) + r"$"
                                                         found = find_files_matching(search_workspaces, suffix_pat)
+
+                                                # 5. Dedicated Learning Store Artifact Resolution for learning workers
+                                                if not found and is_learning_worker:
+                                                    learning_base = os.path.join(canonical_repo, ".agents", "learning")
+                                                    cand_learning_dirs = []
+                                                    if "trajectory" in worker_type or "trajectory" in art_str.lower():
+                                                        cand_learning_dirs.extend([
+                                                            os.path.join(learning_base, "experience"),
+                                                            os.path.join(learning_base, "experience", "trajectories")
+                                                        ])
+                                                    elif "behavior" in worker_type or "diagnostic" in art_str.lower():
+                                                        cand_learning_dirs.append(os.path.join(learning_base, "diagnostics"))
+                                                    elif "curator" in worker_type or any(k in art_str.lower() for k in ("knowledge", "lesson", "pattern")):
+                                                        cand_learning_dirs.extend([
+                                                            os.path.join(learning_base, "knowledge"),
+                                                            os.path.join(learning_base, "knowledge", "lessons")
+                                                        ])
+                                                    elif "evolver" in worker_type or "candidate" in art_str.lower():
+                                                        cand_learning_dirs.append(os.path.join(learning_base, "candidates"))
+                                                    elif "evaluat" in worker_type or "evaluation" in art_str.lower():
+                                                        cand_learning_dirs.append(os.path.join(learning_base, "evaluations"))
+                                                    else:
+                                                        cand_learning_dirs.append(os.path.join(learning_base, "experience"))
+
+                                                    base_name = os.path.basename(art_str)
+                                                    stem, ext = os.path.splitext(base_name)
+                                                    clean_slug = re.sub(r'^(?:trajectory_|[a-z0-9]+_)?', '', stem, flags=re.IGNORECASE)
+                                                    tokens = [t.lower() for t in re.split(r'[-_]', clean_slug) if len(t) >= 3 and t.lower() not in ('trajectory', 'report', 'state', 'json', 'data')]
+
+                                                    for l_dir in cand_learning_dirs:
+                                                        if not os.path.isdir(l_dir):
+                                                            continue
+                                                        # Exact basename match in learning dir
+                                                        exact_cand = os.path.join(l_dir, base_name)
+                                                        if os.path.isfile(exact_cand) and os.path.getsize(exact_cand) > 0:
+                                                            found = [exact_cand]
+                                                            break
+                                                        # Search files and subdirectories by tokens and extension
+                                                        for item in os.listdir(l_dir):
+                                                            ipath = os.path.join(l_dir, item)
+                                                            if os.path.isfile(ipath):
+                                                                iname, iext = os.path.splitext(item)
+                                                                if iext.lower() == ext.lower():
+                                                                    if tokens and all(t in iname.lower() for t in tokens):
+                                                                        if os.path.getsize(ipath) > 0:
+                                                                            found = [ipath]
+                                                                            break
+                                                            elif os.path.isdir(ipath):
+                                                                if tokens and all(t in item.lower() for t in tokens):
+                                                                    for c_name in ('trajectory' + ext, 'trajectory_reconstruction' + ext, item + ext):
+                                                                        c_cand = os.path.join(ipath, c_name)
+                                                                        if os.path.isfile(c_cand) and os.path.getsize(c_cand) > 0:
+                                                                            found = [c_cand]
+                                                                            break
+                                                                if found:
+                                                                    break
+                                                        if found:
+                                                            break
 
                                                 if not found:
                                                     missing_arts.append(art_str)

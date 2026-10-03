@@ -37,5 +37,11 @@
     "academic-orchestrator",
     "statistics-agent",
     "validation-agent"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-10-03T14:45:51.789660+00:00",
+  "graduated_targets": [
+    ".agents/skills/chapter-4-writing/SKILL.md",
+    ".agents/skills/statistical-data-analyst/SKILL.md"
   ]
 }

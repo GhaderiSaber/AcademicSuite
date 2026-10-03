@@ -1,0 +1,621 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261003-AGENT-ROLE-BLEED-001",
+  "experience_id": "EXP-20261003-AGENT-ROLE-BLEED-001",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-LEARN-AGENT-ROLE-BLEED-TRAJECTORY",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:03:19.236921+00:00",
+      "description": "academic-orchestrator invoked statistics-agent for Stage 4.4 analytical anchor synchronization (TSK-2026-CH4-STAGE-4.4-STATS-SYNC).",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4.4-STATS-SYNC",
+        "target_script": "cp '03_deliverables/03_assumptions_report.json' '03_deliverables/04_assumptions.json'",
+        "required_artifacts": [
+          "03_deliverables/04_assumptions.json"
+        ]
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:03:52.410982+00:00",
+      "description": "statistics-agent synchronized Stage 4.4 analytical anchor 03_deliverables/04_assumptions.json (size: 128284 bytes) and reported completion to orchestrator.",
+      "observable_input": {
+        "command_line": "cp '03_deliverables/03_assumptions_report.json' '03_deliverables/04_assumptions.json'"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "artifact_created": "03_deliverables/04_assumptions.json",
+        "size_bytes": 128284
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:06:05.112450+00:00",
+      "description": "Root Capability Router Defect: academic-orchestrator evaluated capability routing for 'Stage 4.4 (Parametric Assumptions Verification Suite & Collinearity Diagnostics)'. Matching keyword 'parametric assumptions', the router selected Target Capability 'STATISTICS' and collapsed the two-tier pipeline, formulating task TSK-2026-CH4-STAGE-4.4-ASSUMPTIONS-TRIAD delegating both .docx and .md document authoring to statistics-agent.",
+      "observable_input": {
+        "stage_title": "Stage 4.4 (Parametric Assumptions Verification Suite & Collinearity Diagnostics)",
+        "router_keyword_matched": "parametric assumptions"
+      },
+      "observable_output": {
+        "selected_worker": "statistics-agent",
+        "requested_artifacts": [
+          "03_deliverables/04_assumptions.docx",
+          "03_deliverables/04_assumptions.md"
+        ]
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:06:06.621704+00:00",
+      "description": "academic-orchestrator invoked statistics-agent with CDE commanding it to author 02_analysis_code/build_assumptions_triad.py to synthesize 03_deliverables/04_assumptions.docx and 03_deliverables/04_assumptions.md.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4.4-ASSUMPTIONS-TRIAD",
+        "worker_agent": "statistics-agent",
+        "required_artifacts": [
+          "03_deliverables/04_assumptions.docx",
+          "03_deliverables/04_assumptions.md"
+        ]
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "TOOL_CALLED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:10:41.778560+00:00",
+      "description": "Defensive Worker Guard Blindspot: statistics-agent accepted drafting command without boundary validation, checked python-docx version in .venv, and prepared OpenXML generation script.",
+      "observable_input": {
+        "tool_name": "run_command",
+        "command_line": ".venv/bin/python3 -c \"import docx; print(docx.__version__)\""
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "stdout": "1.1.2"
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:11:24.958865+00:00",
+      "description": "statistics-agent inspected 02_analysis_code/build_demographics_triad.py to adapt python-docx DOM generation and styling patterns for Stage 4.4.",
+      "observable_input": {
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/build_demographics_triad.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:13:01.219970+00:00",
+      "description": "Role Boundary Violation Executed: statistics-agent authored 405-line python-docx builder script 02_analysis_code/build_assumptions_triad.py.",
+      "observable_input": {
+        "target_file": "${WORKSPACE_ROOT}/02_analysis_code/build_assumptions_triad.py",
+        "lines": 405
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:13:09.300829+00:00",
+      "description": "statistics-agent executed build_assumptions_triad.py, generating 03_deliverables/04_assumptions.md and 03_deliverables/04_assumptions.docx on disk.",
+      "observable_input": {
+        "command_line": ".venv/bin/python3 02_analysis_code/build_assumptions_triad.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "artifacts_created": [
+          "03_deliverables/04_assumptions.docx",
+          "03_deliverables/04_assumptions.md"
+        ]
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:15:06.608684+00:00",
+      "description": "statistics-agent refined build_assumptions_triad.py to adjust Persian table note formatting and rerun deliverable generation.",
+      "observable_input": {
+        "target_file": "${WORKSPACE_ROOT}/02_analysis_code/build_assumptions_triad.py",
+        "modification": "table note formatting"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:15:34.869603+00:00",
+      "description": "statistics-agent verified bilateral parity between 04_assumptions.docx and 04_assumptions.md including Table 4-15 caption and Kline (2023) criteria.",
+      "observable_input": {
+        "command_line": ".venv/bin/python3 -c \"... parity assertions ...\""
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "parity": "100%"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "TOOL_CALLED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:16:37.185958+00:00",
+      "description": "statistics-agent transmitted completion payload for TSK-2026-CH4-STAGE-4.4-ASSUMPTIONS-TRIAD returning 04_assumptions.docx and 04_assumptions.md to academic-orchestrator.",
+      "observable_input": {
+        "recipient": "caee8f0c-2d40-4bdf-a46e-f3a700674151",
+        "task_id": "TSK-2026-CH4-STAGE-4.4-ASSUMPTIONS-TRIAD"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:17:20.395497+00:00",
+      "description": "academic-orchestrator dispatched validation-agent for Stage 4.4 audit (TSK-2026-CH4-STAGE-4.4-VALIDATION) targeting validate_stage44_assumptions.py.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4.4-VALIDATION",
+        "target_script": ".venv/bin/python3 02_analysis_code/validate_stage44_assumptions.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T14:18:10.120000+00:00",
+      "description": "Validator Role Blindspot: validation-agent executed validate_stage44_assumptions.py checking file existence, Table 4-15 caption, word count, and DW statistic, but completely omitted checks on author agent role provenance.",
+      "observable_input": {
+        "target_script": ".venv/bin/python3 02_analysis_code/validate_stage44_assumptions.py"
+      },
+      "observable_output": {
+        "checks_failed": 0,
+        "checks_blocked": 0,
+        "verdict": "PASS"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T14:18:35.400000+00:00",
+      "description": "validation-agent generated 03_deliverables/04_assumptions_validation_report.json recording overall_verdict PASS and 0 checks failed, creating a false-negative mechanical gate pass.",
+      "observable_input": {
+        "target_file": "${WORKSPACE_ROOT}/03_deliverables/04_assumptions_validation_report.json"
+      },
+      "observable_output": {
+        "overall_verdict": "PASS",
+        "checks_failed": 0
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:19:15.000000+00:00",
+      "description": "Defect Propagation: Relying on the false validation pass, academic-orchestrator advanced to Stage 4.5 ('Structural Equation Modeling Macro-Fit'). The router again matched keyword 'Structural Equation Modeling' to 'STATISTICS' and repeated the identical defect, dispatching statistics-agent to generate 05_macro_model.docx and 05_macro_model.md.",
+      "observable_input": {
+        "stage": "Stage 4.5",
+        "target_capability": "STATISTICS"
+      },
+      "observable_output": {
+        "worker_agent": "statistics-agent",
+        "required_artifacts": [
+          "03_deliverables/05_macro_model.docx",
+          "03_deliverables/05_macro_model.md"
+        ]
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:19:40.000000+00:00",
+      "description": "academic-orchestrator invoked statistics-agent for Stage 4.5 (conversation e6b53fd6-8824-4a57-825e-330dfa342bba) to author macro SEM deliverable documents.",
+      "observable_input": {
+        "subagent": "statistics-agent",
+        "stage": "Stage 4.5 Macro SEM"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 17,
+      "action_type": "FILE_READ",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T14:23:22.355370+00:00",
+      "description": "statistics-agent viewed build_assumptions_triad.py in conversation e6b53fd6-8824-4a57-825e-330dfa342bba preparing to replicate Word/MD authoring for Stage 4.5.",
+      "observable_input": {
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/build_assumptions_triad.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 18,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-03T14:24:30.000000+00:00",
+      "description": "User Critique & Enforcement: User intervened and strictly halted execution: 'The statistical-agent can't write the word and .md document. Statistical-agent work is doing analysis and only can produce .json files. You violate the rules.'",
+      "observable_input": {
+        "critique": "The statistical-agent can't write the word and .md document. Statistical-agent work is doing analysis and only can produce .json files. You violate the rules."
+      },
+      "observable_output": {
+        "execution_halted": true
+      }
+    },
+    {
+      "step_number": 19,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:24:35.963498+00:00",
+      "description": "academic-orchestrator invoked manage_subagents(Action='kill', ConversationIds=['e6b53fd6-8824-4a57-825e-330dfa342bba']) to terminate the misallocated statistics-agent drafting subagent.",
+      "observable_input": {
+        "action": "kill",
+        "conversation_id": "e6b53fd6-8824-4a57-825e-330dfa342bba"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 20,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:24:55.172507+00:00",
+      "description": "academic-orchestrator invoked trajectory-analyzer (TSK-2026-LEARN-AGENT-ROLE-BLEED-TRAJECTORY) to initiate continuous learning Stage 1 forensic trajectory reconstruction.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-LEARN-AGENT-ROLE-BLEED-TRAJECTORY",
+        "worker_agent": "trajectory-analyzer"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-STAGE-4.4-STATS-SYNC",
+        "subagent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 385.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-STAGE-4.4-ASSUMPTIONS-TRIAD",
+        "subagent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 420.0
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "command": ".venv/bin/python3 -c \"import docx; print(docx.__version__)\""
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 418.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "file": "${WORKSPACE_ROOT}/02_analysis_code/build_demographics_triad.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 320.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "file": "${WORKSPACE_ROOT}/02_analysis_code/build_assumptions_triad.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 368.0
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "command": ".venv/bin/python3 02_analysis_code/build_assumptions_triad.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 578.0
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "recipient": "caee8f0c-2d40-4bdf-a46e-f3a700674151"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 338.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "task_id": "TSK-2026-CH4-STAGE-4.4-VALIDATION",
+        "subagent": "validation-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 441.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "stage": "Stage 4.5 Macro SEM",
+        "subagent": "statistics-agent"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 460.0
+    },
+    {
+      "tool_name": "manage_subagents",
+      "invocation_index": 10,
+      "arguments_summary": {
+        "action": "kill",
+        "conversation_id": "e6b53fd6-8824-4a57-825e-330dfa342bba"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 325.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 11,
+      "arguments_summary": {
+        "task_id": "TSK-2026-LEARN-AGENT-ROLE-BLEED-TRAJECTORY",
+        "subagent": "trajectory-analyzer"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 524.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "assumption-testing",
+      "script_path": ".agents/skills/assumption-testing/SKILL.md",
+      "cli_command": "cp '03_deliverables/03_assumptions_report.json' '03_deliverables/04_assumptions.json'",
+      "exit_code": 0,
+      "duration_seconds": 1.1
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/skills/apa-reporting/SKILL.md",
+      "cli_command": ".venv/bin/python3 02_analysis_code/build_assumptions_triad.py",
+      "exit_code": 0,
+      "duration_seconds": 2.4
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": ".agents/skills/thesis-integrity-auditor/SKILL.md",
+      "cli_command": ".venv/bin/python3 02_analysis_code/validate_stage44_assumptions.py",
+      "exit_code": 0,
+      "duration_seconds": 1.8
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "stage_id": "Stage 4.4 Anchor Sync",
+      "envelope_summary": "Synchronize Stage 4.4 analytical anchor 04_assumptions.json from 03_assumptions_report.json",
+      "status": "COMPLETED",
+      "task_id": "TSK-2026-CH4-STAGE-4.4-STATS-SYNC",
+      "input_artifacts": [
+        "03_deliverables/03_assumptions_report.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/04_assumptions.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "stage_id": "Stage 4.4 Triad Authoring (Erroneous Role Bleed)",
+      "envelope_summary": "Author and execute build_assumptions_triad.py to synthesize 04_assumptions.docx and 04_assumptions.md",
+      "status": "COMPLETED",
+      "task_id": "TSK-2026-CH4-STAGE-4.4-ASSUMPTIONS-TRIAD",
+      "input_artifacts": [
+        "03_deliverables/04_assumptions.json",
+        "03_deliverables/03_assumptions_report.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/04_assumptions.docx",
+        "03_deliverables/04_assumptions.md"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "stage_id": "Stage 4.4 Validation Audit",
+      "envelope_summary": "Independent verification of Stage 4.4 deliverables against statistical criteria and formatting",
+      "status": "COMPLETED",
+      "task_id": "TSK-2026-CH4-STAGE-4.4-VALIDATION",
+      "input_artifacts": [
+        "03_deliverables/04_assumptions.docx",
+        "03_deliverables/04_assumptions.md",
+        "03_deliverables/04_assumptions.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/04_assumptions_validation_report.json"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "stage_id": "Stage 4.5 Macro SEM (Recurrent Role Bleed)",
+      "envelope_summary": "Compute and draft Stage 4.5 macro SEM model documents 05_macro_model.docx and 05_macro_model.md",
+      "status": "FAILED",
+      "task_id": "TSK-2026-CH4-STAGE-4.5-MACRO-SEM",
+      "input_artifacts": [
+        "03_deliverables/05_macro_model_payload.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/05_macro_model.docx",
+        "03_deliverables/05_macro_model.md"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261003-ROUTER-COLLAPSE-001",
+      "decision_type": "CAPABILITY_ROUTING_AND_DELEGATION",
+      "selected_option": "MONOLITHIC_STATISTICS_DELEGATION",
+      "rationale": "academic-orchestrator mapped stage keyword 'parametric assumptions' strictly to STATISTICS capability and collapsed the canonical two-phase pipeline (Phase A: statistics-agent -> Phase B: academic-writer) into a single delegation instructing statistics-agent to author .docx and .md deliverables.",
+      "alternatives_considered": [
+        {
+          "option": "CANONICAL_TWO_PHASE_DECOMPOSITION",
+          "verdict": "BYPASSED_BY_ORCHESTRATOR",
+          "reason": "Orchestrator capability router evaluated stage title as a whole, overlooking the required separation between calculation (.json) and writing (.docx/.md)."
+        },
+        {
+          "option": "MONOLITHIC_STATISTICS_DELEGATION",
+          "verdict": "EXECUTED_CAUSING_ROLE_BLEED",
+          "reason": "Keyword 'parametric assumptions' triggered STATISTICS mapping, causing orchestrator to send .docx and .md artifact requirements to statistics worker."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-WORKER-GUARD-BLINDSPOT-001",
+      "decision_type": "WORKER_BOUNDARY_ENFORCEMENT",
+      "selected_option": "COMPLY_WITH_OUT_OF_BOUNDS_ENVELOPE",
+      "rationale": "statistics-agent lacked an input boundary guard to reject requests containing Word (.docx) or Markdown (.md) required_artifacts, leading it to import python-docx and author build_assumptions_triad.py.",
+      "alternatives_considered": [
+        {
+          "option": "FAIL_CLOSED_REJECTION_ON_DOCUMENT_ARTIFACTS",
+          "verdict": "OMITTED_FROM_STATISTICS_AGENT",
+          "reason": "statistics-agent possessed no pre-execution assertion verifying that required_artifacts contains strictly .json."
+        },
+        {
+          "option": "COMPLY_WITH_OUT_OF_BOUNDS_ENVELOPE",
+          "verdict": "EXECUTED_ROLE_VIOLATION",
+          "reason": "Agent obediently read apa-reporting skill and authored python-docx script."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-VALIDATOR-PROVENANCE-BLINDSPOT-001",
+      "decision_type": "VALIDATION_PROVENANCE_ASSERTION",
+      "selected_option": "OMIT_ROLE_PROVENANCE_CHECKS",
+      "rationale": "validate_stage44_assumptions.py only checked deliverable existence, caption string, word count, and statistical numbers, omitting agent provenance verification, thereby emitting a false-negative PASS.",
+      "alternatives_considered": [
+        {
+          "option": "AUTHOR_PROVENANCE_VALIDATION",
+          "verdict": "OMITTED_FROM_VALIDATOR",
+          "reason": "Validation script lacked git commit or trajectory provenance inspection verifying academic-writer authorship."
+        },
+        {
+          "option": "OMIT_ROLE_PROVENANCE_CHECKS",
+          "verdict": "EXECUTED_FALSE_PASS",
+          "reason": "Validator evaluated only artifact file format and metrics, allowing illicit role bleed to pass."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/04_assumptions.json",
+      "sha256": "cca6e305027c898a145e6ebc18ea96faaf712a45d129987e99b2feb7f2119b8c",
+      "type": "analytical_anchor_json"
+    },
+    {
+      "path": "03_deliverables/04_assumptions.docx",
+      "sha256": "b6c93f28b7e21fa750a9d9431e6727b1cf8f237f37478d10b7ee8794d4d62159",
+      "type": "misallocated_word_deliverable_docx"
+    },
+    {
+      "path": "03_deliverables/04_assumptions.md",
+      "sha256": "a9d82136e0539c04a297be885d77443198083bf1e0f0cd6f059292e7aa24ef62",
+      "type": "misallocated_markdown_deliverable_md"
+    },
+    {
+      "path": "02_analysis_code/build_assumptions_triad.py",
+      "sha256": "72199b45e7f1e626d7cb141151609d53f86e3f019053cbfd55d7f191147e8c3b",
+      "type": "illicit_python_docx_builder_script"
+    },
+    {
+      "path": "03_deliverables/04_assumptions_validation_report.json",
+      "sha256": "5d5402a4bf74b5952f44eb2811a2f2601dcff7e413ff78f3e536e2f1ea3810ec",
+      "type": "validation_report_json"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "validate_stage44_assumptions.py",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "verified_sample_size": 483,
+        "durbin_watson": 1.986,
+        "table_15_caption_present": true,
+        "docx_size_bytes": 40605,
+        "role_provenance_verified": false,
+        "note": "False-negative pass: validator omitted agent attribution and role boundary checks."
+      }
+    },
+    {
+      "validator_name": "human_user_audit",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "Role Boundary Invariant Violation: The statistical-agent can't write the word and .md document. Statistical-agent work is doing analysis and only can produce .json files."
+      ],
+      "evidence_summary": {
+        "critique": "The statistical-agent can't write the word and .md document. Statistical-agent work is doing analysis and only can produce .json files. You violate the rules.",
+        "violating_agent": "statistics-agent",
+        "misallocated_artifacts": [
+          "04_assumptions.docx",
+          "04_assumptions.md"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261003-AGENT-ROLE-BLEED-001"
+  ],
+  "outcome": "FAILURE"
+}

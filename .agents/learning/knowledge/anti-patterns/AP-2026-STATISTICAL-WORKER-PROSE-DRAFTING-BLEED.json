@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-STATISTICAL-WORKER-PROSE-DRAFTING-BLEED",
+  "category": "execution",
+  "defective_pattern": "Orchestrator delegates narrative document authoring (.md, .docx) tasks directly to computation-focused subagents like statistics-agent.",
+  "why_defective": "Statistics agents lack the sophisticated DOM processing, typographic formatting constraints, and linguistic models necessary for academic narrative writing, leading to role boundary bleed and format degradation.",
+  "observed_symptoms": [
+    "statistics-agent producing .docx files",
+    "Monolithic delegation merging calculation and drafting into single steps"
+  ],
+  "corrective_remedy": "Orchestrator must enforce a two-tier decomposition: statistics-agent generates .json metrics; academic-writer drafts .md and .docx using those metrics.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect statistics-agent invoked with request for .docx or .md generation",
+    "regex_patterns": ["(?i)(invoke_subagent.*statistics-agent.*(\\.docx|\\.md))"],
+    "pattern": "(?i)(invoke_subagent.*statistics-agent.*(\\.docx|\\.md))",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.txt",
+    "event": "PreToolUse"
+  },
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "statistics-agent",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T14:45:00Z"
+}

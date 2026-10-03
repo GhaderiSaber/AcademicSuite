@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T15:19:10.301705+00:00",
+  "updated_at": "2026-10-03T15:19:11.873088+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1782,6 +1782,29 @@
       "remedy": "Mandate that macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths, and forbid circular validator assertions based on unverified CDE criteria.",
       "enabled": true,
       "updated_at": "2026-10-03T15:19:10.301690+00:00"
+    },
+    "CAND-2026-REVISED-SEM-SPECIFICATION-PARITY": {
+      "item_id": "CAND-2026-REVISED-SEM-SPECIFICATION-PARITY",
+      "category": "Learned Mechanical Rule",
+      "statement": "AP-2026-REVISED-SEM-FIT-BLINDSPOT: Hardcoded unrevised fit indices detected. Deliverables and instructions must cite canonical revised model fits from fit_measures_sem.csv.",
+      "target_agents": [
+        "academic-orchestrator",
+        "statistics-agent"
+      ],
+      "target_skills": [
+        "SEM",
+        "chapter-4-writing",
+        "thesis-integrity-auditor"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\.md|.*\\.json|.*\\.docx",
+      "check_type": "substring_ban",
+      "pattern": "\"fit_indices\": { \"CFI\": 0.88, \"RMSEA\": 0.09 }",
+      "violation_message": "AP-2026-REVISED-SEM-FIT-BLINDSPOT: Hardcoded unrevised fit indices detected. Deliverables and instructions must cite canonical revised model fits from fit_measures_sem.csv.",
+      "remedy": "Load and assert against `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` rather than circularly referencing orchestrator inputs or unrevised constraints.",
+      "enabled": true,
+      "updated_at": "2026-10-03T15:19:11.873065+00:00"
     }
   }
 }
