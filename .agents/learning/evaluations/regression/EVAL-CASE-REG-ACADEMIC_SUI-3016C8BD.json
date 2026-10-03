@@ -1,0 +1,64 @@
+{
+  "contract_version": "1.0.0",
+  "case_id": "EVAL-CASE-REG-ACADEMIC_SUI-3016C8BD",
+  "capability": "academic-suite-orchestrator",
+  "suite_type": "regression",
+  "difficulty": "L2_INTERDEPENDENT_MODELS",
+  "tags": [
+    "methodology",
+    "regression_test"
+  ],
+  "task": {
+    "prompt": "Execute analytical task verifying problems:_evaluation, table's_evaluation, caption_evaluation, number_evaluation.",
+    "research_question": "Does analytical modeling satisfy rigorous methodological standards?",
+    "hypothesis": "Analytical procedures will strictly adhere to verified methodological prerequisites."
+  },
+  "inputs": {
+    "dataset_path": "evals/regression/data_3016c8bd.xlsx",
+    "dataset_sha256": "3016c8bdafc2984c2b71ab977b4413509bcf973e57bcbc9947939204c0e0f553",
+    "spec_parameters": {
+      "check_domain": "general_methodology"
+    }
+  },
+  "expected_properties": {
+    "required_metrics": {
+      "reasoning_properties_evaluated": true
+    },
+    "required_reasoning_properties": [
+      "problems:_evaluation",
+      "table's_evaluation",
+      "caption_evaluation",
+      "number_evaluation"
+    ],
+    "required_artifacts": [
+      "03_model_comparison.json",
+      "03_model_comparison.md"
+    ],
+    "typography_rules": [
+      "persian_leading_zero"
+    ]
+  },
+  "forbidden_behaviors": [
+    "unverified_methodological_shortcut"
+  ],
+  "evaluation_method": {
+    "runner_type": "DETERMINISTIC_SCRIPT",
+    "runner_script": "scripts/academic_evaluation_lab.py",
+    "cli_arguments": [
+      "--suite",
+      "regression",
+      "--case",
+      "EVAL-CASE-REG-ACADEMIC_SUI-3016C8BD"
+    ],
+    "timeout_seconds": 30
+  },
+  "created_at": "2026-10-03T08:05:00.778208+00:00",
+  "originating_lesson_id": "LSN-20261003-0599AF",
+  "originating_experience_id": "EXP-FAST-20261003-145C77",
+  "originating_feedback_id": "FDB-20261003-43F509",
+  "status": "candidate",
+  "expected_behavior": "Ensure thorough methodological compliance and verification of problems:_evaluation, table's_evaluation, caption_evaluation, number_evaluation.",
+  "forbidden_behavior": "unverified_methodological_shortcut",
+  "repeat_count": 3,
+  "last_seen_at": "2026-10-03T08:16:25.619373+00:00"
+}

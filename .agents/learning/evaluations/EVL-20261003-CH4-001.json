@@ -1,0 +1,67 @@
+{
+  "evaluation_id": "EVL-20261003-CH4-001",
+  "candidate_id": "CAND-20261003-CH4-TABLES-AND-RHETORIC-001",
+  "baseline_id": "BASE-20261003",
+  "task_id": "TSK-COMPILATION-VERIFICATION",
+  "dimensions": {
+    "correctness": 100.0,
+    "methodology": 100.0,
+    "statistical_validity": 100.0,
+    "evidence_grounding": 100.0,
+    "integrity": 100.0,
+    "robustness": 100.0,
+    "consistency": 100.0,
+    "efficiency": 100.0
+  },
+  "baseline_metrics": {
+    "compilation_success": 0.0
+  },
+  "candidate_metrics": {
+    "compilation_success": 100.0,
+    "target_updated": 100.0,
+    "hook_registered": 100.0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "TSK-COMPILATION-VERIFICATION"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "TSK-COMPILATION-VERIFICATION",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 1,
+    "task_id": "TSK-COMPILATION-VERIFICATION"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": ".agents/skills/chapter-4-writing/SKILL.md",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "evidence_type": "MODIFIED_FILE"
+    },
+    {
+      "artifact_path": ".agents/hooks/rules/enforced_invariants.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "evidence_type": "MODIFIED_FILE"
+    }
+  ],
+  "verdict": "PASS",
+  "overall_verdict": "PASS",
+  "recommendation": "PROMOTE",
+  "contract_version": "1.0.0",
+  "evaluated_at": "2026-10-03T12:05:00Z"
+}

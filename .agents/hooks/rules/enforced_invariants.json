@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T03:42:54.720340+00:00",
+  "updated_at": "2026-10-03T10:07:47.669136+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1603,7 +1603,7 @@
       ],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content|run_command",
-      "file_pattern": ".*\\.docx",
+      "file_pattern": "^(?!.*_English).*\\.docx",
       "check_type": "regex_ban",
       "pattern": "[a-zA-Z]{2,}",
       "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
@@ -1625,7 +1625,7 @@
       ],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content|run_command",
-      "file_pattern": ".*\\.docx",
+      "file_pattern": "^(?!.*_English).*\\.docx",
       "check_type": "regex_ban",
       "pattern": "[a-zA-Z]{2,}",
       "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
@@ -1647,38 +1647,58 @@
       ],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content|run_command",
-      "file_pattern": ".*\\.docx",
+      "file_pattern": "^(?!.*_English).*\\.docx",
       "check_type": "regex_ban",
       "pattern": "[a-zA-Z]{2,}",
       "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
       "remedy": "Extract the English word, insert its Persian transliteration in the body text, and create a native OpenXML footnote containing the English text.",
       "enabled": true,
       "updated_at": "2026-10-03T03:42:54.720308+00:00"
+    },
+    "CAND-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001": {
+      "item_id": "CAND-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Untranslated Latin names are strictly forbidden in Persian academic tables and notes (CHK-ENGLISH-WORD-LEAKAGE). Use 'هو و بنتلر، ۱۹۹۹' instead.",
+      "target_agents": [
+        "academic-writer",
+        "statistics-agent"
+      ],
+      "target_skills": [
+        "apa-reporting",
+        "sem"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "Hu & Bentler|Bentler",
+      "violation_message": "Untranslated Latin names are strictly forbidden in Persian academic tables and notes (CHK-ENGLISH-WORD-LEAKAGE). Use 'هو و بنتلر، ۱۹۹۹' instead.",
+      "remedy": "Ensure all table headers and notes strictly use Persian transliteration for authors and 'یادداشت: ' for table notes.",
+      "enabled": true,
+      "updated_at": "2026-10-03T03:35:52.225263+00:00"
+    },
+    "CAND-2026-CH4-INDIVIDUAL-DEMO-TABLES": {
+      "item_id": "CAND-2026-CH4-INDIVIDUAL-DEMO-TABLES",
+      "category": "Learned Mechanical Rule",
+      "statement": "Composite grouping tables are strictly prohibited. You must generate individual demographic tables for each feature.",
+      "target_agents": [
+        "academic-writer",
+        "data-agent",
+        "statistics-agent"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "REPORT_GENERATION"
+      ],
+      "event": "PreToolUse",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\.md|.*\\.docx",
+      "check_type": "regex_ban",
+      "pattern": "(?i)composite grouping table|جدول گروهی ویژگی‌های جمعیت‌شناختی|جدول ترکیبی",
+      "violation_message": "Composite grouping tables are strictly prohibited. You must generate individual demographic tables for each feature.",
+      "remedy": "Generate individual tables for demographic features instead of a composite table.",
+      "enabled": true,
+      "updated_at": "2026-10-03T10:07:47.669112+00:00"
     }
   }
-}
-},
-"CAND-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001": {
-"item_id": "CAND-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001",
-"category": "Learned Mechanical Rule",
-"statement": "Untranslated Latin names are strictly forbidden in Persian academic tables and notes (CHK-ENGLISH-WORD-LEAKAGE). Use 'هو و بنتلر، ۱۹۹۹' instead.",
-"target_agents": [
-  "academic-writer",
-  "statistics-agent"
-],
-"target_skills": [
-  "apa-reporting",
-  "sem"
-],
-"event": "Both",
-"tool_match": "write_to_file|replace_file_content|run_command",
-"file_pattern": ".*\\.py",
-"check_type": "regex_ban",
-"pattern": "Hu & Bentler|Bentler",
-"violation_message": "Untranslated Latin names are strictly forbidden in Persian academic tables and notes (CHK-ENGLISH-WORD-LEAKAGE). Use 'هو و بنتلر، ۱۹۹۹' instead.",
-"remedy": "Ensure all table headers and notes strictly use Persian transliteration for authors and 'یادداشت: ' for table notes.",
-"enabled": true,
-"updated_at": "2026-10-03T03:35:52.225263+00:00"
-}
-}
 }

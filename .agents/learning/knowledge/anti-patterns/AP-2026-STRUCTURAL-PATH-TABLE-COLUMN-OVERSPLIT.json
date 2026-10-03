@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-STRUCTURAL-PATH-TABLE-COLUMN-OVERSPLIT",
+  "category": "methodological",
+  "defective_pattern": "Misapplying the 3-column measurement model rule (ردیف, متغیر, مؤلفه) to structural path / mediation tables.",
+  "why_defective": "Structural paths represent relationships between variables, not nested hierarchical constructs. Forcing a measurement model layout onto structural equations obfuscates the path logic and creates nonsensical tables.",
+  "observed_symptoms": [
+    "Structural paths split into separate variable and subscale columns inappropriately."
+  ],
+  "corrective_remedy": "Use a dedicated path column ('مسیر ساختاری / اثر غیرمستقیم') for structural mediation tables instead of the 3-column measurement rule.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect if a structural path table uses measurement columns (ردیف, متغیر, مؤلفه).",
+    "regex_patterns": ["(?m)^\\|.*?مسیر ساختاری.*?\\|.*?مؤلفه.*?\\|$"],
+    "pattern": "(?m)^\\|.*?مسیر ساختاری.*?\\|.*?مؤلفه.*?\\|$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "PreToolUse"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T08:30:44Z"
+}

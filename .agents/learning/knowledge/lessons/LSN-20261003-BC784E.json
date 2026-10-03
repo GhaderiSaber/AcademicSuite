@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20261003-BC784E",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "EXP-FAST-20261003-48DC75",
+  "target_agent": "validation-agent",
+  "target_agents": [
+    "validation-agent"
+  ],
+  "diagnosis": {
+    "what_happened": "User or reviewer issued correction: Problems:\n1. Some Table's caption number isn't right.\n2. The correlation tables doesn't have asterix for p-value.\n3. You should use the signs in the header row of tables. For example 'M' for 'میانگین'.\n4. In the table 4- 24 we don't have a raw number, variable and subscale. There is only a path. \n5. The text for hypothesis 3 to 8 isn't academic. Maybe you used prewritten and template text and this is unacceptable. You should write text in academic and professional tones.",
+    "behavior_caused_outcome": "Agent generated output that required revision regarding writing correction.",
+    "what_should_have_happened": "Standard compliance: Problems:\n1. Some Table's caption number isn't right.\n2. The correlation tables doesn't have asterix for p-value.\n3. You should use the signs in the header row of tables. For example 'M' for 'میانگین'.\n4. In the table 4- 24 we don't have a raw number, variable and subscale. There is only a path. \n5. The text for hypothesis 3 to 8 isn't academic. Maybe you used prewritten and template text and this is unacceptable. You should write text in academic and professional tones.",
+    "rationale_why": "Academic scholarship requires formal psychological mechanisms and theoretical grounding rather than descriptive platitudes."
+  },
+  "applicability_conditions": [
+    "Studies utilizing academic-suite-orchestrator or related analytical models",
+    "Analyses with similar sample structures and outcome measures"
+  ],
+  "exclusions": [
+    "Studies where prerequisite assumptions are bypassed by design",
+    "Non-parametric bootstrap alternatives when parametric assumptions fail"
+  ],
+  "desired_behavior": "Standard compliance: Problems:\n1. Some Table's caption number isn't right.\n2. The correlation tables doesn't have asterix for p-value.\n3. You should use the signs in the header row of tables. For example 'M' for 'میانگین'.\n4. In the table 4- 24 we don't have a raw number, variable and subscale. There is only a path. \n5. The text for hypothesis 3 to 8 isn't academic. Maybe you used prewritten and template text and this is unacceptable. You should write text in academic and professional tones.",
+  "generalization": "Procedural Guideline for academic-suite-orchestrator: Standard compliance: Problems:\n1. Some Table's caption number isn't right.\n2. The correlation tables doesn't have asterix for p-value.\n3. You should use the signs in the header row of tables. For example 'M' for 'میانگین'.\n4. In the table 4- 24 we don't have a raw number, variable and subscale. There is only a path. \n5. The text for hypothesis 3 to 8 isn't academic. Maybe you used prewritten and template text and this is unacceptable. You should write text in academic and professional tones. Verify prerequisite checks prior to finalizing outputs.",
+  "scope": "DOMAIN_WIDE",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.059,
+  "evidence": {
+    "metric_or_check": "FDB-TRIGGER-WRITING_CORRECTION",
+    "observed_value": "Problems:\n1. Some Table's caption number isn't right.\n2. The correlation tables doesn't have asterix for p-value.\n3. You",
+    "threshold_value": "Standard compliance: Problems:\n1. Some Table's caption number isn't right.\n2. The correlation tables doesn't have asteri",
+    "supporting_report_ids": [
+      "FDB-20261003-88112F"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T08:10:31.041936+00:00",
+  "derived_by": "AcademicLessonDistiller",
+  "confidence_evidence": {
+    "contract_version": "1.0.0",
+    "computed_confidence": 0.059,
+    "evidence_strength": 0.738,
+    "independence": 0.5,
+    "generalization": 0.4,
+    "validation": 0.4,
+    "contradiction_penalty": 0.0,
+    "formula": "(evidence_strength * independence * generalization * validation) - contradiction_penalty",
+    "factors_breakdown": {
+      "independent_experiences_count": 1,
+      "unique_sessions_count": 1,
+      "distinct_designs_count": 1,
+      "distinct_domains_count": 1,
+      "generalization_stage": "LOCAL_LESSON",
+      "regression_score": 0.4,
+      "adversarial_score": 0.4,
+      "heldout_score": 0.4,
+      "contradictions_count": 0,
+      "regressions_count": 0,
+      "failure_severity": "HIGH",
+      "task_quality": "EMPIRICAL_EXECUTION"
+    },
+    "evaluated_at": "2026-10-03T08:10:31.041982+00:00"
+  }
+}

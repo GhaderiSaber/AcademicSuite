@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CONSOLIDATED-DEMOGRAPHIC-TABLE",
+  "category": "typography",
+  "defective_pattern": "Aggregating multiple demographic variables into a single concatenated or monolithic demographic table when explicit 1-to-1 table separation is required.",
+  "why_defective": "Violates explicit user requirement for distinct demographic tables. Concatenated demographic tables obscure variance and can cause formatting failures when the number of subgroups is high.",
+  "observed_symptoms": [
+    "Generation of a single demographic table combining multiple demographic categories.",
+    "Fewer demographic tables than the distinct demographic variables calculated."
+  ],
+  "corrective_remedy": "Generate 12 distinct APA 7 demographic tables, one for each demographic variable, natively keeping their structural isolation.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect fewer than requested demographic tables or monolithic table headings.",
+    "regex_patterns": [],
+    "pattern": "",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "chapter-4-writing"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T10:03:57Z"
+}
