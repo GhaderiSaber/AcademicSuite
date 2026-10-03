@@ -1,0 +1,39 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-20261003-SURGICAL-DOCX-SECTION-INJECTION-MANDATE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "VALIDATOR_FAILURE",
+  "source_experience_id": "BAN-20261003-CH1-DOM-CORRUPTION-001",
+  "diagnosis": {
+    "what_happened": "academic-writer bundled multiple sections into a single markdown file, dumped it into the Problem Statement section, and erased the Key Terms section causing collateral destruction of Operational Definitions.",
+    "behavior_caused_outcome": "This caused structural corruption of the DOCX, duplicate headers, and missing sections.",
+    "what_should_have_happened": "Markdown revisions must be parsed into discrete sections and injected strictly under their corresponding canonical DOM headings. Deletions must strictly target specific sub-headings.",
+    "rationale_why": "OpenXML documents require structural integrity. Unscoped injection and deletion break the semantic order and destroy unrevised sibling sections."
+  },
+  "desired_behavior": "1. Surgical DOM Section Replacement: Markdown revisions containing multiple headings must be parsed into discrete sections and injected strictly under their corresponding canonical DOM headings. 2. Precise Node Deletion: Deletion logic must strictly target specific sub-headings without performing unbounded wipes that destroy sibling sections. 3. Structural Validation Invariant: The validator MUST evaluate the DOM hierarchy, enforce canonical sequence, and assert explicit presence of non-negotiable sections.",
+  "generalization": "Never use monolithic injection or unbounded deletions when manipulating OpenXML DOM. Maintain rigorous structural bounds for every section.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "STRUCTURAL_DOM_INTEGRITY",
+    "observed_value": "Collateral deletion and duplicate headers",
+    "threshold_value": "Zero destruction of unrevised sibling sections",
+    "supporting_report_ids": [
+      "BAN-20261003-CH1-DOM-CORRUPTION-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "persian-thesis-revision-assistant"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T00:00:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ]
+}

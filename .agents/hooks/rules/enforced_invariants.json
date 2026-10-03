@@ -1741,6 +1741,50 @@
       "enabled": true,
       "updated_at": "2026-10-03T13:40:08.053079+00:00"
     },
+    "CAND-20261003-PHYSICAL-DOCX-AST-INJECTION-MANDATE": {
+      "item_id": "CAND-20261003-PHYSICAL-DOCX-AST-INJECTION-MANDATE",
+      "category": "Learned Mechanical Rule",
+      "statement": "Simulated DOCX patching detected. You must use AST/DOM-based (python-docx/lxml) parsing for DOCX updates.",
+      "target_agents": [
+        "academic-writer",
+        "data-agent"
+      ],
+      "target_skills": [
+        "persian-thesis-builder",
+        "thesis-integrity-auditor",
+        "academic-writer"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?i)simulate the update|minimal text replace|simulate_docx_compilation",
+      "violation_message": "Simulated DOCX patching detected. You must use AST/DOM-based (python-docx/lxml) parsing for DOCX updates.",
+      "remedy": "Map and inject revised markdown strings directly into <w:t> text runs using a DOM parser. Assert exact concordance in validation.",
+      "enabled": true,
+      "updated_at": "2026-10-03T14:49:40.644496+00:00"
+    },
+    "CAND-20261003-SURGICAL-DOCX-SECTION-INJECTION-MANDATE": {
+      "item_id": "CAND-20261003-SURGICAL-DOCX-SECTION-INJECTION-MANDATE",
+      "category": "Learned Mechanical Rule",
+      "statement": "Unbounded multi-section markdown injection or unstructured deletions are prohibited. You must parse markdown into discrete sections and surgically inject them under their canonical DOM headings.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "DOCX_FORMATTING"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?i)clear_section|replace_entire_section_with_markdown",
+      "violation_message": "Unbounded multi-section markdown injection or unstructured deletions are prohibited. You must parse markdown into discrete sections and surgically inject them under their canonical DOM headings.",
+      "remedy": "Parse markdown revisions into discrete sections. Inject strictly under canonical DOM headings. Target deletions to specific sub-headings to preserve sibling sections like Operational Definitions.",
+      "enabled": true,
+      "updated_at": "2026-10-03T15:12:38.078342+00:00"
+    },
     "CAND-2026-STRICT-COMPUTATIONAL-WRITING-SEPARATION": {
       "item_id": "CAND-2026-STRICT-COMPUTATIONAL-WRITING-SEPARATION",
       "category": "Learned Mechanical Rule",
@@ -1757,7 +1801,7 @@
       "tool_match": "write_to_file|replace_file_content|edit_file",
       "file_pattern": ".*\\.(docx|md)$",
       "check_type": "tool_ban",
-      "pattern": ".*",
+      "pattern": "(?i).*\\.(?:docx|md)$",
       "violation_message": "VIOLATION [BAN-20261003-AGENT-ROLE-BLEED-001]: statistics-agent is strictly restricted to generating machine-readable .json analytical payloads and must never author narrative prose, compile .md, or build .docx documents. This task belongs exclusively to academic-writer.",
       "remedy": "Stop immediately. Generate only the .json analytical payload. Delegate the narrative prose, .md compilation, and .docx generation to academic-writer.",
       "enabled": true,
