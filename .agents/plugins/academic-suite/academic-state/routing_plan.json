@@ -1,0 +1,39 @@
+{
+  "task_prompt": "Confirm\n\n\nThe current local time is: 2026-10-03T05:41:07+03:30.",
+  "capabilities_formula": "DATA + STATISTICS",
+  "capabilities": [
+    "DATA",
+    "STATISTICS"
+  ],
+  "total_steps": 2,
+  "pipeline": [
+    {
+      "step": 1,
+      "capability": "DATA",
+      "agent": "data-agent",
+      "skill": "data-cleaning",
+      "skill_path": ".agents/skills/data-cleaning/SKILL.md",
+      "description": "Raw dataset ingestion, scale reverse-coding, missing value screening, and quality auditing",
+      "input_artifact": "projects/*/01_raw_inputs/*",
+      "output_artifact": "academic-state/data/data_quality.json"
+    },
+    {
+      "step": 2,
+      "capability": "STATISTICS",
+      "agent": "statistics-agent",
+      "skill": "sem",
+      "skill_path": ".agents/skills/sem/SKILL.md",
+      "description": "Deterministic inferential modeling (SEM, CFA, ANCOVA, regression, mediation, reliability)",
+      "input_artifact": "academic-state/data/data_quality.json",
+      "output_artifact": "academic-state/analysis/sem.json"
+    }
+  ],
+  "capability_resolution": {
+    "status": "BLOCKED",
+    "task_prompt": "Confirm\n\n\nThe current local time is: 2026-10-03T05:41:07+03:30.",
+    "reason": "Unknown capability requested. The prompt does not match any registered academic capability in config/capabilities.yaml. Explicit human review required.",
+    "required_capabilities": [],
+    "escalation_required": true
+  },
+  "orchestration_directive": "The Academic Orchestrator will execute 2 sequential stages: data-agent ──► statistics-agent. Unneeded agents are pruned to preserve context bandwidth."
+}
