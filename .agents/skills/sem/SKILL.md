@@ -79,6 +79,16 @@ Latent Constructs or Observed Composites?
 ---
 
 ## 6. Execution Script ("The Hands")
+
+### MANDATORY INVARIANT: Canonical Revised Model Fit Binding
+For Stage 4.5 macro model fit indices, you MUST strictly bind to the canonical revised model values generated in `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` (by `run_full_sem.R`). Under no circumstances should you fork scripts to apply ad-hoc constraints (e.g., fixed error variances, inequality bounds) or hardcode unrevised numbers. If the revised model includes specified correlated error paths between RRS facets (e.g., `Ru_Ref ~~ Ru_Dep`, `Ru_Bro ~~ Ru_Dep`), ensure these are precisely cited and preserved. 
+
+Furthermore, when validating, `thesis-integrity-auditor` MUST independently assert deliverable fit measures directly against `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` with a numerical tolerance of `|Delta| < 0.001`. Circular self-validation against orchestrator instructions is strictly prohibited.
+
+### MANDATORY INVARIANT: Canonical Revised Model Fit Binding
+For Stage 4.5 macro model fit indices, you MUST strictly bind to the canonical revised model values generated in `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` (by `run_full_sem.R`). Under no circumstances should you fork scripts to apply ad-hoc constraints (e.g., fixed error variances, inequality bounds) or hardcode unrevised numbers. If the revised model includes specified correlated error paths between RRS facets (e.g., `Ru_Ref ~~ Ru_Dep`, `Ru_Bro ~~ Ru_Dep`), ensure these are precisely cited and preserved. 
+
+Furthermore, when validating, `thesis-integrity-auditor` MUST independently assert deliverable fit measures directly against `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` with a numerical tolerance of `|Delta| < 0.001`. Circular self-validation against orchestrator instructions is strictly prohibited.
 ```bash
 python3 .agents/skills/sem/scripts/run_sem.py \
   --data path/to/cleaned_data.xlsx \
