@@ -1,0 +1,21 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261003-AGENT-ROLE-BLEED-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261003-AGENT-ROLE-BLEED-001",
+  "target_agent": "academic-orchestrator",
+  "target_skill": "chapter-4-writing",
+  "capability": "CHAPTER4_WRITING",
+  "trajectory_id": "TRJ-20261003-AGENT-ROLE-BLEED-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "TOOL_CALLED",
+    "tool_name": "invoke_subagent",
+    "command_or_input": "TSK-2026-CH4-STAGE-4.4-ASSUMPTIONS-TRIAD",
+    "description": "Orchestrator delegated monolithic task requiring .docx and .md generation directly to statistics-agent."
+  },
+  "failure_signature": "AGENT_ROLE_BOUNDARY_VIOLATION",
+  "root_cause_diagnosis": "The orchestrator capability router collapsed a two-tier micro-stage into a monolithic task via coarse string matching ('parametric assumptions' -> STATISTICS), delegating both analytical computation and narrative authoring (.docx, .md) to statistics-agent. The worker lacked defensive input assertions to reject document authoring tasks, and the validator lacked author provenance assertions, causing a false mechanical pass.",
+  "prescribed_behavior": "1. Orchestrator must enforce a two-tier decomposition guard, strictly routing .docx/.md tasks to academic-writer. 2. statistics-agent must implement a fail-closed input guard to reject CDEs requesting .docx/.md generation. 3. validation-agent must assert author provenance to ensure narrative deliverables are produced by academic-writer.",
+  "created_at": "2026-10-03T14:45:00Z"
+}

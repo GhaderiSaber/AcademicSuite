@@ -139,6 +139,6 @@ Each analysis run produces:
 - Residual normality and assumption checklists must be satisfied prior to confirming results.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-VALIDATOR-THREE-TABLE-FAIL-CLOSED-001)**: Enforce fail-closed structural validation for regression models: exactly 3 tables per model (Correlations, ANOVA 11-col, Coefficients 8-col), failing any deliverable that consolidates them. [Enforcement: data_agent_guard.py]
+- **Lesson (LSN-2026-STRICT-COMPUTATIONAL-WRITING-SEPARATION)**: Enforce strict two-tier computational and narrative task decomposition. Route computational tasks (e.g. data generation) to statistics-agent and narrative generation (.docx, .md) to academic-writer. [Enforcement: data_agent_guard.py]
 - **Lesson (LSN-2026-CHAPTER4-PREMATURE-INTERPRETATION-AND-HYPERBOLE)**: When drafting Chapter 4, report only statistical parameters (e.g., F, t, p, effect sizes) and direct empirical findings. Eliminate all 'why' explanations, speculations, and dramatic adjectives. [Enforcement: data_agent_guard.py]
 - **Lesson (LSN-2026-MISSING-TRIAD-JSON-001)**: Strictly enforce the Triad Invariant by atomically generating the .json, .md, and .docx artifacts for every single hypothesis micro-stage, using canonical naming conventions. [Enforcement: data_agent_guard.py]

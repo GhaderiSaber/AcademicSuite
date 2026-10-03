@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261003-REVISED-SEM-FIT-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261003-REVISED-SEM-FIT-001",
+  "target_agent": "academic-orchestrator, statistics-agent, validation-agent",
+  "target_skill": "sem",
+  "capability": "SEM",
+  "task_context": {
+    "task_id": "TSK-2026-LEARN-REVISED-SEM-FIT-BEHAVIOR"
+  },
+  "trajectory_id": "TRJ-20261003-REVISED-SEM-FIT-001",
+  "observable_failure_step": {
+    "step_number": 4,
+    "action_type": "TOOL_CALLED",
+    "description": "academic-orchestrator dispatched statistics-agent / academic-writer with hardcoded unrevised fit indices, overriding the canonical metrics from fit_measures_sem.csv."
+  },
+  "failure_signature": "UNJUSTIFIED_MODEL_SELECTION",
+  "root_cause_diagnosis": "Root Cause 1 (Parallel Script Forking & Constraint Drift): compute_stage45_macro_sem.R deviated from run_full_sem.R by introducing ad-hoc fixed error variances, inequality lower bounds, and MLR estimation instead of citing the accepted revised model. Root Cause 2 (Orchestrator CDE Anchoring Blindspot): academic-orchestrator ingested unrevised payload numbers into CDE acceptance criteria without cross-referencing against 02_analysis_code/fit_measures_sem.csv. Root Cause 3 (Circular Validator Hardcoding): validate_stage45_macro_sem.py checked deliverable JSON against CDE criteria rather than against the canonical statistical source of truth on disk (fit_measures_sem.csv), issuing an unearned mechanical pass.",
+  "prescribed_behavior": "For statistics-agent (sem skill): Do not fork scripts to apply ad-hoc constraints; load and cite fit_measures_sem.csv as the single source of truth for Stage 4.5. For academic-orchestrator: Do not hardcode raw fit indices in task delegation envelopes; instead, mandate verification against canonical files on disk. For validation-agent: Write assertions that verify deliverables against physical data sources (e.g., fit_measures_sem.csv) rather than circularly checking them against the orchestrator's expectations.",
+  "created_at": "2026-10-03T15:16:38Z"
+}

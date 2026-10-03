@@ -331,3 +331,235 @@ class TestTrajectoryAnalyzerDelegationPrompts:
         res = orch_guard.handle_stop(payload)
         assert res.get("decision") == "continue"
         assert "Missing artifacts" in res.get("reason", "")
+
+    def test_08_trajectory_analysis_report_resolved_from_state_slug_in_experience_dir(self, tmp_path, monkeypatch):
+        """When required_artifacts has state/trajectory_agent_role_bleed.json, it resolves to TRJ-...-AGENT-ROLE-BLEED-... in experience/."""
+        project_ws = tmp_path / "client_project"
+        project_ws.mkdir()
+        repo_ws = tmp_path / "suite_repo"
+        repo_ws.mkdir()
+
+        monkeypatch.setenv("ACADEMIC_SUITE_REPO", str(repo_ws))
+
+        # Create canonical experience file with semantic slug tokens
+        exp_dir = repo_ws / ".agents" / "learning" / "experience"
+        exp_dir.mkdir(parents=True)
+        traj_json = exp_dir / "TRJ-20261003-AGENT-ROLE-BLEED-001.json"
+        traj_md = exp_dir / "TRJ-20261003-AGENT-ROLE-BLEED-001.md"
+        traj_json.write_text('{"trajectory_id": "TRJ-20261003-AGENT-ROLE-BLEED-001", "status": "COMPLETED"}')
+        traj_md.write_text("# Trajectory Reconstruction\nObservable actions.")
+
+        sub_conv_id = "trj-subagent-777"
+        cde = {
+            "task_id": "TSK-2026-LEARN-TRJ-008",
+            "stage": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+            "worker_agent": "trajectory-analyzer",
+            "objective": "Reconstruct agent role bleed trajectory",
+            "inputs": ["03_deliverables/validation_report.json"],
+            "required_artifacts": [
+                "state/trajectory_agent_role_bleed.json",
+                "state/trajectory_agent_role_bleed.md"
+            ]
+        }
+
+        records = [
+            {"type": "USER_INPUT", "content": "Please diagnose the failure."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {
+                            "Subagents": [
+                                {
+                                    "TypeName": "trajectory-analyzer",
+                                    "Role": "Trajectory Analyzer",
+                                    "Prompt": json.dumps(cde)
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "GENERIC",
+                "content": f'Created the following subagents:\n{{\n  "conversationId": "{sub_conv_id}"\n}}'
+            },
+            {
+                "type": "SYSTEM_MESSAGE",
+                "content": f"[Message] timestamp=2026-10-03T12:00:00Z sender={sub_conv_id} priority=MESSAGE_PRIORITY_HIGH content=Trajectory reconstructed."
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": "Stage completed: what was done was trajectory reconstruction. What will be done next is causal diagnosis with behavior-analyst. Please confirm to proceed.",
+                "tool_calls": []
+            }
+        ]
+
+        t_file = project_ws / "transcript.jsonl"
+        with open(t_file, "w", encoding="utf-8") as f:
+            for r in records:
+                f.write(json.dumps(r) + "\n")
+
+        payload = {
+            "transcriptPath": str(t_file),
+            "workspacePaths": [str(project_ws)],
+            "isSubagent": False
+        }
+
+        res = orch_guard.handle_stop(payload)
+        # Must resolve by semantic slug tokens and NOT fail with Missing artifacts
+        assert res.get("decision") != "continue" or "Missing artifacts" not in res.get("reason", ""), \
+            f"Expected slug resolution from experience dir, got: {res}"
+
+    def test_09_anti_polling_circuit_breaker_blocks_alternating_transcript_inspection(self, tmp_path):
+        """Alternating manage_subagents and view_file on subagent transcript triggers anti-polling circuit breaker."""
+        project_ws = tmp_path / "client_project"
+        project_ws.mkdir()
+
+        # Build transcript with alternating manage_subagents and view_file on subagent logs
+        records = []
+        for i in range(12):
+            records.append({
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [{"name": "manage_subagents", "args": {"Action": "list"}}]
+            })
+            records.append({
+                "type": "GENERIC",
+                "content": 'You have 1 active subagent: [{"conversationId": "sub-123"}]'
+            })
+            records.append({
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [{
+                    "name": "view_file",
+                    "args": {"AbsolutePath": "/home/user/.gemini/antigravity/brain/sub-123/.system_generated/logs/transcript.jsonl"}
+                }]
+            })
+            records.append({
+                "type": "GENERIC",
+                "content": '{"step_index": 5, "content": "working"}'
+            })
+
+        t_file = project_ws / "transcript.jsonl"
+        with open(t_file, "w", encoding="utf-8") as f:
+            for r in records:
+                f.write(json.dumps(r) + "\n")
+
+        # 1. Attempting to view subagent transcript directly must be denied
+        payload_view = {
+            "transcriptPath": str(t_file),
+            "workspacePaths": [str(project_ws)],
+            "toolCall": {
+                "name": "view_file",
+                "args": {
+                    "AbsolutePath": "/home/user/.gemini/antigravity/brain/sub-123/.system_generated/logs/transcript.jsonl"
+                }
+            }
+        }
+        res_view = orch_guard.handle_pre_tool_use(payload_view)
+        assert res_view.get("decision") == "deny"
+        assert "Zero Active Polling & Subagent Context Isolation" in res_view.get("reason", "")
+
+        # 2. Repeated manage_subagents in window must also be denied by rolling window count
+        payload_list = {
+            "transcriptPath": str(t_file),
+            "workspacePaths": [str(project_ws)],
+            "toolCall": {
+                "name": "manage_subagents",
+                "args": {"Action": "list"}
+            }
+        }
+        res_list = orch_guard.handle_pre_tool_use(payload_list)
+        assert res_list.get("decision") == "deny"
+        assert "Anti-Polling Circuit Breaker" in res_list.get("reason", "")
+
+    def test_10_remediation_phase_bypasses_historical_learning_artifacts(self, tmp_path, monkeypatch):
+        """When in REMEDIATION_PHASE, historical learning envelope path differences do not block stage completion."""
+        project_ws = tmp_path / "client_project"
+        project_ws.mkdir()
+        repo_ws = tmp_path / "suite_repo"
+        repo_ws.mkdir()
+
+        monkeypatch.setenv("ACADEMIC_SUITE_REPO", str(repo_ws))
+
+        sub_conv_id = "trj-subagent-555"
+        # Historical CDE that listed non-existent artifact path
+        cde_learning = {
+            "task_id": "TSK-2026-LEARN-TRJ-010",
+            "stage": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+            "worker_agent": "trajectory-analyzer",
+            "objective": "Reconstruct historical trajectory",
+            "inputs": ["03_deliverables/validation_report.json"],
+            "required_artifacts": [
+                "state/unresolvable_historical_trajectory.json"
+            ]
+        }
+
+        # Deliverable CDE for academic-writer
+        deliv_dir = project_ws / "03_deliverables"
+        deliv_dir.mkdir()
+        docx_file = deliv_dir / "05_macro_model.docx"
+        md_file = deliv_dir / "05_macro_model.md"
+        json_file = deliv_dir / "05_macro_model.json"
+        docx_file.write_text("DOCX")
+        md_file.write_text("# Macro Model\nScholarly findings.")
+        json_file.write_text('{"CFI": 0.94, "RMSEA": 0.04}')
+
+        records = [
+            {"type": "USER_INPUT", "content": "Fix the macro model."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {
+                            "Subagents": [
+                                {
+                                    "TypeName": "trajectory-analyzer",
+                                    "Role": "Trajectory Analyzer",
+                                    "Prompt": json.dumps(cde_learning)
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "GENERIC",
+                "content": f'Created the following subagents:\n{{\n  "conversationId": "{sub_conv_id}"\n}}'
+            },
+            {
+                "type": "SYSTEM_MESSAGE",
+                "content": f"[Message] timestamp=2026-10-03T12:00:00Z sender={sub_conv_id} priority=MESSAGE_PRIORITY_HIGH content=Candidate graduated."
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": "Stage completed: what was done was Stage 4.5 remediation. What will be done next is validation with validation-agent. Please confirm to proceed.",
+                "tool_calls": []
+            }
+        ]
+
+        # Simulate state ledger with REMEDIATION_PHASE
+        state_dir = project_ws / ".agents" / "state"
+        state_dir.mkdir(parents=True)
+        (state_dir / "state_ledger.json").write_text(json.dumps({
+            "current_state": "REMEDIATION_PHASE",
+            "active_stage": "Stage 4.5"
+        }))
+
+        t_file = project_ws / "transcript.jsonl"
+        with open(t_file, "w", encoding="utf-8") as f:
+            for r in records:
+                f.write(json.dumps(r) + "\n")
+
+        payload = {
+            "transcriptPath": str(t_file),
+            "workspacePaths": [str(project_ws)],
+            "isSubagent": False
+        }
+
+        res = orch_guard.handle_stop(payload)
+        # In REMEDIATION_PHASE, unresolvable historical learning artifact does NOT block stop
+        assert res.get("decision") != "continue" or "unresolvable_historical_trajectory" not in res.get("reason", ""), \
+            f"Expected REMEDIATION_PHASE to bypass historical learning artifacts, but got: {res}"
+

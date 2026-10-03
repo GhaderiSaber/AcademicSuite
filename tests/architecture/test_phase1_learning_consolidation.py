@@ -34,8 +34,8 @@ class TestPhase1LearningConsolidation:
         assert os.path.isdir(lessons_dir), "Lessons directory must exist"
 
         all_json = [f for f in os.listdir(lessons_dir) if f.endswith(".json")]
-        # Total active lessons should be around 97 (85 semantic + 12 unique feedback)
-        assert len(all_json) < 120, f"Active lessons count ({len(all_json)}) exceeded clean ceiling (< 120)"
+        # Total active lessons should be around 97-130 (curated semantic + graduated continuous learning lessons)
+        assert len(all_json) < 150, f"Active lessons count ({len(all_json)}) exceeded clean ceiling (< 150)"
 
         semantic_lessons = [f for f in all_json if f.startswith("LSN-2026-") and not f[9:17].isdigit()]
         assert len(semantic_lessons) >= 80, f"Expected at least 80 semantic lessons, got {len(semantic_lessons)}"

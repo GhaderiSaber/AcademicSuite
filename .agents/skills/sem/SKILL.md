@@ -79,6 +79,16 @@ Latent Constructs or Observed Composites?
 ---
 
 ## 6. Execution Script ("The Hands")
+
+### MANDATORY INVARIANT: Canonical Revised Model Fit Binding
+For Stage 4.5 macro model fit indices, you MUST strictly bind to the canonical revised model values generated in `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` (by `run_full_sem.R`). Under no circumstances should you fork scripts to apply ad-hoc constraints (e.g., fixed error variances, inequality bounds) or hardcode unrevised numbers. If the revised model includes specified correlated error paths between RRS facets (e.g., `Ru_Ref ~~ Ru_Dep`, `Ru_Bro ~~ Ru_Dep`), ensure these are precisely cited and preserved. 
+
+Furthermore, when validating, `thesis-integrity-auditor` MUST independently assert deliverable fit measures directly against `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` with a numerical tolerance of `|Delta| < 0.001`. Circular self-validation against orchestrator instructions is strictly prohibited.
+
+### MANDATORY INVARIANT: Canonical Revised Model Fit Binding
+For Stage 4.5 macro model fit indices, you MUST strictly bind to the canonical revised model values generated in `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` (by `run_full_sem.R`). Under no circumstances should you fork scripts to apply ad-hoc constraints (e.g., fixed error variances, inequality bounds) or hardcode unrevised numbers. If the revised model includes specified correlated error paths between RRS facets (e.g., `Ru_Ref ~~ Ru_Dep`, `Ru_Bro ~~ Ru_Dep`), ensure these are precisely cited and preserved. 
+
+Furthermore, when validating, `thesis-integrity-auditor` MUST independently assert deliverable fit measures directly against `${WORKSPACE_ROOT}/02_analysis_code/fit_measures_sem.csv` with a numerical tolerance of `|Delta| < 0.001`. Circular self-validation against orchestrator instructions is strictly prohibited.
 ```bash
 python3 .agents/skills/sem/scripts/run_sem.py \
   --data path/to/cleaned_data.xlsx \
@@ -133,3 +143,4 @@ The script outputs:
 - **Lesson (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)**: Enforcing a strict fail-closed mathematical admissibility gate requiring lavaan post-check verification, information matrix invertibility, zero negative variances, and all standardized betas <= 1.0 before any SEM results or chapter deliverables can pass validation. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MATHEMATICAL-ADMISSIBILITY-VALIDATION-GATE-001)]
 - **Lesson (LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE)**: Specification of R (lavaan) as primary SEM engine, latent indicators (=~), R semPlot::semPaths() visualization, and mandatory pre-flight adaptive context retrieval. [Enforcement: dynamic_invariant_guard.py (LSN-2026-R-LAVAAN-LATENT-SEM-MANDATE)]
 - **Lesson (LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING)**: Incorporate theoretical subscale residual covariances (e.g. Ru_Ref ~~ Ru_Dep) using explicit lavaan syntax. Enforce horizontal canvas parameterization for semPlot::semPaths() (e.g. width = 4500-4800, height = 2400 at 300 DPI) and set `edge.label.cex = 0.80` (range 0.75 - 0.85) to prevent oversized text crowding and provide ample breathing room between indicator columns. [Enforcement: dynamic_invariant_guard.py (LSN-2026-SEM-RESIDUAL-COVARIANCE-AND-STYLING)]
+- **Lesson (LSN-2026-REVISED-SEM-SPECIFICATION-PARITY)**: Macro SEM model fit reporting must strictly bind to the canonical revised model in fit_measures_sem.csv with verified correlated error paths. Forbid circular validator assertions based on unverified CDE criteria. [Enforcement: dynamic_invariant_guard.py (LSN-2026-REVISED-SEM-SPECIFICATION-PARITY)]
