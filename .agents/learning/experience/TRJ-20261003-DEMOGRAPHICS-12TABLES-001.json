@@ -1,0 +1,572 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261003-DEMOGRAPHICS-12TABLES-001",
+  "experience_id": "EXP-20261003-DEMOGRAPHICS-12TABLES-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-LEARN-DEMO-TABLES-TRAJECTORY",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "TOOL_CALLED",
+      "actor": "user",
+      "timestamp": "2026-10-03T09:52:41.000000+00:00",
+      "description": "User initiated Chapter 4 planning workflow with prompt referencing Model_Statistical_Results.xlsx and /plan command.",
+      "observable_input": {
+        "command": "/plan",
+        "referenced_file": "Model_Statistical_Results.xlsx",
+        "user_request": "We analysed the data and keep the results in the excel files named \"Model_Statistical_Results.xlsx\". /plan for writing chapter 4."
+      },
+      "observable_output": {
+        "status": "RECEIVED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:52:42.000000+00:00",
+      "description": "academic-orchestrator executed find_by_name to locate Model_Statistical_Results.xlsx in project workspace.",
+      "observable_input": {
+        "Pattern": "*Model_Statistical_Results*",
+        "SearchDirectory": "${WORKSPACE_ROOT}"
+      },
+      "observable_output": {
+        "found_files": ["03_deliverables/Model_Statistical_Results.xlsx"]
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:52:55.000000+00:00",
+      "description": "academic-orchestrator executed list_dir on project root to inspect workspace architecture.",
+      "observable_input": {
+        "DirectoryPath": "${WORKSPACE_ROOT}"
+      },
+      "observable_output": {
+        "directories": ["01_raw_inputs", "02_analysis_code", "03_deliverables", "04_references_and_lit", "academic-state", "state"]
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:53:01.000000+00:00",
+      "description": "academic-orchestrator executed list_dir on 03_deliverables to inspect existing chapter deliverables and figures.",
+      "observable_input": {
+        "DirectoryPath": "${WORKSPACE_ROOT}/03_deliverables"
+      },
+      "observable_output": {
+        "files": ["Model_Statistical_Results.xlsx", "fig_residual_diagnostics.png", "fig_serial_mediation_model.png", "test_path.png"]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:53:07.000000+00:00",
+      "description": "academic-orchestrator executed list_dir on 02_analysis_code to inspect analytical scripts and precomputed data files.",
+      "observable_input": {
+        "DirectoryPath": "${WORKSPACE_ROOT}/02_analysis_code"
+      },
+      "observable_output": {
+        "observed_key_scripts": [
+          "02_analysis_code/compute_demographics.py",
+          "02_analysis_code/build_demographics_triad.py",
+          "02_analysis_code/demographics_calculated.json",
+          "02_analysis_code/study_config.json",
+          "02_analysis_code/harmonize_phase1_ledger.py"
+        ]
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:53:17.553861+00:00",
+      "description": "academic-orchestrator inspected 02_analysis_code/study_config.json, identifying 11 categorical demographic variables and Age.",
+      "observable_input": {
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/study_config.json"
+      },
+      "observable_output": {
+        "demographic_variables_configured": [
+          "Gender",
+          "Marriage",
+          "Education",
+          "Job",
+          "Income",
+          "SabEkht",
+          "SabPsych",
+          "SabBast",
+          "SabAfk",
+          "Daru",
+          "Sigar",
+          "Age"
+        ],
+        "total_demographic_features_count": 12
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:53:51.028052+00:00",
+      "description": "academic-orchestrator inspected 02_analysis_code/stats_results.json, verifying precomputed frequency distribution tables for demographic features.",
+      "observable_input": {
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/stats_results.json",
+        "lines": "1-60"
+      },
+      "observable_output": {
+        "sample_size": 483,
+        "demographics_tables_present": true
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:54:28.371472+00:00",
+      "description": "academic-orchestrator inspected 02_analysis_code/phase1_n483_summary.json, noting 12 demographic variables profiled in dataset provenance.",
+      "observable_input": {
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/phase1_n483_summary.json"
+      },
+      "observable_output": {
+        "variables_profiled_count": 12,
+        "sample_size": 483
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:56:47.996211+00:00",
+      "description": "academic-orchestrator inspected 02_analysis_code/harmonize_phase1_ledger.py (lines 61-140), verifying demographic profiling loop over 11 categorical variables plus Age.",
+      "observable_input": {
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/harmonize_phase1_ledger.py",
+        "lines": "61-140"
+      },
+      "observable_output": {
+        "demo_profiling_loop_target": "study_cfg['demographics']['vars']"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:57:04.793115+00:00",
+      "description": "academic-orchestrator partially inspected 02_analysis_code/compute_demographics.py (lines 1-60 only), viewing table definitions for Gender, Marriage, and Education, but truncating before reading remaining 9 variable table definitions.",
+      "observable_input": {
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/compute_demographics.py",
+        "lines": "1-60"
+      },
+      "observable_output": {
+        "tables_observed": ["Table 4-1 (Gender)", "Table 4-2 (Marriage)", "Table 4-3 (Education)"],
+        "tables_unobserved_in_truncated_lines_61_274": ["Table 4-4 (Job)", "Table 4-5 (Income)", "Table 4-6 (SabEkht)", "Table 4-7 (SabPsych)", "Table 4-8 (SabBast)", "Table 4-9 (SabAfk)", "Table 4-10 (Daru)", "Table 4-11 (Sigar)", "Table 4-12 (Age)"]
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:57:06.000000+00:00",
+      "description": "CRITICAL DIVERGENCE POINT: Agent formulated an ungrounded planning decision to condense 12 separate demographic features into 2 composite APA 7 tables, contradicting institutional dissertation requirements and existing codebase scripts.",
+      "observable_input": {
+        "total_variables": 12,
+        "existing_code_architecture": "build_demographics_triad.py (12 separate tables Table 4-1 through Table 4-12)"
+      },
+      "observable_output": {
+        "selected_option": "CONCISE_COMPOSITE_TABLES_PROPOSAL",
+        "proposed_tables": [
+          "Table 4-1: General Socio-Demographic Characteristics",
+          "Table 4-2: Clinical and Psychiatric History Profile"
+        ],
+        "rationale_stated_in_plan": "We propose organizing these into 2 concise composite tables to maintain document readability."
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T09:57:55.000000+00:00",
+      "description": "After a Directive 6 language compliance block, agent re-emitted the English implementation plan persisting the exact 2-composite-table divergence.",
+      "observable_input": {
+        "section": "Section 3 (Open Questions) & Section 5 (Stage 4.1)"
+      },
+      "observable_output": {
+        "emitted_plan_text": "We propose organizing these into 2 composite APA 7 tables for document clarity: Table 4-1 (General Socio-Demographic Characteristics) and Table 4-2 (Clinical and Psychiatric History Profile)."
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-03T10:01:12.548008+00:00",
+      "description": "User issued explicit correction rejecting the 2-table proposal and mandating the full 12-table layout for demographic features.",
+      "observable_input": {
+        "correction_text": "You should have 12 tables for demographic features"
+      },
+      "observable_output": {
+        "status": "USER_CRITIQUE_REGISTERED",
+        "defect_category": "DEMOGRAPHIC_TABLE_ARCHITECTURE_UNDERCOUNT"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T10:02:26.974022+00:00",
+      "description": "academic-orchestrator triggered Continuous Learning Cascade Step 1 and dispatched TSK-2026-LEARN-DEMO-TABLES-TRAJECTORY to trajectory-analyzer.",
+      "observable_input": {
+        "task_id": "TSK-2026-LEARN-DEMO-TABLES-TRAJECTORY",
+        "worker_agent": "trajectory-analyzer",
+        "inputs": [
+          "state/trajectory_events.jsonl",
+          "02_analysis_code/compute_demographics.py"
+        ],
+        "required_artifacts": [
+          "state/trajectory_demographics_12tables.json",
+          "state/trajectory_demographics_12tables.md"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "find_by_name",
+      "invocation_index": 1,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "Pattern": "*Model_Statistical_Results*",
+        "SearchDirectory": "${WORKSPACE_ROOT}"
+      },
+      "execution_time_ms": 12.0
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 2,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "${WORKSPACE_ROOT}"
+      },
+      "execution_time_ms": 5.0
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 3,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "${WORKSPACE_ROOT}/03_deliverables"
+      },
+      "execution_time_ms": 6.0
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 4,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "${WORKSPACE_ROOT}/02_analysis_code"
+      },
+      "execution_time_ms": 4.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/study_config.json"
+      },
+      "execution_time_ms": 15.0
+    },
+    {
+      "tool_name": "list_dir",
+      "invocation_index": 6,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "DirectoryPath": "${WORKSPACE_ROOT}/academic-state"
+      },
+      "execution_time_ms": 5.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 7,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/academic-state/routing_plan.json",
+        "EndLine": 100,
+        "StartLine": 1
+      },
+      "execution_time_ms": 10.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 8,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/Model Analysis.py",
+        "EndLine": 100,
+        "StartLine": 1
+      },
+      "execution_time_ms": 8.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 9,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/stats_results.json",
+        "EndLine": 60,
+        "StartLine": 1
+      },
+      "execution_time_ms": 12.0
+    },
+    {
+      "tool_name": "grep_search",
+      "invocation_index": 10,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "MatchPerLine": true,
+        "Query": "Model_Statistical_Results.xlsx",
+        "SearchPath": "${WORKSPACE_ROOT}"
+      },
+      "execution_time_ms": 25.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 11,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/statistical_plan.json"
+      },
+      "execution_time_ms": 6.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 12,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/phase1_n483_summary.json",
+        "EndLine": 100,
+        "StartLine": 1
+      },
+      "execution_time_ms": 7.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 13,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/compute_stage4c4_master_decision_matrix.py",
+        "EndLine": 100,
+        "StartLine": 1
+      },
+      "execution_time_ms": 9.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 14,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/draft_macro.py",
+        "EndLine": 100,
+        "StartLine": 1
+      },
+      "execution_time_ms": 8.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 15,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/statistical_audit_report.json",
+        "EndLine": 100,
+        "StartLine": 1
+      },
+      "execution_time_ms": 6.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 16,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/compute_stage45_macro_sem.R",
+        "EndLine": 80,
+        "StartLine": 1
+      },
+      "execution_time_ms": 11.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 17,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${SUITE_REPO}/skills/chapter-4-writing/SKILL.md",
+        "EndLine": 100,
+        "StartLine": 1
+      },
+      "execution_time_ms": 14.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 18,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/harmonize_phase1_ledger.py",
+        "EndLine": 60,
+        "StartLine": 1
+      },
+      "execution_time_ms": 7.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 19,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/harmonize_phase1_ledger.py",
+        "EndLine": 140,
+        "StartLine": 61
+      },
+      "execution_time_ms": 8.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 20,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/compute_demographics.py",
+        "EndLine": 60,
+        "StartLine": 1
+      },
+      "execution_time_ms": 9.0
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 21,
+      "status": "SUCCESS",
+      "arguments_summary": {
+        "TypeName": "trajectory-analyzer",
+        "Role": "Trajectory Analyzer",
+        "task_id": "TSK-2026-LEARN-DEMO-TABLES-TRAJECTORY"
+      },
+      "execution_time_ms": 442.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "${SUITE_REPO}/skills/chapter-4-writing/SKILL.md",
+      "exit_code": 0,
+      "duration_seconds": 0.5
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "trajectory-analyzer",
+      "stage_id": "Learning Stage 1: Trajectory Analysis",
+      "status": "STARTED",
+      "envelope_summary": "TSK-2026-LEARN-DEMO-TABLES-TRAJECTORY: Reconstruct observable actions, tool calls, and error trajectory for user critique: You should have 12 tables for demographic features",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "trajectory-analyzer",
+      "task_id": "TSK-2026-LEARN-DEMO-TABLES-TRAJECTORY",
+      "objective": "Reconstruct observable actions, tool calls, and error trajectory for user critique: You should have 12 tables for demographic features",
+      "input_artifacts": [
+        "state/trajectory_events.jsonl",
+        "02_analysis_code/compute_demographics.py"
+      ],
+      "output_artifacts": [
+        "state/trajectory_demographics_12tables.json",
+        "state/trajectory_demographics_12tables.md"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261003-DEMOGRAPHICS-2-COMPOSITE-PROPOSAL",
+      "decision_type": "CHAPTER4_DEMOGRAPHICS_ARCHITECTURE_PROPOSAL",
+      "selected_option": "TWO_COMPOSITE_TABLES_PROPOSAL",
+      "rationale": "Orchestrator proposed grouping 11 categorical demographic variables plus Age into two composite tables (Table 4-1 General Socio-Demographics and Table 4-2 Clinical History) under the stated rationale of maintaining document readability and brevity.",
+      "alternatives_considered": [
+        {
+          "option": "TWELVE_INDIVIDUAL_TABLES_LAYOUT",
+          "verdict": "REJECTED_IMPROPERLY_BY_ORCHESTRATOR",
+          "reason": "Existing scripts (build_demographics_triad.py Option 2 and compute_demographics.py) already defined Table 4-1 through Table 4-12, but orchestrator truncated its read of compute_demographics.py at line 60 and arbitrarily assumed 2 composite tables were preferred."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-PARTIAL_SCRIPT_INSPECTION_TRUNCATION",
+      "decision_type": "TOOL_USAGE_INSPECTION_LIMIT",
+      "selected_option": "VIEW_FIRST_60_LINES_ONLY",
+      "rationale": "Orchestrator viewed only lines 1-60 of compute_demographics.py instead of reading through line 274, thereby missing the complete variable mapping dictionary which explicitly numbered tables from Table 4-1 through Table 4-12.",
+      "alternatives_considered": [
+        {
+          "option": "COMPLETE_FILE_INSPECTION",
+          "verdict": "OMITTED_BY_HASTE",
+          "reason": "Agent prioritized prompt economy over comprehensive code inspection (violating Directive 25)."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "02_analysis_code/compute_demographics.py",
+      "sha256": "4b726477b7f4be47526ae7eb04ec16b5391515efce2bb673e1c66746f337fae0",
+      "type": "demographic_calculation_script"
+    },
+    {
+      "path": "02_analysis_code/study_config.json",
+      "sha256": "609c7c3027ebf4cb4a5a9e4348073c5dc89038ad0d10a047381f2c00cfadd32b",
+      "type": "study_configuration_metadata"
+    },
+    {
+      "path": "02_analysis_code/demographics_calculated.json",
+      "sha256": "cf741cb659a22f7ad031e4282c66804cb882fe7553f46f48827faef79f4c17e3",
+      "type": "precomputed_demographic_payload"
+    },
+    {
+      "path": "02_analysis_code/build_demographics_triad.py",
+      "sha256": "7a94d97fe56d812ab56e30129759d57fb40a92ef65ca9ef040db381e42d72f12",
+      "type": "demographic_triad_generator_script"
+    },
+    {
+      "path": "03_deliverables/Model_Statistical_Results.xlsx",
+      "sha256": "ce0d8da6250de8233b57f0998deb03113ad5a7a3abde7eb74b2ba7f986bff87e",
+      "type": "source_statistical_results_ledger"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "UserReviewValidationGate",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-DEMOGRAPHIC-TABLE-COUNT: User rejected 2 composite tables proposal, mandating strictly 12 distinct demographic tables (Table 4-1 through Table 4-12) corresponding to each profiled demographic feature."
+      ],
+      "evidence_summary": {
+        "user_correction": "You should have 12 tables for demographic features",
+        "proposed_count": 2,
+        "required_count": 12,
+        "mismatched_variables": [
+          "Gender",
+          "Marriage",
+          "Education",
+          "Job",
+          "Income",
+          "SabEkht",
+          "SabPsych",
+          "SabBast",
+          "SabAfk",
+          "Daru",
+          "Sigar",
+          "Age"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261003-USER-12-DEMOGRAPHIC-TABLES"
+  ],
+  "outcome": "FAILURE"
+}

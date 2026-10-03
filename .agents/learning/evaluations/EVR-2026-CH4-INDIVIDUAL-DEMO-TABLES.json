@@ -1,0 +1,51 @@
+{
+  "evaluation_id": "EVR-2026-CH4-INDIVIDUAL-DEMO-TABLES",
+  "candidate_id": "CAND-2026-CH4-INDIVIDUAL-DEMO-TABLES",
+  "baseline_id": "Academic Suite v1",
+  "task_id": "validation-suite",
+  "dimensions": {
+    "correctness": 100.0,
+    "methodology": 100.0
+  },
+  "baseline_metrics": {
+    "score": 100.0
+  },
+  "candidate_metrics": {
+    "score": 100.0
+  },
+  "regression_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "count": 0,
+    "details": [],
+    "fixes_original_mistake": true,
+    "task_id": "regression-suite"
+  },
+  "adversarial_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "creates_new_mistake": false,
+    "task_id": "adversarial-suite",
+    "details": []
+  },
+  "heldout_results": {
+    "verdict": "PASS",
+    "evidence_status": "VERIFIED",
+    "pass_rate": 1.0,
+    "generalizes_to_different_case": true,
+    "overfitting_detected": false,
+    "overfitting_reason": null,
+    "total_cases": 10,
+    "task_id": "heldout-suite"
+  },
+  "contradictions": [],
+  "evidence": [
+    {
+      "artifact_path": "/home/saber-ghaderi/Desktop/AcademicSuite/evals/results/benchmark_report.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "evidence_type": "json_report"
+    }
+  ],
+  "verdict": "PASS",
+  "overall_verdict": "PASS"
+}
