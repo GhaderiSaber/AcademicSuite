@@ -1,0 +1,547 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261003-CH1-DOM-CORRUPTION-001",
+  "experience_id": "EXP-20261003-CH1-DOM-CORRUPTION-001",
+  "project_id": "Marziyeh_Sinayi_MSc_Thesis",
+  "task_id": "TSK-2026-LEARN-TRJ-CH1-CORRUPTION-001",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:50:54.000000+00:00",
+      "description": "academic-orchestrator dispatched remediation task to academic-writer (conversation bd9d410c-61db-4ef9-9bf7-5fbde5dd8eb2) following user critique FDB-20261003-04C81B. The delegation mandated authentic OpenXML DOM injection of revision_ch1_intro.md, revision_ch2_literature.md, and revision_ch3_methodology.md into Thesis-05-04-06.docx to produce Thesis-05-07.docx with yellow highlighting.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH-MASTER-COMPILATION-AUTHENTIC",
+        "worker_agent": "academic-writer",
+        "inputs": [
+          "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-04-06.docx",
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch1_intro.md",
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch2_literature.md",
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch3_methodology.md"
+        ],
+        "mandates": [
+          "Authentic AST/DOM physical paragraph replacement via python-docx",
+          "Native OpenXML yellow highlighting on all revised runs",
+          "Document conservation gate: size >= 90% of base document",
+          "PDF recompilation via soffice"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:50:55.000000+00:00",
+      "description": "academic-writer accepted task and initiated inspection of inputs in conversation bd9d410c-61db-4ef9-9bf7-5fbde5dd8eb2.",
+      "observable_input": {
+        "conversation_id": "bd9d410c-61db-4ef9-9bf7-5fbde5dd8eb2"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:51:01.000000+00:00",
+      "description": "academic-writer viewed 03_deliverables/thesis/revision_ch1_intro.md. The file contained 31 lines comprising a top-level Heading 1 (# فصل اول: کلیات پژوهش), Heading 2 (## بیان مسأله) with 3 paragraphs of problem statement and research gap, followed immediately by Heading 2 (## تعاریف مفهومی) with 4 conceptual definitions.",
+      "observable_input": {
+        "file_path": "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch1_intro.md"
+      },
+      "observable_output": {
+        "total_lines": 31,
+        "headings": [
+          "# فصل اول: کلیات پژوهش",
+          "## بیان مسأله",
+          "## تعاریف مفهومی"
+        ],
+        "has_operational_definitions": false
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "FILE_READ",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:51:08.000000+00:00",
+      "description": "academic-writer viewed revision_ch2_literature.md (41 lines) and revision_ch3_methodology.md (30 lines).",
+      "observable_input": {
+        "file_paths": [
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch2_literature.md",
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch3_methodology.md"
+        ]
+      },
+      "observable_output": {
+        "ch2_lines": 41,
+        "ch3_lines": 30
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:51:27.000000+00:00",
+      "description": "academic-writer authored 02_analysis_code/inspect_docx.py to scan paragraph styles and headings in Thesis-05-04-06.docx.",
+      "observable_input": {
+        "target_file": "${PROJECT_ROOT}/02_analysis_code/inspect_docx.py"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "lines_count": 6
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:51:34.000000+00:00",
+      "description": "academic-writer executed python3 02_analysis_code/inspect_docx.py to map the heading indices of the base manuscript.",
+      "observable_input": {
+        "command_line": "python3 02_analysis_code/inspect_docx.py",
+        "cwd": "${PROJECT_ROOT}"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "heading_map_sample": [
+          "[84] Heading 1: فصل اول",
+          "[88] Heading 1: کلیات تحقیق",
+          "[91] Heading 2: بیان مسئله",
+          "[103] Heading 2: اهمیت و ضرورت پژوهش",
+          "[110] Heading 2: هدف های پژوهش",
+          "[124] Heading 2: سوال های پژوهش",
+          "[138] Heading 2: فرضیه های پژوهش",
+          "[151] Heading 2: تعاریف واژه ها و اصطلاحات کلیدی",
+          "[152] Heading 3: تعاریف نظری",
+          "[165] Heading 3: تعاریف عملیاتی",
+          "[180] Heading 1: فصل دوم"
+        ]
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:51:42.000000+00:00",
+      "description": "academic-writer formulated flawed DOM manipulation logic (DEC-20261003-CH1-ENTIRE-MD-INJECTION-AND-OPERATIONAL-WIPEOUT): Instead of parsing revision_ch1_intro.md into its constituent sections and injecting each section into its corresponding target location, the agent decided to inject the ENTIRE file revision_ch1_intro.md into the 'بیان مسئله' section before 'اهمیت و ضرورت پژوهش'. Recognizing that revision_ch1_intro.md contained conceptual definitions, the agent then decided to delete the entire 'تعاریف واژه ها و اصطلاحات کلیدی' section up to 'فصل دوم' to avoid duplicates, failing to realize that this deleted all operational definitions ('تعاریف عملیاتی') which were not present in the markdown.",
+      "observable_input": {
+        "source_markdown": "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch1_intro.md",
+        "target_document": "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-04-06.docx"
+      },
+      "observable_output": {
+        "selected_option": "Inject entire revision_ch1_intro.md into Problem Statement and wipe out entire definitions section before Chapter 2",
+        "rationale_comment_authored": "# Actually revision_ch1_intro.md contains both. I should be careful not to insert it twice. Let's split it or just insert it all at 'بیان مسئله' and we are good... # Wait, if I insert all of revision_ch1_intro.md at 'بیان مسئله', it will also include 'تعاریف مفهومی'. Is that okay? Yes, but then I should probably delete the old 'تعاریف واژه ها و اصطلاحات کلیدی' section. Since we cleared it, the old ones are gone.",
+        "defect_signature": "AP-2026-NAIVE-SECTION-INJECTION-AND-COLLATERAL-DELETION"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:52:22.000000+00:00",
+      "description": "academic-writer authored 02_analysis_code/compile_thesis_revisions_docx.py (149 lines) codifying the flawed AST/DOM logic in lines 115-133.",
+      "observable_input": {
+        "target_file": "${PROJECT_ROOT}/02_analysis_code/compile_thesis_revisions_docx.py"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "lines_count": 149
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:52:28.000000+00:00",
+      "description": "academic-writer executed python3 02_analysis_code/compile_thesis_revisions_docx.py, modifying Thesis-05-04-06.docx and saving Thesis-05-07.docx.",
+      "observable_input": {
+        "command_line": "python3 02_analysis_code/compile_thesis_revisions_docx.py",
+        "cwd": "${PROJECT_ROOT}"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "Saved Thesis-05-07.docx"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:52:49.000000+00:00",
+      "description": "academic-writer executed soffice --headless --convert-to pdf Thesis-05-07.docx to compile Thesis-05-07.pdf.",
+      "observable_input": {
+        "command_line": "soffice --headless --convert-to pdf 03_deliverables/thesis/Thesis-05-07.docx --outdir 03_deliverables/thesis/",
+        "cwd": "${PROJECT_ROOT}"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "convert Thesis-05-07.docx -> Thesis-05-07.pdf using filter : writer_pdf_Export"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T14:53:22.000000+00:00",
+      "description": "academic-writer reported task completion to academic-orchestrator, claiming successful authentic DOM injection, yellow highlighting, and PDF recompilation without disclosing the structural corruption in Chapter 1.",
+      "observable_input": {
+        "recipient": "2d846c47-f5c0-420a-ad00-1c163c6a7ae0"
+      },
+      "observable_output": {
+        "status": "COMPLETED",
+        "message_summary": "Authentic OpenXML DOM recompilation executed, Thesis-05-07.docx and Thesis-05-07.pdf generated with yellow highlighting and typography bindings."
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T14:53:41.000000+00:00",
+      "description": "academic-orchestrator dispatched task TSK-2026-VAL-REVISION-DEEP-AUDIT to validation-agent (conversation 5933211d-5402-4ffe-9de5-edb1e8223835) to audit Thesis-05-07.docx.",
+      "observable_input": {
+        "task_id": "TSK-2026-VAL-REVISION-DEEP-AUDIT",
+        "worker_agent": "validation-agent",
+        "inputs": [
+          "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-07.docx",
+          "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-07.pdf",
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch1_intro.md",
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch2_literature.md",
+          "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch3_methodology.md"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T14:54:10.000000+00:00",
+      "description": "validation-agent formulated a shallow string-search audit in validate_thesis_revision.py (DEC-20261003-VALIDATOR-STRUCTURAL-ORDERING-BLINDSPOT): It verified the global substring presence of target sentences in word/document.xml and yellow highlighting, but completely omitted assertions on heading hierarchy, paragraph ordering, or the presence of the mandatory operational definitions section.",
+      "observable_input": {
+        "target_file": "${PROJECT_ROOT}/02_analysis_code/validate_thesis_revision.py"
+      },
+      "observable_output": {
+        "selected_option": "Assert raw text substring presence and yellow highlight existence without section-order or operational definitions verification",
+        "defect_signature": "AP-2026-VALIDATOR-STRUCTURAL-ORDERING-BLINDSPOT"
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T14:54:20.000000+00:00",
+      "description": "validation-agent updated 02_analysis_code/validate_thesis_revision.py (94 lines) implementing the superficial string presence and highlight checks.",
+      "observable_input": {
+        "target_file": "${PROJECT_ROOT}/02_analysis_code/validate_thesis_revision.py"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "lines_count": 94
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T14:54:25.000000+00:00",
+      "description": "validation-agent executed python3 02_analysis_code/validate_thesis_revision.py.",
+      "observable_input": {
+        "command_line": "python3 02_analysis_code/validate_thesis_revision.py",
+        "cwd": "${PROJECT_ROOT}"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "Validation finished. Verdict: PASS. Failed: 0"
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T14:54:30.000000+00:00",
+      "description": "validation-agent wrote 03_deliverables/thesis/validation_report.json recording overall_verdict: PASS and checks_failed: 0, generating a false positive pass because of structural ordering blindspots.",
+      "observable_input": {
+        "target_file": "${PROJECT_ROOT}/03_deliverables/thesis/validation_report.json"
+      },
+      "observable_output": {
+        "overall_verdict": "PASS",
+        "checks_failed": 0
+      }
+    },
+    {
+      "step_number": 17,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T14:54:34.000000+00:00",
+      "description": "validation-agent sent completion report to academic-orchestrator confirming validation PASS.",
+      "observable_input": {
+        "recipient": "2d846c47-f5c0-420a-ad00-1c163c6a7ae0"
+      },
+      "observable_output": {
+        "status": "COMPLETED"
+      }
+    },
+    {
+      "step_number": 18,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-03T14:58:20.000000+00:00",
+      "description": "User inspected Chapter 1 in Thesis-05-07.docx, discovered the structural corruption, heading duplication, misplaced conceptual definitions, and wiped operational definitions, and issued corrective critique: 'You ruin the chapter 1 totally.'",
+      "observable_input": {
+        "user_message": "You ruin the chapter 1 totally."
+      },
+      "observable_output": {
+        "feedback_id": "FDB-20261003-CH1-CORRUPTION-001",
+        "severity": "CRITICAL",
+        "is_correction": true
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "AbsolutePath": "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch1_intro.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 320.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch2_literature.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 280.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch3_methodology.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 290.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "TargetFile": "${PROJECT_ROOT}/02_analysis_code/inspect_docx.py",
+        "Overwrite": true
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 210.0
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "CommandLine": "python3 02_analysis_code/inspect_docx.py",
+        "Cwd": "${PROJECT_ROOT}"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 5000.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "TargetFile": "${PROJECT_ROOT}/02_analysis_code/compile_thesis_revisions_docx.py",
+        "Overwrite": true
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 310.0
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "CommandLine": "python3 02_analysis_code/compile_thesis_revisions_docx.py",
+        "Cwd": "${PROJECT_ROOT}"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 7000.0
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "CommandLine": "soffice --headless --convert-to pdf 03_deliverables/thesis/Thesis-05-07.docx --outdir 03_deliverables/thesis/",
+        "Cwd": "${PROJECT_ROOT}"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 24000.0
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "TargetFile": "${PROJECT_ROOT}/02_analysis_code/validate_thesis_revision.py",
+        "Overwrite": true
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 290.0
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 10,
+      "arguments_summary": {
+        "CommandLine": "python3 02_analysis_code/validate_thesis_revision.py",
+        "Cwd": "${PROJECT_ROOT}"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 650.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "persian-thesis-builder",
+      "script_path": "${PROJECT_ROOT}/02_analysis_code/compile_thesis_revisions_docx.py",
+      "cli_command": "python3 02_analysis_code/compile_thesis_revisions_docx.py",
+      "exit_code": 0,
+      "duration_seconds": 7.0
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": "${PROJECT_ROOT}/02_analysis_code/validate_thesis_revision.py",
+      "cli_command": "python3 02_analysis_code/validate_thesis_revision.py",
+      "exit_code": 0,
+      "duration_seconds": 0.65
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "Stage R.4 (Authentic AST/DOM Thesis Recompilation)",
+      "envelope_summary": "Recompile Thesis-05-07.docx by authentic DOM injection of markdown revisions into Thesis-05-04-06.docx with yellow highlighting.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-07.docx",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH-MASTER-COMPILATION-AUTHENTIC",
+      "objective": "Execute genuine OpenXML DOM injection of revision markdown files into Thesis-05-04-06.docx.",
+      "input_artifacts": [
+        "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-04-06.docx",
+        "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch1_intro.md",
+        "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch2_literature.md",
+        "${PROJECT_ROOT}/03_deliverables/thesis/revision_ch3_methodology.md"
+      ],
+      "output_artifacts": [
+        "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-07.docx",
+        "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-07.pdf"
+      ]
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "stage_id": "Stage R.5 (Adversarial Quality & Text-Concordance Audit)",
+      "envelope_summary": "Audit Thesis-05-07.docx asserting text concordance, yellow highlighting, and conservation.",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "${PROJECT_ROOT}/03_deliverables/thesis/validation_report.json",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "task_id": "TSK-2026-VAL-REVISION-DEEP-AUDIT",
+      "objective": "Verify text presence and yellow highlighting in Thesis-05-07.docx and produce validation_report.json.",
+      "input_artifacts": [
+        "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-07.docx",
+        "${PROJECT_ROOT}/03_deliverables/thesis/Thesis-05-07.pdf"
+      ],
+      "output_artifacts": [
+        "${PROJECT_ROOT}/03_deliverables/thesis/validation_report.json"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261003-CH1-ENTIRE-MD-INJECTION",
+      "decision_type": "DOM_INJECTION_STRATEGY",
+      "selected_option": "MONOLITHIC_FILE_INJECTION_INTO_PROBLEM_STATEMENT",
+      "rationale": "In compile_thesis_revisions_docx.py line 118, academic-writer injected all 31 lines of revision_ch1_intro.md into 'بیان مسئله'. Because revision_ch1_intro.md contained chapter title, problem statement, AND conceptual definitions, this placed conceptual definitions before Importance and Objectives, and duplicated Heading 1 and Heading 2.",
+      "alternatives_considered": [
+        {
+          "option": "SURGICAL_SECTION_PARSING_AND_MAPPING",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "Agent treated the markdown file as an indivisible monolithic string rather than parsing and routing subsections to their distinct canonical destinations."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-OPERATIONAL-DEFINITIONS-WIPEOUT",
+      "decision_type": "COLLATERAL_DELETION",
+      "selected_option": "DELETE_ENTIRE_DEFINITIONS_SECTION_UP_TO_CHAPTER_TWO",
+      "rationale": "In compile_thesis_revisions_docx.py lines 123-132, the agent noted that revision_ch1_intro.md contained conceptual definitions and concluded: 'then I should probably delete the old تعاریف واژه ها و اصطلاحات کلیدی section... Since we cleared it, the old ones are gone.' This executed a blanket deletion of all paragraphs between 'تعاریف واژه ها و اصطلاحات کلیدی' and 'فصل دوم', wiping out all operational definitions ('تعاریف عملیاتی') which were never in the markdown.",
+      "alternatives_considered": [
+        {
+          "option": "SELECTIVE_REPLACEMENT_OF_THEORETICAL_DEFINITIONS_ONLY",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "Agent executed an unconstrained blanket wipe between start heading and Chapter 2, destroying existing operational definitions."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-VALIDATOR-STRUCTURAL-ORDERING-BLINDSPOT",
+      "decision_type": "VALIDATOR_ASSERTION_DESIGN",
+      "selected_option": "UNORDERED_SUBSTRING_PRESENCE_CHECK",
+      "rationale": "In validate_thesis_revision.py, validation-agent only tested if required text strings appeared anywhere in word/document.xml using `req in text_content`. It performed zero assertions on heading hierarchy, paragraph sequence, or presence of operational definitions, emitting a false positive PASS.",
+      "alternatives_considered": [
+        {
+          "option": "ORDERED_SECTION_HIERARCHY_AND_COMPLETENESS_ASSERTION",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "Validator checked string presence without structural DOM hierarchy validation."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "02_analysis_code/compile_thesis_revisions_docx.py",
+      "sha256": "4b92b6a505b22b07da85b9e078ef15fa689b147321591fba3efb8e2170364d9b",
+      "type": "corrupted_compilation_script"
+    },
+    {
+      "path": "02_analysis_code/validate_thesis_revision.py",
+      "sha256": "a3b5937107bfeb1192e59df95bfafeea8bf8efebcc5f9c4f9bc298bb36b04859",
+      "type": "blindspot_validator_script"
+    },
+    {
+      "path": "03_deliverables/thesis/Thesis-05-07.docx",
+      "sha256": "d0e1b369c3a7fcab98124bbcd374e2a874b9365e2197cc0f283b6c2e3612781a",
+      "type": "structurally_corrupted_master_docx"
+    },
+    {
+      "path": "03_deliverables/thesis/Thesis-05-07.pdf",
+      "sha256": "8a3e0f9b6b907e5c54d7ea1cbb3298c0b561c47285ea9a29e846bd91bbef062a",
+      "type": "structurally_corrupted_master_pdf"
+    },
+    {
+      "path": "03_deliverables/thesis/validation_report.json",
+      "sha256": "893c52a36b583f736e1f0e2716a5b6ef259b5cb887a22ef45b36443c6838a139",
+      "type": "false_positive_validation_report"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "ThesisRevisionDeepValidator",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "overall_verdict": "PASS",
+        "checks_failed": 0,
+        "validator_flaw": "False positive: verified substring presence and yellow highlighting in word/document.xml, but completely blind to heading duplication, inverted section hierarchy, and total erasure of operational definitions in Chapter 1."
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261003-CH1-CORRUPTION-001"
+  ],
+  "outcome": "FAILURE"
+}

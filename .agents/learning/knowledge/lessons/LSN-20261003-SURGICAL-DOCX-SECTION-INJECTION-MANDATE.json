@@ -35,5 +35,10 @@
   "target_agents": [
     "academic-writer",
     "validation-agent"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-10-03T15:12:48.046973+00:00",
+  "graduated_targets": [
+    ".agents/skills/persian-thesis-revision-assistant/SKILL.md"
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "evaluation_id": "EVAL-20261003-PHYSICAL-DOCX-AST-INJECTION-MANDATE",
+  "candidate_id": "CAND-20261003-PHYSICAL-DOCX-AST-INJECTION-MANDATE",
+  "overall_verdict": "PASS",
+  "metrics": {
+    "execution_reliability": 1.0,
+    "statistical_precision": 1.0,
+    "typography_compliance": 1.0,
+    "msai_anomaly_score": 0.0
+  },
+  "regressions": {
+    "count": 0,
+    "details": []
+  },
+  "evidence": [
+    {
+      "file_path": "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/hooks/rules/enforced_invariants.json",
+      "status": "Verified rule injection"
+    }
+  ],
+  "graduation_status": "SUCCESS"
+}

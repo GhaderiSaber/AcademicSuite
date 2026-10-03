@@ -36,5 +36,11 @@
   "target_agents": [
     "academic-writer",
     "validation-agent"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-10-03T14:49:51.100089+00:00",
+  "graduated_targets": [
+    ".agents/skills/persian-thesis-builder/SKILL.md",
+    ".agents/skills/thesis-integrity-auditor/SKILL.md"
   ]
 }

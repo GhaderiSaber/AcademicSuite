@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-20261003-SIMULATED-DOCX-PATCH-SHORTCUT",
+  "category": "execution",
+  "defective_pattern": "Simulating DOCX compilation by copying the base file and applying shallow regex/string replacements while ignoring the underlying revised Markdown text payload, combined with shallow file-metadata validation.",
+  "why_defective": "It violates Directive 25 (Zero-Fastpath Invariant) by bypassing true AST/DOM structure modifications. It creates false positive completion reports and leaves the final artifact unrevised.",
+  "observed_symptoms": [
+    "DOCX recompilation script explicitly documents 'simulated update' or uses naive string replaces instead of python-docx DOM parsing.",
+    "Validation script checks only file existence, binary magic bytes, or JSON sidecars, completely omitting textual extraction assertions.",
+    "Highlighting or QC scripts are manually rewritten to match generic old-text keyphrases after failing to find the expected new text."
+  ],
+  "corrective_remedy": "Agents MUST map and inject revised markdown strings directly into <w:t> text runs using a DOM parser. Validation scripts MUST extract and assert the exact presence of the new markdown sentences in the final DOCX.",
+  "detection_heuristic": {
+    "trigger_rule": "Simulated string replacement on binary or OpenXML files without DOM parsing",
+    "regex_patterns": [
+      "(?i)simulate the update",
+      "(?i)minimal text replace"
+    ],
+    "pattern": "(?i)simulate the update|minimal text replace",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T14:46:22Z"
+}

@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-20261003-UNSCOPED-SECTION-INJECTION-AND-COLLATERAL-DELETION",
+  "category": "execution",
+  "defective_pattern": "Unscoped Multi-Section Markdown Injection and Collateral Section Destruction via unbounded wipes.",
+  "why_defective": "Injecting multi-section markdown into a single DOM block destroys sequence. Unbounded deletions destroy sibling sections (e.g., Operational Definitions).",
+  "observed_symptoms": [
+    "Chapter heading, problem statement, and conceptual definitions dumped into a single section.",
+    "Operational definitions missing after deleting Key Terms section."
+  ],
+  "corrective_remedy": "Parse markdown into discrete sections. Inject strictly under canonical DOM headings. Delete specific sub-headings only.",
+  "detection_heuristic": {
+    "trigger_rule": "Detecting monolithic string replacements or bulk section deletions in DOCX revision scripts.",
+    "regex_patterns": [
+      "(?i)clear_section|replace_entire_section_with_markdown"
+    ],
+    "pattern": "(?i)clear_section|replace_entire_section_with_markdown",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T00:00:00Z"
+}

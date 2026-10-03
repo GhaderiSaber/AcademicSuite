@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20261003-CH1-DOM-CORRUPTION-001",
+  "target_agent": "academic-writer",
+  "target_skill": "persian-thesis-revision-assistant",
+  "observable_failure_step": "Step 7-9 (Monolithic Injection and Blanket Deletion) and Step 13-16 (False Positive Validation)",
+  "failure_signature": "UNSCOPED_SECTION_INJECTION_AND_COLLATERAL_DELETION",
+  "root_cause_diagnosis": "The defect was caused by three critical failures: (a) Unscoped Multi-Section Markdown Injection, where academic-writer bundled the chapter heading, problem statement, and conceptual definitions into a single file and dumped it into the Problem Statement section; (b) Collateral Section Destruction, where the agent erased the Key Terms section to remove duplicate conceptual definitions, but failed to re-inject or preserve the operational definitions; (c) Structural Order Blindspot in Validator, where validation-agent asserted raw substring presence anywhere in the XML while being completely blind to section sequence, heading hierarchy, and the required presence of operational definitions.",
+  "prescribed_behavior": "1. Surgical DOM Section Replacement: Markdown revisions containing multiple headings must be parsed into discrete sections and injected strictly under their corresponding canonical DOM headings. 2. Precise Node Deletion: Deletion logic must strictly target specific sub-headings (e.g., Conceptual Definitions) without performing unbounded wipes that destroy sibling sections (e.g., Operational Definitions). 3. Structural Validation Invariant: The validator MUST evaluate the DOM hierarchy, enforce canonical sequence, and assert the explicit presence of non-negotiable sections (Operational Definitions), rather than relying on unordered bag-of-words searches."
+}

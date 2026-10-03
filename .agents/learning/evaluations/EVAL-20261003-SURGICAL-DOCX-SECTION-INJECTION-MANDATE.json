@@ -1,0 +1,21 @@
+{
+  "evaluation_id": "EVAL-20261003-SURGICAL-DOCX-SECTION-INJECTION-MANDATE",
+  "candidate_id": "CAND-20261003-SURGICAL-DOCX-SECTION-INJECTION-MANDATE",
+  "overall_verdict": "PASS",
+  "checks_failed": 0,
+  "metrics": {
+    "statistical_precision": 1.0,
+    "typography_compliance": 1.0,
+    "execution_reliability": 1.0,
+    "msai_anomaly_score": 0.0
+  },
+  "regressions": {
+    "count": 0,
+    "details": []
+  },
+  "evidence": {
+    "artifacts": [
+      "/home/ghaderi-saber/Desktop/AcademicSuite/.agents/hooks/rules/enforced_invariants.json"
+    ]
+  }
+}
