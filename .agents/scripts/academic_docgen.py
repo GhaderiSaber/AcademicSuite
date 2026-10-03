@@ -24,23 +24,30 @@ import json
 import argparse
 from typing import Optional, Dict, Any, List
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-
-# Auto-discovery of local virtualenv site-packages (.venv / venv)
-for venv_name in [".venv", "venv"]:
-    venv_lib = os.path.join(ROOT_DIR, venv_name, "lib")
-    if os.path.isdir(venv_lib):
-        for entry in os.listdir(venv_lib):
-            sp = os.path.join(venv_lib, entry, "site-packages")
-            if os.path.isdir(sp) and sp not in sys.path:
-                sys.path.insert(0, sp)
-
-# Also ensure .agents/scripts is in sys.path
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
-if SCRIPTS_DIR not in sys.path:
-    sys.path.insert(0, SCRIPTS_DIR)
+AGENTS_DIR = os.path.abspath(os.path.join(SCRIPTS_DIR, ".."))
+ROOT_DIR = os.path.abspath(os.path.join(AGENTS_DIR, ".."))
+
+for p in (ROOT_DIR, AGENTS_DIR, SCRIPTS_DIR):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+# Auto-discovery of local virtualenv site-packages (.venv / venv) across repo root, cwd, and ancestors
+candidate_roots = [ROOT_DIR, os.getcwd(), AGENTS_DIR]
+curr = os.getcwd()
+while curr and curr != os.path.dirname(curr):
+    if curr not in candidate_roots:
+        candidate_roots.append(curr)
+    curr = os.path.dirname(curr)
+
+for candidate in candidate_roots:
+    for venv_name in [".venv", "venv"]:
+        venv_lib = os.path.join(candidate, venv_name, "lib")
+        if os.path.isdir(venv_lib):
+            for entry in os.listdir(venv_lib):
+                sp = os.path.join(venv_lib, entry, "site-packages")
+                if os.path.isdir(sp) and sp not in sys.path:
+                    sys.path.insert(0, sp)
 
 
 def sync_deliverable_to_root(docx_path: str) -> None:

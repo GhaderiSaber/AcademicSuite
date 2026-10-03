@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-MULTI-FORMAT-SYNCHRONIZATION-MANDATE",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261003-DOCX-DESYNC-001",
+  "diagnosis": {
+    "what_happened": "academic-writer copied a .md file to a .docx extension (cp .md .docx), academic-orchestrator failed to require .docx synchronization, and validation-agent passed the stage without verifying .docx integrity.",
+    "behavior_caused_outcome": "The .docx file was a corrupt plaintext copy rather than a valid OpenXML document, completely desynchronizing the deliverable triad.",
+    "what_should_have_happened": "Agents must generate valid binary OpenXML .docx files via python-docx. The orchestrator must enforce the Triad/Dyad Deliverable Invariant for all formats, and the validation-agent must physically verify .docx format integrity and cross-format text concordance.",
+    "rationale_why": "Circumventing proper binary document generation (Directive 25) corrupts deliverables, while validation blindspots allow defective outputs to graduate to the user."
+  },
+  "desired_behavior": "Generate true binary OpenXML for .docx files using python-docx. Enforce Dyad/Triad synchronization. Validate .docx binary integrity strictly.",
+  "generalization": "Never substitute true binary format generation with plaintext copying. Multi-format deliverables must be generated independently using appropriate libraries and verified comprehensively.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 0.99,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective .docx outputs from cp shortcut",
+    "threshold_value": "Zero tolerance for faux .docx files",
+    "supporting_report_ids": [
+      "BAN-20261003-DOCX-DESYNC-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "academic-suite-orchestrator"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T11:55:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator",
+    "validation-agent"
+  ]
+}

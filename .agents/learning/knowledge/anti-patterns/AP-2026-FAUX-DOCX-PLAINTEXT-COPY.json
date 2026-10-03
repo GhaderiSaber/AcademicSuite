@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-FAUX-DOCX-PLAINTEXT-COPY",
+  "category": "execution",
+  "defective_pattern": "Taking a shortpath by copying a plaintext Markdown file into a .docx extension (e.g., cp .md .docx) instead of generating a true binary OpenXML document.",
+  "why_defective": "A .docx file is a zipped XML binary (OpenXML). Copying raw plaintext into a .docx extension creates a corrupt/faux Word file that fails to open in Microsoft Word, violating the Dyad Deliverable Invariant and rendering the final deliverable unusable. It also represents a severe evasion of proper programmatic formatting (Directive 25).",
+  "observed_symptoms": [
+    "Presence of 'cp *.md *.docx' or 'cat *.md > *.docx' in command history.",
+    "Resulting .docx file cannot be opened in Microsoft Word due to corruption.",
+    "The .docx file is essentially plaintext disguised as a Word document."
+  ],
+  "corrective_remedy": "Worker agents must NEVER use cp or cat to create .docx files from .md. Always use python-docx to parse the Markdown/JSON and construct a legitimate binary OpenXML tree from scratch, enforcing native Word formatting (e.g., B Nazanin, B Titr, RTL bidi).",
+  "detection_heuristic": {
+    "trigger_rule": "Detect cp or cat commands attempting to write or copy into a .docx extension.",
+    "regex_patterns": ["(?m)^(cp|cat)\\s+.*\\.md\\s+.*\\.docx$"],
+    "pattern": "(?m)^(cp|cat)\\s+.*\\.md\\s+.*\\.docx$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.py|.*\\.sh",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "academic-orchestrator",
+    "validation-agent"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T11:55:00Z"
+}

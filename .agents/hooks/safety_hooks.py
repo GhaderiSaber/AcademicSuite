@@ -1805,6 +1805,15 @@ class SafetyHooks:
                 raw_bin = tokens[0]
                 bin_base = os.path.basename(raw_bin).lower()
 
+                # Support 'uv run python ...'
+                if bin_base == "uv":
+                    if len(tokens) >= 3 and tokens[1] == "run":
+                        sub_bin = os.path.basename(tokens[2]).lower()
+                        if sub_bin in ("python", "python3", "py"):
+                            tokens = tokens[2:]
+                            raw_bin = tokens[0]
+                            bin_base = os.path.basename(raw_bin).lower()
+
                 # Case A: Python script execution
                 if bin_base in ("python", "python3", "py"):
                     if len(tokens) < 2:
@@ -1833,9 +1842,14 @@ class SafetyHooks:
                             "batch-fix",
                             "inspect-docx",
                             "patch-docx-dom",
+                            "--help",
+                            "-h",
+                            "help",
                         }
                         subcmd = tokens[2] if len(tokens) > 2 else ""
-                        if subcmd not in allowed_subcommands:
+                        if any(t in ("--help", "-h") for t in tokens):
+                            pass  # Help query is always permitted
+                        elif subcmd not in allowed_subcommands:
                             return {
                                 "decision": "deny",
                                 "reason": (
@@ -1884,7 +1898,13 @@ class SafetyHooks:
                             "ancova", "anova", "ttest", "correlation", "factor_analysis"
                         )
 
-                        if any(stat_kw in norm_script.lower() for stat_kw in statistical_indicators):
+                        # Exclude document generation and report compiling scripts from false-positive statistical detection
+                        is_doc_builder = (
+                            any(doc_pref in script_base for doc_pref in ("build_", "compile_", "generate_", "render_", "scaffold_", "format_", "patch_"))
+                            or any(doc_term in script_base for doc_term in ("docx", "doc", "md", "slide", "presentation", "report", "table", "triad"))
+                        )
+
+                        if not is_doc_builder and any(stat_kw in norm_script.lower() for stat_kw in statistical_indicators):
                             return {
                                 "decision": "deny",
                                 "reason": (
@@ -1939,9 +1959,9 @@ class SafetyHooks:
                                     )
                                 }
 
-                # Case B: Approved non-Python document utilities
-                elif bin_base in ("pandoc", "soffice", "mkdir", "cp"):
-                    pass  # Allowed document utilities
+                # Case B: Approved non-Python document utilities and safe inspection commands
+                elif bin_base in ("pandoc", "soffice", "mkdir", "cp", "ls", "dir", "find"):
+                    pass  # Allowed document utilities and inspection commands
 
                 # Case C: All other binaries are strictly forbidden
                 else:
@@ -1950,7 +1970,7 @@ class SafetyHooks:
                         "reason": (
                             f"CONSTITUTIONAL VIOLATION (Directive 12 / Phase 10 - Academic Writer Execution Guard): "
                             f"Binary '{raw_bin}' is strictly forbidden for academic-writer. "
-                            f"Only Python document generation scripts and document utilities (pandoc, soffice, mkdir, cp) are permitted."
+                            f"Only Python document generation scripts, inspection commands (ls, dir, find), and document utilities (pandoc, soffice, mkdir, cp) are permitted."
                         )
                     }
 

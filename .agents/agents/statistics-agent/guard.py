@@ -125,10 +125,33 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                     }
 
     # Directive 6: English ASCII Filename Guard
-    for arg_val in args.values():
-        if isinstance(arg_val, str) and any(ext in arg_val.lower() for ext in (".json", ".csv", ".xlsx", ".sav", ".png", ".pdf")):
-            base = os.path.basename(arg_val)
-            if base and not base.isascii():
+    FILE_PATH_KEYS = {
+        "targetfile", "target", "file_path", "path", "file",
+        "destination", "absolutepath", "cwd", "target_file", "dest", "out", "outfile", "output"
+    }
+    EXCLUDED_PAYLOAD_KEYS = {
+        "codecontent", "replacementcontent", "targetcontent",
+        "message", "prompt", "instruction", "description", "input"
+    }
+
+    checked_paths = []
+    for k, v in args.items():
+        k_lower = k.lower().replace("_", "")
+        if k_lower in EXCLUDED_PAYLOAD_KEYS:
+            continue
+        if k_lower in FILE_PATH_KEYS and isinstance(v, str):
+            checked_paths.append(v)
+
+    if tool_name == "run_command":
+        cmd = args.get("CommandLine", "")
+        if isinstance(cmd, str):
+            tokens = re.findall(r'[\'"]?([^\s\'"|><;:]+\.(?:json|csv|xlsx|sav|png|pdf))[\'"]?', cmd, re.IGNORECASE)
+            checked_paths.extend(tokens)
+
+    for p in checked_paths:
+        base = os.path.basename(p.strip())
+        if base and any(base.lower().endswith(ext) for ext in (".json", ".csv", ".xlsx", ".sav", ".png", ".pdf")):
+            if not base.isascii():
                 return {
                     "decision": "deny",
                     "reason": (

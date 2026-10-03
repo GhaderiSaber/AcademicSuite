@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T10:07:47.669136+00:00",
+  "updated_at": "2026-10-03T11:59:02.629895+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1699,6 +1699,26 @@
       "remedy": "Generate individual tables for demographic features instead of a composite table.",
       "enabled": true,
       "updated_at": "2026-10-03T10:07:47.669112+00:00"
+    },
+    "CAND-2026-MULTI-FORMAT-SYNCHRONIZATION": {
+      "item_id": "CAND-2026-MULTI-FORMAT-SYNCHRONIZATION",
+      "category": "Learned Mechanical Rule",
+      "statement": "BAN-20261003-DOCX-DESYNC-001: Deliverable updates must maintain format parity across all active formats (.docx, .md, .json).",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "CHAPTER4_WRITING"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content",
+      "file_pattern": ".*\\\\.md$",
+      "check_type": "regex_ban",
+      "pattern": "(?i)update\\\\s+markdown\\\\s+only",
+      "violation_message": "BAN-20261003-DOCX-DESYNC-001: Deliverable updates must maintain format parity across all active formats (.docx, .md, .json).",
+      "remedy": "Ensure format parity. Update the corresponding .docx whenever a .md file is changed.",
+      "enabled": true,
+      "updated_at": "2026-10-03T11:59:02.629864+00:00"
     }
   }
 }

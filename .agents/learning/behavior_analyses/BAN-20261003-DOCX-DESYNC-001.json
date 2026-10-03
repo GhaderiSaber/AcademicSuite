@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261003-DOCX-DESYNC-001",
+  "trigger_type": "USER_FEEDBACK",
+  "trigger_event_id": "FDB-20261003-DOCX-DESYNC-001",
+  "target_agent": "academic-writer",
+  "target_skill": "chapter-4-writing",
+  "capability": "CHAPTER4_WRITING",
+  "task_context": {
+    "task_id": "TSK-2026-CH4-STAGE-4.2-DESCRIPTIVES-DRAFT",
+    "stage_id": "Stage 4.2",
+    "prompt": "The .docx file is differ with .md files. .md file is correct but .docx didn't updated."
+  },
+  "trajectory_id": "TRJ-20261003-DOCX-DESYNC-001",
+  "observable_failure_step": {
+    "step_number": 8,
+    "action_type": "COMMAND_STARTED",
+    "tool_name": "run_command",
+    "command_or_input": "cp 03_deliverables/02_descriptives.md 03_deliverables/02_descriptives.docx",
+    "description": "Defect Injected (Shortpath Copy): Created counterfeit DOCX as raw text copy of preliminary MD."
+  },
+  "failure_signature": "ARTIFACT_DESYNCHRONIZATION_SHORTCUT",
+  "root_cause_diagnosis": "The defect was driven by three compounding failures: (1) academic-writer took an illegal fastpath by copying the Markdown file to a .docx extension ('cp .md .docx') instead of generating true binary OpenXML, violating Directive 25; (2) academic-orchestrator failed to include the .docx deliverable in the required_artifacts list during the refinement task definition, severing the synchronization between the two document formats (violating the Dyad Deliverable Invariant); and (3) validation-agent operated with a blindspot, checking strictly for the existence of the .md and .json files without evaluating .docx format integrity or table caption parity, leading to a false PASS verdict.",
+  "prescribed_behavior": "1. Worker agents must never copy plaintext formats to Word document extensions. True binary OpenXML files must be generated using python-docx. 2. The orchestrator must enforce the Triad/Dyad Deliverable Invariant (Directive 3) by enforcing both .md and .docx generation and synchronization in all refinement task envelopes. 3. The validation agent must execute full-spectrum physical validation on all expected deliverables, validating binary format, metadata, and cross-format text concordance, refusing to pass the stage if the .docx is absent, invalid, or desynchronized from the .md.",
+  "created_at": "2026-10-03T11:55:00Z"
+}
