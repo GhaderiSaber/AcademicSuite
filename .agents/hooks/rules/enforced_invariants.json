@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T11:59:02.629895+00:00",
+  "updated_at": "2026-10-03T11:59:54.954312+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1718,7 +1718,7 @@
       "violation_message": "BAN-20261003-DOCX-DESYNC-001: Deliverable updates must maintain format parity across all active formats (.docx, .md, .json).",
       "remedy": "Ensure format parity. Update the corresponding .docx whenever a .md file is changed.",
       "enabled": true,
-      "updated_at": "2026-10-03T11:59:02.629864+00:00"
+      "updated_at": "2026-10-03T11:59:54.954280+00:00"
     }
   }
 }
