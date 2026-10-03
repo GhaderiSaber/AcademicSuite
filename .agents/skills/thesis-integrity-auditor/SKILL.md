@@ -70,6 +70,9 @@ Activate this skill whenever:
 - **Table Count & Anti-Truncation Audit (`CRITICAL`)**: Auditors must assert exact **table count** and **row count per table** against the source markdown specification. Reject any document with missing or truncated tables.
 - **Compiler Inputs**: Compilers must always receive both `--md` and `--json`.
 - **OpenXML Cell Alignment Verification (`MAJOR`)**: Verify explicit `<w:jc>` on all cells (Col 1 = right, Col 2+ = center).
+- **Fail-Closed Mechanical DOM Assertions (`CRITICAL`)**: Inspect `<w:rFonts>` against the exact institutional target font profile. Ban hardcoded static dictionaries returning 'PASS'.
+- **Inline Latin Word Zero-Tolerance (`CRITICAL`)**: Implement regex scan asserting count of inline Latin words `[a-zA-Z]{2,}` in running Persian narrative is strictly 0 (except inside native footnote elements or designated Latin sections).
+- **Bidirectional Footnote Cross-Referencing (`MAJOR`)**: Every foreign in-text citation must have a corresponding footnote ID in `word/footnotes.xml`.
 
 ---
 
