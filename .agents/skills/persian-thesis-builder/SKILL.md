@@ -97,6 +97,8 @@ All assembled chapters, tables, and front matter must strictly adhere to Iranian
 1. **Paragraph Direction**: Enforce `<w:bidi w:val="1"/>` on all Persian paragraphs.
 2. **Font Fallback Protection**: Enforce explicit font binding with `<w:rFonts w:ascii="Times New Roman" w:cs="B Nazanin"/>`.
 3. **Table BiDi**: Enforce `<w:bidiVisual/>` on table properties to guarantee Right-to-Left column ordering.
+4. **Strict Elimination of Inline English Words**: Running Persian text must contain strictly zero inline English words. Transliterate or translate foreign names/terms to Persian and insert native OpenXML footnotes for the Latin text.
+5. **Persian In-Text Foreign Citation Standard**: Transliterate foreign author surnames into Persian characters and insert native OpenXML footnotes for the Latin names.
 4. **Persian Standard Number & Decimal Format**:
    - **Standard Dot ('.') Representation**: Decimal numbers in Persian theses must be formatted with a dot: `۰.۰۰۱`, `۰.۰۵`, `۰.۸۵`, `۲.۵۰`, `۰.۴۰`.
    - **Leading Zero Preserved (حفظ صفر قبل از ممیز)**: In Persian, NEVER drop the leading zero: write `۰.۰۰۱` (never `.۰۰۱`), `۰.۰۵` (never `.۰۵`). $p$-values are reported to 3 decimal places (e.g. `p < ۰.۰۰۱`).

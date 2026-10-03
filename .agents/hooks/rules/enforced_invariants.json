@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T03:42:44.269010+00:00",
+  "updated_at": "2026-10-03T03:42:49.487417+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1630,7 +1630,7 @@
       "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
       "remedy": "Extract the English word, insert its Persian transliteration in the body text, and create a native OpenXML footnote containing the English text.",
       "enabled": true,
-      "updated_at": "2026-10-03T03:42:04.080240+00:00"
+      "updated_at": "2026-10-03T03:42:49.487392+00:00"
     },
     "CAND-20261003-TYPOGRAPHY-EVOLUTION-2": {
       "item_id": "CAND-20261003-TYPOGRAPHY-EVOLUTION-2",
