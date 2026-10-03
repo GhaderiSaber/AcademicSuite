@@ -37,5 +37,11 @@
     "statistics-agent",
     "validation-agent",
     "academic-writer"
+  ],
+  "graduation_status": "GRADUATED",
+  "graduated_at": "2026-10-03T12:38:28.579355+00:00",
+  "graduated_targets": [
+    ".agents/skills/chapter-4-writing/SKILL.md",
+    ".agents/skills/apa-reporting/SKILL.md"
   ]
 }
