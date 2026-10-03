@@ -219,8 +219,9 @@ def resolve_active_project_dir(prompt: str = "", suite_root: Optional[str] = Non
 
         # 3. Check for absolute path markers (01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit)
         for marker in ('/01_raw_inputs', '/02_analysis_code', '/03_deliverables', '/04_references_and_lit'):
-            for m in re.finditer(r'([^\s"\'`]+' + re.escape(marker) + r')', prompt):
-                cand = m.group(1).split(marker)[0]
+            pattern = r'(?:[\"\'\`]|\s|^)(\/[^\"\'\`\n]+?' + re.escape(marker) + r')'
+            for m in re.finditer(pattern, prompt):
+                cand = m.group(1).split(marker)[0].strip()
                 if os.path.isdir(cand) and not cand.startswith(suite_root):
                     return os.path.abspath(cand)
 

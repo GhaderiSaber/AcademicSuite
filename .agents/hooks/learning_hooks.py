@@ -1063,10 +1063,12 @@ class LearningHooks:
                 clean_prompt = re.sub(r"<[^>]+>", "", str(user_text)).strip()
                 # Skip trivial queries or single words
                 if clean_prompt and len(clean_prompt) >= 6:
+                    from contracts.canonical_paths import resolve_active_project_dir
+                    target_project_dir = resolve_active_project_dir(prompt=clean_prompt, suite_root=ROOT_DIR)
                     from scripts.academic_task_router import route_and_persist_plan
                     routing_plan = route_and_persist_plan(
                         prompt=clean_prompt,
-                        base_dir=ROOT_DIR
+                        base_dir=target_project_dir
                     )
                     formula = routing_plan.get("capabilities_formula", "")
                     pipeline = routing_plan.get("pipeline", [])
