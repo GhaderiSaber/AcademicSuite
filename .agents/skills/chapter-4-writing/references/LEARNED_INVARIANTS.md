@@ -711,8 +711,3 @@ The current local time is: 2026-09-25T19:13:18+03:30. [Enforcement: results_audi
 - **Lesson (LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001)**: In two-column variable-and-subscale tables, always output: Row(Parent Variable) -> subsequent Rows(blank Col 0, Subscale in Col 1) -> Row(Next Parent Variable). [Enforcement: results_auditor_guard.py]
 - **Lesson (LSN-2026-VARIABLE-COMPOSITE-ROW-INVARIANT-001)**: Always populate parent variable rows with overall/composite metrics; never create an empty parent row followed by a separate 'total' row. [Enforcement: results_auditor_guard.py]
 - **Learned candidate (CAND-2026-CH4-SINGLE-SAMPLE-INVARIANT)**: Evaluation benchmark passed with 100.00% overall score via evals/run_eval_suite.py. All invariants confirmed valid. [Enforcement: results_auditor_guard.py]
-
-### Invariant LSN-2026-HIERARCHICAL-TABLE-VARIABLE-SUBSCALE-LAYOUT-001 (20261003_085735)
-- **Category**: Lesson
-- **Rule**: In variable-and-subscale tables, enforce a strict 3-column prefix ('ردیف', 'متغیر', 'مؤلفه'). Output: Row(Parent Variable) -> subsequent Rows(blank Col 1, Subscale in Col 2) -> Row(Next Parent Variable).
-- **Enforcement**: results_auditor_guard.py

@@ -73,9 +73,11 @@ Your exclusive purpose is to reconstruct the factual, step-by-step chronology of
 ## 📥 Input & Output Contract
 
 ### Expected Inputs:
-- Experience identifier (`experience_id`).
-- Task logs, artifact manifests, or transcript lines (`.agents/state/trajectory_events.jsonl`, `transcript.jsonl`).
-- Paths to relevant directories (`.agents/learning/experience/`, project workspaces).
+- Delegation envelope containing explicit `inputs` paths:
+  * Affected deliverable files (`03_deliverables/Chapter_X_Results.docx`, `Chapter_X_Results.md`).
+  * Producing analysis/compilation scripts (`02_analysis_code/compile_*.py`, `02_analysis_code/*.py`).
+  * Event logs or validation reports (`03_deliverables/validation_report.json`, `.agents/state/trajectory_events.jsonl`, `transcript.jsonl`).
+- When explicit `inputs` are provided, inspect those exact files and recent log lines first. **Zero unguided exploratory scans (`find_by_name`, `list_dir`) across workspace directories.**
 
 ### Deliverable Output:
 A structured, observable trajectory reconstruction compliant with `.agents/contracts/evolution/trajectory.schema.json`:

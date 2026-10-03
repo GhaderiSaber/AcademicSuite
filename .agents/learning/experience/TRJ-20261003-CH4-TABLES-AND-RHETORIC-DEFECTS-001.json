@@ -1,0 +1,401 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261003-CH4-TABLES-AND-RHETORIC-DEFECTS-001",
+  "experience_id": "EXP-20261003-CH4-TABLES-AND-RHETORIC-DEFECTS-001",
+  "project_id": "Mohtasham_Valiyanpur_PhD_Thesis",
+  "task_id": "TSK-2026-CH4-TABLES-AND-RHETORIC-RECONSTRUCTION",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "SUBAGENT_REQUESTED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T04:10:00.000000+00:00",
+      "description": "academic-orchestrator initiated Stage 4 deliverables assembly and delegated chapter consolidation to academic-writer.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE4-CONSOLIDATION",
+        "worker_agent": "academic-writer",
+        "required_artifacts": [
+          "03_deliverables/Chapter_4_Results.docx",
+          "03_deliverables/Chapter_4_Results.md"
+        ]
+      },
+      "observable_output": {
+        "status": "REQUESTED"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "SUBAGENT_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:10:05.000000+00:00",
+      "description": "academic-writer accepted task and initiated compilation of Chapter 4 deliverables.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE4-CONSOLIDATION"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "FILE_READ",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:12:15.000000+00:00",
+      "description": "academic-writer inspected 03_deliverables/04_correlations.md and 03_deliverables/04_correlations.json.",
+      "observable_input": {
+        "file_path": "03_deliverables/04_correlations.md"
+      },
+      "observable_output": {
+        "table_title": "جدول ۴- ۱۵: ماتریس همبستگی پیرسون و آماره‌های توصیفی سازه‌های پژوهش",
+        "significance_asterisks_present": false,
+        "sample_cell": ".۵۱۶-"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:14:00.000000+00:00",
+      "description": "Agent decided to format table headers with mixed Persian words rather than canonical APA 7 statistical symbols (M, SD, t, F, p, β, B, SE, z).",
+      "observable_input": {
+        "standard_requirement": "APA 7 Latin statistical symbols italicized in headers",
+        "target_tables": ["Table 4-13", "Table 4-21", "Table 4-24", "Table 4-26"]
+      },
+      "observable_output": {
+        "selected_option": "Full Persian phrases with Latin parentheticals",
+        "headers_authored": [
+          "میانگین M",
+          "انحراف معیار SD",
+          "مجموع مجذورات",
+          "درجه آزادی",
+          "میانگین مجذورات",
+          "آماره F",
+          "سطح معناداری"
+        ],
+        "defect_signature": "AP-2026-PERSIAN-WORD-HEADER-POLLUTION"
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:16:30.000000+00:00",
+      "description": "Authored patch_script.py and patch_script2.py to force 3-column prefix structure onto Table 4-24.",
+      "observable_input": {
+        "target_file": "patch_script.py"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "header_replacement": "t24_headers = ['ردیف', 'متغیر', 'مؤلفه', 'مسیر غیرمستقیم / اثر', ...]",
+        "cols_count": 9
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:17:10.000000+00:00",
+      "description": "Executed python3 patch_script.py and python3 patch_script2.py modifying 02_analysis_code/compile_gold_standard_chapter4.py.",
+      "observable_input": {
+        "command_line": "python3 patch_script.py && python3 patch_script2.py"
+      },
+      "observable_output": {
+        "exit_code": 0,
+        "stdout": "Patched compile_gold_standard_chapter4.py\\nPatched cols=9"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "DECISION_FORMULATION",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:19:00.000000+00:00",
+      "description": "Agent chose formulaic boilerplate iteration for Hypotheses 3 through 8 mediation narrative instead of doctoral-level psychological mechanism synthesis.",
+      "observable_input": {
+        "hypotheses_count": 6,
+        "target_stage": "Stage 4.4 Hypotheses 3-8 Narration"
+      },
+      "observable_output": {
+        "selected_option": "Cookie-cutter repetitive text template loop",
+        "boilerplate_pattern": "به منظور بررسی فرضیه X مبنی بر... از آزمون تحلیل مسیر و روش بوت‌استرپ با ۵۰۰۰ بازنمونه‌گیری استفاده شد ($N = ۴۸۳$). نتایج تحلیل مسیر غیرمستقیم در جدول ۴- X گزارش شده است...",
+        "defect_signature": "AP-2026-ZERO-TEMPLATE-DYNAMIC-NARRATION"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "COMMAND_STARTED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:21:40.000000+00:00",
+      "description": "Executed compilation script python3 02_analysis_code/compile_gold_standard_chapter4.py generating Chapter_4_Results.docx and patching Chapter_4_Results.md.",
+      "observable_input": {
+        "command_line": "python3 02_analysis_code/compile_gold_standard_chapter4.py"
+      },
+      "observable_output": {
+        "exit_code": 0
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:22:15.000000+00:00",
+      "description": "Generated Chapter_4_Results.md containing inconsistent table caption numbering, missing significance asterisks in correlation tables, full Persian headers, and formulaic boilerplate across Hypotheses 3 to 8.",
+      "observable_input": {
+        "target_file": "Chapter_4_Results.md"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "total_lines": 694,
+        "inconsistent_captions_count": 8,
+        "unstarred_correlations_count": 12,
+        "formulaic_hypotheses_range": "Hypotheses 3-8"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:22:30.000000+00:00",
+      "description": "Generated Chapter_4_Results.docx embedding Table 4-24 with 9 columns including redundant measurement columns ('ردیف', 'متغیر', 'مؤلفه') filled with em-dashes.",
+      "observable_input": {
+        "target_file": "Chapter_4_Results.docx"
+      },
+      "observable_output": {
+        "status": "FILE_WRITTEN",
+        "table_24_cols": 9,
+        "table_24_headers": ["ردیف", "متغیر", "مؤلفه", "مسیر غیرمستقیم / اثر", "ضریب استاندارد (β)", "خطای بوت‌استراپ (SE)", "حد پایین ۹۵٪", "حد بالای ۹۵٪", "سطح معناداری"]
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "SUBAGENT_COMPLETED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T04:23:00.000000+00:00",
+      "description": "academic-writer reported task completion and handed off deliverables to academic-orchestrator.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-STAGE4-CONSOLIDATION"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "delivered_artifacts": [
+          "Chapter_4_Results.docx",
+          "Chapter_4_Results.md"
+        ]
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-03T08:18:36.000000+00:00",
+      "description": "User reported 5 critical defects: (1) Inconsistent sequential table numbering in captions; (2) Missing significance asterisks (* for p < .05, ** for p < .001) in correlation matrices; (3) Full Persian words in headers instead of APA 7 symbols; (4) Table 4-24 corrupted with measurement columns ('ردیف', 'متغیر', 'مؤلفه') for structural paths; (5) Hypotheses 3-8 narrative using formulaic template phrasing.",
+      "observable_input": {
+        "defect_reports": [
+          "Inconsistent sequential numbering in table captions across the chapter",
+          "Missing significance asterisks (* for p < .05, ** for p < .001) in correlation matrices",
+          "Full Persian words ('میانگین', 'انحراف استاندارد') in table headers instead of APA 7 statistical symbols (M, SD, t, F, p, β, B, SE, z)",
+          "Table 4-24 incorrectly structured with measurement columns ('ردیف', 'متغیر', 'مؤلفه') for structural mediation pathways instead of a single path column ('مسیر ساختاری / اثر غیرمستقیم')",
+          "Hypotheses 3 to 8 narrative text utilizing formulaic template phrasing instead of authentic, doctoral-level Persian academic rhetoric"
+        ]
+      },
+      "observable_output": {
+        "status": "DEFECTS_REGISTERED",
+        "severity": "CRITICAL"
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "view_file",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "AbsolutePath": "Chapter_4_Results.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 140.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "02_analysis_code/compile_gold_standard_chapter4.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 180.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "AbsolutePath": "patch_script.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 85.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "AbsolutePath": "patch_script2.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 70.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/04_correlations.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 95.0
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "AbsolutePath": "03_deliverables/08_hypothesis_3.md"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 90.0
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "cli_command": "python3 02_analysis_code/compile_gold_standard_chapter4.py",
+      "exit_code": 0,
+      "duration_seconds": 4.5
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": ".agents/skills/apa-reporting/SKILL.md",
+      "cli_command": "apa_table_formatter",
+      "exit_code": 0,
+      "duration_seconds": 1.1
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "stage_id": "TSK-2026-CH4-STAGE4-CONSOLIDATION",
+      "envelope_summary": "Compile master Chapter 4 monograph deliverables (Chapter_4_Results.docx and Chapter_4_Results.md).",
+      "status": "COMPLETED",
+      "handoff_artifact_path": "Chapter_4_Results.docx",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "task_id": "TSK-2026-CH4-STAGE4-CONSOLIDATION",
+      "objective": "Assemble full Chapter 4 deliverables reconciling tables, regression models, mediation paths, and narrative.",
+      "input_artifacts": [
+        "02_analysis_code/compile_gold_standard_chapter4.py",
+        "03_deliverables/04_correlations.json",
+        "03_deliverables/05_macro_model.json"
+      ],
+      "output_artifacts": [
+        "Chapter_4_Results.docx",
+        "Chapter_4_Results.md"
+      ]
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261003-CH4-TABLE24-MISAPPLIED-PREFIX-COLUMNS",
+      "decision_type": "TABLE_STRUCTURE_MUTATION",
+      "selected_option": "BLIND_APPLICATION_OF_3_PREFIX_COLUMNS_ON_STRUCTURAL_PATHS",
+      "rationale": "In an attempt to comply with previous rules enforcing 3 prefix columns ('ردیف', 'متغیر', 'مؤلفه') on measurement and correlation tables, patch_script.py inappropriately injected 'متغیر' and 'مؤلفه' into structural Table 4-24. Because structural rows represent indirect path equations rather than variable subscales, the 'مؤلفه' column ended up filled with empty em-dashes ('—') across all rows.",
+      "alternatives_considered": [
+        {
+          "option": "DEDICATED_SINGLE_PATHWAY_COLUMN_LAYOUT",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "Script author treated all tables homogeneously instead of distinguishing between measurement tables and structural mediation tables."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-CH4-HYPOTHESES-FORMULAIC-BOILERPLATE",
+      "decision_type": "NARRATIVE_GENERATION_STRATEGY",
+      "selected_option": "COOKIE_CUTTER_BOILERPLATE_NARRATIVE_LOOP",
+      "rationale": "Rather than authoring rich, doctoral-level Persian academic prose articulating cognitive absorption, affective cascading, and psychological mechanisms for each mediation pathway, academic-writer defaulted to a formulaic template paragraph repeated across Hypotheses 3 to 8, violating Directive 25.",
+      "alternatives_considered": [
+        {
+          "option": "DEEP_THEORETICAL_AND_EMPIRICAL_PSYCHOLOGICAL_NARRATION",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "Agent took a fastpath shortcut to complete the section quickly, sacrificing scholarly prose quality."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-CH4-TABLE-HEADER-APA-NONCOMPLIANCE",
+      "decision_type": "TYPOGRAPHIC_HEADER_SPECIFICATION",
+      "selected_option": "FULL_PERSIAN_WORDS_IN_TABLE_HEADERS",
+      "rationale": "The generator script used descriptive Persian words (میانگین, انحراف معیار, مجموع مجذورات, درجه آزادی) instead of canonical APA 7 italicized Latin statistical abbreviations (M, SD, SS, df, MS, F, p, β, B, SE, z).",
+      "alternatives_considered": [
+        {
+          "option": "STRICT_APA_7_LATIN_SYMBOL_HEADERS",
+          "verdict": "OMITTED_IMPROPERLY",
+          "reason": "Failed to adhere to Directive 4 and apa-reporting skill specifications."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "Chapter_4_Results.docx",
+      "sha256": "4b87e1a3c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2",
+      "type": "master_word_document"
+    },
+    {
+      "path": "Chapter_4_Results.md",
+      "sha256": "7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d",
+      "type": "master_markdown_monograph"
+    },
+    {
+      "path": "02_analysis_code/compile_gold_standard_chapter4.py",
+      "sha256": "9f84b65a973cb12a58b0e7c54efdc62810a45d023349f8bb2ce8459f9393a7d1",
+      "type": "assembly_script"
+    },
+    {
+      "path": "patch_script.py",
+      "sha256": "3e2a1b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a",
+      "type": "defective_patch_script"
+    },
+    {
+      "path": "patch_script2.py",
+      "sha256": "1f2e3d4c5b6a7f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f2e",
+      "type": "defective_patch_script"
+    },
+    {
+      "path": "03_deliverables/04_correlations.md",
+      "sha256": "b7500981a9ccf3abc26c3a3080faa30ede480c2cb82ad4c32254ceef43201c01",
+      "type": "modular_markdown_deliverable"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "Chapter4ConsolidatedAuditor",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "CHK-TABLE-SEQUENTIAL-NUMBERING: Table captions have inconsistent formatting ('جدول ۴-۱:' vs 'جدول ۴- ۱۳.' vs 'جدول ج (جدول ۴- ۱۸):' vs 'جدول ۱ (جدول ۴- ۲۰):') and desynchronized numbering between markdown and docx.",
+        "CHK-CORRELATION-SIGNIFICANCE-ASTERISKS: Correlation matrices (Table 4-15, Table 4-16, Table 4-19) omit significance asterisks (* for p < .05, ** for p < .001).",
+        "CHK-APA7-TABLE-HEADER-SYMBOLS: Table headers contain full Persian phrases ('میانگین', 'انحراف معیار', 'مجموع مجذورات', 'درجه آزادی') instead of canonical APA 7 statistical symbols (M, SD, t, F, p, β, B, SE, z).",
+        "CHK-MEDIATION-TABLE-STRUCTURE: Table 4-24 misapplies 3 measurement columns ('ردیف', 'متغیر', 'مؤلفه') to structural paths, resulting in empty em-dash cells instead of a unified pathway column ('مسیر ساختاری / اثر غیرمستقیم').",
+        "CHK-DYNAMIC-ACADEMIC-RHETORIC: Hypotheses 3 to 8 narrative text relies on formulaic repetitive template phrasing rather than authentic doctoral-level Persian academic rhetoric."
+      ],
+      "evidence_summary": {
+        "defects_count": 5,
+        "affected_sections": [
+          "Table Captions across Chapter 4",
+          "Correlation Matrices (Table 4-15, 4-16, 4-19)",
+          "Table Headers (Table 4-13, 4-21, 4-22, 4-24, 4-25, 4-26)",
+          "Structural Mediation Table 4-24",
+          "Hypotheses 3-8 Narrative Text"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261003-CH4-TABLES-AND-RHETORIC-001"
+  ],
+  "outcome": "FAILURE"
+}

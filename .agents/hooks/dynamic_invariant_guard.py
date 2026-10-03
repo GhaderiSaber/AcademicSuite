@@ -629,9 +629,21 @@ class DynamicInvariantGuard:
                                                     )
                                                 }
 
+                                        # Distinguish OpenXML markup patterns from narrative text patterns
+                                        is_markup_pattern = bool(re.search(r'<\/?(?:w:[a-zA-Z]|footnote|[a-zA-Z]+[ >])', pattern))
+                                        if is_markup_pattern:
+                                            target_text = xml_content
+                                        else:
+                                            try:
+                                                root_xml = ET.fromstring(xml_bytes)
+                                                text_runs = [t.text or "" for t in root_xml.iter() if t.tag.endswith("}t") or t.tag == "t"]
+                                                target_text = " ".join(text_runs)
+                                            except Exception:
+                                                target_text = re.sub(r'<[^>]+>', ' ', xml_content)
+
                                         # Regex check on OpenXML markup / text runs
                                         if check_type in ("regex_ban", "markdown_table_ban") and pattern:
-                                            if re.search(pattern, xml_content, re.MULTILINE):
+                                            if re.search(pattern, target_text, re.MULTILINE):
                                                 return {
                                                     "decision": "continue",
                                                     "reason": (
@@ -642,9 +654,9 @@ class DynamicInvariantGuard:
                                                     )
                                                 }
 
-                                        # Substring check on OpenXML markup
+                                        # Substring check on OpenXML markup / text runs
                                         elif check_type == "substring_ban" and pattern:
-                                            if pattern in xml_content:
+                                            if pattern in target_text:
                                                 return {
                                                     "decision": "continue",
                                                     "reason": (

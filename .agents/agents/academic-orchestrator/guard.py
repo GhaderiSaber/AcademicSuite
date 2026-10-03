@@ -592,12 +592,22 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                     f"You are strictly prohibited from delegating deliverable tasks to learning subagents."
                                 )
                             }
-                    # Also inspect raw prompt text
+                    # Also inspect raw prompt text for deliverable mutation directives
                     prompt_lower = (prompt or "").lower()
-                    deliv_match = re.search(
-                        r"\b(?:03_deliverables|clean up.*(?:markdown|\.md|table|deliverable)|refactor.*(?:markdown|\.md|table|deliverable)|corrupt tokens.*(?:03_deliverables|\.md)|patch.*compile_gold_standard|compile_gold_standard_chapter4|build_hypothesis_triad|recompile.*chapter)\b",
-                        prompt_lower
-                    )
+                    deliv_mutation_patterns = [
+                        r"\b(?:clean\s+up|cleanup|remove\s+corrupt\s+tokens)\b.*(?:\b03_deliverables\b|\.docx\b|\bmarkdown\b|\.md\b|\btable\b|\bdeliverable\b)",
+                        r"\b(?:refactor|rewrite|re-generate|regenerate|overwrite|modify|edit|update|write\s+to)\b.*(?:\b03_deliverables\b|\.docx\b|\.md\b|\btable\b|\bdeliverable\b)",
+                        r"\b(?:patch|recompile)\b.*(?:\bcompile_gold_standard|\bchapter|\bthesis)",
+                        r"\bcorrupt\s+tokens\b.*(?:\b03_deliverables\b|\.md\b)",
+                        r"\bbuild_hypothesis_triad\b",
+                    ]
+                    deliv_match = None
+                    for dmp in deliv_mutation_patterns:
+                        m = re.search(dmp, prompt_lower, re.IGNORECASE)
+                        if m:
+                            deliv_match = m
+                            break
+
                     if deliv_match:
                         return {
                             "decision": "deny",
@@ -609,6 +619,21 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                                 f"You are strictly prohibited from delegating deliverable tasks to learning subagents."
                             )
                         }
+
+                    # Enforce non-empty inputs for trajectory-analyzer when envelope is used
+                    if target_type == "trajectory-analyzer" and env and isinstance(env, dict):
+                        inputs_list = env.get("inputs") or []
+                        if not inputs_list:
+                            return {
+                                "decision": "deny",
+                                "reason": (
+                                    f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 12 — Input Anchor Required for Trajectory Analyzer):\n"
+                                    f"Delegation envelope for 'trajectory-analyzer' has an empty 'inputs' list.\n"
+                                    f"Trajectory Analyzer must be supplied with explicit input file paths (e.g. affected deliverable, "
+                                    f"producing script, validation_report.json, or log file) under 'inputs' so it does not perform "
+                                    f"unguided filesystem discovery."
+                                )
+                            }
 
                 # 4. Directive 19 / Directive 2: Statistical Immobility Invariant for Delegation to Academic-Writer
                 if target_type == "academic-writer":

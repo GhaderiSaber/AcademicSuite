@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CH4-HYPOTHESIS-TEMPLATE-NARRATIVE",
+  "category": "execution",
+  "defective_pattern": "Using mechanical, copy-pasted boilerplate text for multiple hypotheses (e.g., Hypotheses 3 to 8) instead of authentic narrative.",
+  "why_defective": "Violates Directive 25 (Universal Anti-Shortcut, Proper Execution Invariant) and reduces doctoral-level academic writing to formulaic, robotic text.",
+  "observed_symptoms": [
+    "Identical paragraph structures with only numbers or variable names swapped out for multiple hypotheses."
+  ],
+  "corrective_remedy": "Generate authentic, contextually rich psychological narrative for every hypothesis instead of looping through formulaic templates, adhering strictly to Directive 25.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect identical or highly similar sentence structures repeating across hypothesis sections.",
+    "regex_patterns": ["(?m)^(فرضیه \\d+: .*? با توجه به جدول .*? است\\. ){3,}"],
+    "pattern": "(?m)^(فرضیه \\d+: .*? با توجه به جدول .*? است\\. ){3,}",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "PreToolUse"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "ai-academic-tone-polisher"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T08:30:44Z"
+}

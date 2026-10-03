@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-CH4-TABLES-AND-RHETORIC-RIGOR-001",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261003-CH4-TABLES-AND-RHETORIC-DEFECTS-001",
+  "diagnosis": {
+    "what_happened": "academic-writer generated Chapter 4 with inconsistent table numbering, missing asterisks in correlation tables, full Persian headers instead of Latin symbols, measurement columns applied to structural tables, and mechanical boilerplate for hypotheses 3-8.",
+    "behavior_caused_outcome": "Over-application of formatting rules without context, ignoring APA 7 requirements, and violating Directive 25's ban on shortcuts.",
+    "what_should_have_happened": "Strict adherence to APA 7 (Latin symbols, significance asterisks), accurate contextual table layouts (single path column for mediation), synchronized numbering, and authentic, varied doctoral narrative for each hypothesis.",
+    "rationale_why": "APA 7 and structural equation modeling standards demand specific presentation formats. Doctoral-level prose must be dynamic and substantive, not fill-in-the-blank."
+  },
+  "desired_behavior": "Enforce APA 7 Latin symbol headers (M, SD, t, F, p, β, B, SE, z) instead of Persian equivalents. Retain significance asterisks (*, **) in correlation tables. Format structural path tables with a single dedicated column for the path ('مسیر ساختاری / اثر غیرمستقیم'), eschewing the 3-column measurement rule. Maintain synchronized sequential table numbering. Produce authentic, unique narrative prose for every hypothesis section, completely banning boilerplate loop templates per Directive 25.",
+  "generalization": "Mathematical modeling formats (measurement vs. structural) require distinct layouts; statistical standards (APA 7 symbols, asterisks) are invariant; and academic narrative must strictly eschew formulaic automation.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "USER_FEEDBACK_MANDATE",
+    "observed_value": "Defective formatting and boilerplate narrative in Chapter 4",
+    "threshold_value": "Zero tolerance for formatting violations and mechanical text generation",
+    "supporting_report_ids": ["BAN-20261003-CH4-TABLES-AND-RHETORIC-DEFECTS-001"],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "apa-reporting",
+    "chapter-4-writing"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T08:30:44Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ]
+}

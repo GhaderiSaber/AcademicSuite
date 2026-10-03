@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CORRELATION-MATRIX-ASTERISK-OMISSION",
+  "category": "typography",
+  "defective_pattern": "Stripping or omitting statistical significance asterisks (* for p < .05, ** for p < .001) from correlation tables.",
+  "why_defective": "Violates APA formatting standards and removes critical statistical interpretation data from correlation matrices.",
+  "observed_symptoms": [
+    "Unstarred correlation coefficients in tables where p-values indicate significance."
+  ],
+  "corrective_remedy": "Ensure significance asterisks (* for p < .05, ** for p < .001) are included and preserved in correlation matrices. Distinguish markdown from asterisks.",
+  "detection_heuristic": {
+    "trigger_rule": "Flag correlation tables lacking any asterisks.",
+    "regex_patterns": ["(?m)^\\|.*?جدول.*?همبستگی.*?\\n(?:.*\\n)+?(?:(?!\\*).)*$"],
+    "pattern": "(?m)^\\|.*?جدول.*?همبستگی.*?\\n(?:.*\\n)+?(?:(?!\\*).)*$",
+    "check_type": "regex_ban",
+    "file_pattern": ".*\\.md",
+    "event": "Both"
+  },
+  "target_agent": "academic-writer",
+  "target_agents": [
+    "academic-writer",
+    "results-auditor"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T08:30:44Z"
+}

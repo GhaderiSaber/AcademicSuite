@@ -855,6 +855,18 @@ def verify_capability_routing(
         if worker not in forbidden:
             continue
 
+        # Forensic analysis exemption for learning workers:
+        # Learning subagents (trajectory-analyzer, behavior-analyst, knowledge-curator, skill-evolver, evaluation-agent)
+        # analyze past actions, scripts, and logs across capabilities. Mentioning scripts or keywords from other capabilities
+        # as forensic inputs or historical evidence must NOT trigger capability misrouting unless
+        # the envelope explicitly sets the forbidden script as target_script (attempting execution).
+        if worker in LEARNING_WORKERS_SET:
+            target_script = ((envelope.get("target_script") or "") if envelope else "").lower()
+            script_pats = spec.get("script_patterns", [])
+            is_executing_script = any(re.search(sp, target_script, re.IGNORECASE) for sp in script_pats)
+            if not is_executing_script:
+                continue
+
         # Check script patterns
         script_pats = spec.get("script_patterns", [])
         matched_script = None
@@ -933,7 +945,7 @@ def verify_capability_routing(
             for art in req_artifacts:
                 art_name = art.get("path", "") if isinstance(art, dict) else str(art)
                 art_norm = art_name.replace("\\", "/").lower()
-                if "03_deliverables" in art_norm:
+                if "03_deliverables" in art_norm or art_norm.endswith(".docx"):
                     forbidden_deliv_targets.append(art_name)
             if forbidden_deliv_targets:
                 return False, (
@@ -943,11 +955,20 @@ def verify_capability_routing(
                     f"belong exclusively to 'academic-writer' (or 'statistics-agent' for numerical payloads) after candidate graduation."
                 )
 
-        deliv_violation_match = re.search(
-            r"\b(?:03_deliverables|clean up.*(?:markdown|\.md|table|deliverable)|refactor.*(?:markdown|\.md|table|deliverable)|corrupt tokens.*(?:03_deliverables|\.md)|patch.*compile_gold_standard|compile_gold_standard_chapter4|build_hypothesis_triad|recompile.*chapter)\b",
-            text_to_check,
-            re.IGNORECASE
-        )
+        deliv_mutation_patterns = [
+            r"\b(?:clean\s+up|cleanup|remove\s+corrupt\s+tokens)\b.*(?:\b03_deliverables\b|\.docx\b|\bmarkdown\b|\.md\b|\btable\b|\bdeliverable\b)",
+            r"\b(?:refactor|rewrite|re-generate|regenerate|overwrite|modify|edit|update|write\s+to)\b.*(?:\b03_deliverables\b|\.docx\b|\.md\b|\btable\b|\bdeliverable\b)",
+            r"\b(?:patch|recompile)\b.*(?:\bcompile_gold_standard|\bchapter|\bthesis)",
+            r"\bcorrupt\s+tokens\b.*(?:\b03_deliverables\b|\.md\b)",
+            r"\bbuild_hypothesis_triad\b",
+        ]
+        deliv_violation_match = None
+        for dmp in deliv_mutation_patterns:
+            m = re.search(dmp, text_to_check, re.IGNORECASE)
+            if m:
+                deliv_violation_match = m
+                break
+
         if deliv_violation_match:
             return False, (
                 f"CONSTITUTIONAL VIOLATION (Directive 19 / Directive 24 — Learning Subagent Task Pollution / Deliverable Immutability Invariant):\n"
