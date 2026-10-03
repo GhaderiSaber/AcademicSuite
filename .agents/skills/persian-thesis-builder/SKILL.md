@@ -85,6 +85,7 @@ The thesis compiler maps modular inputs directly into standard Iranian graduate 
 All assembled chapters, tables, and front matter must strictly adhere to Iranian graduate university formatting guidelines:
 
 ### A. Font System & Hierarchy
+- **Institutional Typography Extraction Protocol**: Never assume `B Nazanin` when university guidelines (e.g., `help.pdf` or baseline `Thesis.docx`) mandate specific fonts such as `B Lotus` (14 pt Regular body, 16 pt Bold headings, 18 pt `B Titr` chapter titles, Left 2.0 cm / Top-Bottom-Right 3.0 cm margins). Always dynamically extract and adapt to the target profile.
 - **Chapter Titles (`Heading 1`)**: Font `B Titr` 16 or 18 pt Bold, Centered, Space Before: 24 pt, Space After: 14 pt.
 - **Major Headings (`Heading 2`)**: Font `B Titr` 14 pt Bold, Right-aligned, Space Before: 14 pt, Space After: 6 pt.
 - **Subheadings (`Heading 3`)**: Font `B Nazanin Bold` 13 pt Bold, Right-aligned, Space Before: 8 pt, Space After: 4 pt.

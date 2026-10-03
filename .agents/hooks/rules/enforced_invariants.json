@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-02T17:35:49.938534+00:00",
+  "updated_at": "2026-10-03T03:42:44.269010+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1587,6 +1587,72 @@
       "remedy": "Ensure tables have distinct Column 1 (ردیف), Column 2 (متغیر), and Column 3 (مؤلفه). Avoid duplicating the header rows or placeholder values.",
       "enabled": true,
       "updated_at": "2026-10-02T17:35:49.938508+00:00"
+    },
+    "CAND-20261003-TYPOGRAPHY-EVOLUTION-0": {
+      "item_id": "CAND-20261003-TYPOGRAPHY-EVOLUTION-0",
+      "category": "Learned Mechanical Rule",
+      "statement": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "THESIS_BUILDING",
+        "QUALITY_ASSURANCE"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.docx",
+      "check_type": "regex_ban",
+      "pattern": "[a-zA-Z]{2,}",
+      "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
+      "remedy": "Extract the English word, insert its Persian transliteration in the body text, and create a native OpenXML footnote containing the English text.",
+      "enabled": true,
+      "updated_at": "2026-10-03T03:42:44.268981+00:00"
+    },
+    "CAND-20261003-TYPOGRAPHY-EVOLUTION-1": {
+      "item_id": "CAND-20261003-TYPOGRAPHY-EVOLUTION-1",
+      "category": "Learned Mechanical Rule",
+      "statement": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "THESIS_BUILDING",
+        "QUALITY_ASSURANCE"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.docx",
+      "check_type": "regex_ban",
+      "pattern": "[a-zA-Z]{2,}",
+      "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
+      "remedy": "Extract the English word, insert its Persian transliteration in the body text, and create a native OpenXML footnote containing the English text.",
+      "enabled": true,
+      "updated_at": "2026-10-03T03:42:04.080240+00:00"
+    },
+    "CAND-20261003-TYPOGRAPHY-EVOLUTION-2": {
+      "item_id": "CAND-20261003-TYPOGRAPHY-EVOLUTION-2",
+      "category": "Learned Mechanical Rule",
+      "statement": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "THESIS_BUILDING",
+        "QUALITY_ASSURANCE"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.docx",
+      "check_type": "regex_ban",
+      "pattern": "[a-zA-Z]{2,}",
+      "violation_message": "Inline English words are prohibited in running Persian text. Use transliteration and OpenXML footnotes.",
+      "remedy": "Extract the English word, insert its Persian transliteration in the body text, and create a native OpenXML footnote containing the English text.",
+      "enabled": true,
+      "updated_at": "2026-10-03T03:42:04.247412+00:00"
     }
   }
 }
