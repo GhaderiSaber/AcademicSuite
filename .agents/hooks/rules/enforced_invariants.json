@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T13:40:08.053110+00:00",
+  "updated_at": "2026-10-03T14:49:40.644528+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1740,6 +1740,29 @@
       "remedy": "Reorder the variables so the total construct score comes first, followed by its subscales, maintaining cross-table parity.",
       "enabled": true,
       "updated_at": "2026-10-03T13:40:08.053079+00:00"
+    },
+    "CAND-20261003-PHYSICAL-DOCX-AST-INJECTION-MANDATE": {
+      "item_id": "CAND-20261003-PHYSICAL-DOCX-AST-INJECTION-MANDATE",
+      "category": "Learned Mechanical Rule",
+      "statement": "Simulated DOCX patching detected. You must use AST/DOM-based (python-docx/lxml) parsing for DOCX updates.",
+      "target_agents": [
+        "academic-writer",
+        "data-agent"
+      ],
+      "target_skills": [
+        "persian-thesis-builder",
+        "thesis-integrity-auditor",
+        "academic-writer"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?i)simulate the update|minimal text replace|simulate_docx_compilation",
+      "violation_message": "Simulated DOCX patching detected. You must use AST/DOM-based (python-docx/lxml) parsing for DOCX updates.",
+      "remedy": "Map and inject revised markdown strings directly into <w:t> text runs using a DOM parser. Assert exact concordance in validation.",
+      "enabled": true,
+      "updated_at": "2026-10-03T14:49:40.644496+00:00"
     }
   }
 }
