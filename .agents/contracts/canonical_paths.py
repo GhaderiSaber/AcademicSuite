@@ -9,12 +9,13 @@ Ensures all agents and subagents:
 3. Automatically resolves the central AcademicSuite repository root across any environment or client workspace.
 """
 
+import glob
 import json
 import os
 import re
 import sys
 import tempfile
-from typing import Optional
+from typing import Optional, Dict, Any
 
 KNOWN_LEARNING_SUBDIRS = (
     "knowledge", "experience", "skill-memory", "evaluations",
@@ -196,7 +197,7 @@ def redirect_learning_target_to_canonical(target_path: str) -> str:
     return clean_target
 
 
-def resolve_active_project_dir(prompt: str = "", suite_root: Optional[str] = None) -> str:
+def resolve_active_project_dir(prompt: str = "", suite_root: Optional[str] = None, payload: Optional[Dict[str, Any]] = None) -> str:
     """
     Authoritatively resolves the real client project directory.
     Prevents erroneously assigning the suite repo or plugin internal path as the project workspace.
@@ -209,7 +210,20 @@ def resolve_active_project_dir(prompt: str = "", suite_root: Optional[str] = Non
     if env_dir and os.path.isdir(env_dir) and not env_dir.startswith(suite_root):
         return os.path.abspath(env_dir)
 
-    # 2. Extract explicit project_workspace from prompt JSON / text
+    # 2. Check hook payload workspacePaths or transcriptPath
+    if payload and isinstance(payload, dict):
+        for ws in payload.get("workspacePaths", []):
+            if isinstance(ws, str) and ws.strip():
+                p = os.path.abspath(os.path.expanduser(ws.strip()))
+                if os.path.isdir(p) and not p.startswith(suite_root):
+                    return p
+        tpath = payload.get("transcriptPath")
+        if tpath and os.path.isfile(tpath):
+            cand = _extract_project_from_transcript(tpath, suite_root)
+            if cand:
+                return cand
+
+    # 3. Extract explicit project_workspace from prompt JSON / text
     if prompt:
         m_ws = re.search(r'["\']project_workspace["\']\s*:\s*["\']([^"\']+)["\']', prompt)
         if m_ws:
@@ -217,7 +231,7 @@ def resolve_active_project_dir(prompt: str = "", suite_root: Optional[str] = Non
             if os.path.isdir(cand) and not cand.startswith(suite_root):
                 return os.path.abspath(cand)
 
-        # 3. Check for absolute path markers (01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit)
+        # 4. Check for absolute path markers in prompt
         for marker in ('/01_raw_inputs', '/02_analysis_code', '/03_deliverables', '/04_references_and_lit'):
             pattern = r'(?:[\"\'\`]|\s|^)(\/[^\"\'\`\n]+?' + re.escape(marker) + r')'
             for m in re.finditer(pattern, prompt):
@@ -225,21 +239,28 @@ def resolve_active_project_dir(prompt: str = "", suite_root: Optional[str] = Non
                 if os.path.isdir(cand) and not cand.startswith(suite_root):
                     return os.path.abspath(cand)
 
-    # 4. Check active project recorded in academic-state
-    state_file = os.path.join(suite_root, "academic-state", "data", "data_quality.json")
-    if os.path.isfile(state_file):
-        try:
-            with open(state_file, "r", encoding="utf-8") as f:
-                cand = json.load(f).get("project_metadata", {}).get("project_workspace")
-                if cand and os.path.isdir(cand) and not cand.startswith(suite_root):
-                    return os.path.abspath(cand)
-        except Exception:
-            pass
-
     # 5. Fallback to os.getcwd() ONLY if outside suite_root
     cwd = os.getcwd()
     if not cwd.startswith(suite_root) and os.path.isdir(cwd):
         return os.path.abspath(cwd)
 
-    return os.path.abspath(cwd)
+    # Strict invariant: never return suite repo or plugin dir as active project
+    return ""
+
+
+def _extract_project_from_transcript(tpath: str, suite_root: str) -> Optional[str]:
+    try:
+        with open(tpath, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for line in reversed(lines[-150:]):
+            for marker in ("/01_raw_inputs", "/02_analysis_code", "/03_deliverables", "/04_references_and_lit"):
+                if marker in line:
+                    for m in re.finditer(r'([\"\'\`]|\s|^)(\/[^\"\'\`\n]+?' + re.escape(marker) + r')', line):
+                        cand = m.group(2).split(marker)[0].strip()
+                        if os.path.isdir(cand) and not cand.startswith(suite_root):
+                            return os.path.abspath(cand)
+    except Exception:
+        pass
+    return None
+
 

@@ -30,7 +30,11 @@ for p in (ROOT_DIR, HOOKS_DIR, AGENTS_DIR, WRITER_DIR):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-import guard as writer_guard
+import importlib.util
+_spec = importlib.util.spec_from_file_location("academic_writer_guard_module", os.path.join(WRITER_DIR, "guard.py"))
+writer_guard = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(writer_guard)
+
 from academic_lifecycle_dispatcher import enrich_payload_identity
 from scripts.academic_docgen import cmd_patch_docx_dom, cmd_inspect_docx
 

@@ -403,10 +403,9 @@ class AcademicAdaptiveContextBoundary:
         )
         return self.format_boundary_briefing(boundary_data)
 
-    def enrich_subagent_dispatch(self, subagents: Any) -> Any:
+    def enrich_subagent_dispatch(self, subagents: Any, payload: Optional[Dict[str, Any]] = None) -> Any:
         if not subagents:
             return subagents
-
         is_stringified = False
         parsed_subagents = subagents
         if isinstance(subagents, str):
@@ -415,7 +414,6 @@ class AcademicAdaptiveContextBoundary:
                 is_stringified = True
             except Exception:
                 return subagents
-
         if not isinstance(parsed_subagents, list):
             return subagents
 
@@ -432,7 +430,7 @@ class AcademicAdaptiveContextBoundary:
 
             suite_root = resolve_canonical_repo_root()
             learning_dir = get_canonical_learning_dir()
-            project_dir = resolve_active_project_dir(prompt=prompt, suite_root=suite_root)
+            project_dir = resolve_active_project_dir(prompt=prompt, suite_root=suite_root, payload=payload)
             anchors = (
                 f"📂 ACTIVE ENVIRONMENT DIRECTORY ANCHORS:\n"
                 f"- **SUITE_REPO_DIR**: {suite_root}\n"
@@ -446,6 +444,18 @@ class AcademicAdaptiveContextBoundary:
             )
 
             has_anchors = "ACTIVE ENVIRONMENT DIRECTORY ANCHORS" in prompt
+            if has_anchors and project_dir:
+                m_proj = re.search(r'-\s*\*\*ACTIVE_PROJECT_DIR\*\*:\s*([^\n]+)', sa_copy["Prompt"])
+                if m_proj:
+                    cur = m_proj.group(1).strip()
+                    if not cur or cur.startswith(suite_root) or not os.path.isdir(cur):
+                        sa_copy["Prompt"] = re.sub(
+                            r'-\s*\*\*ACTIVE_PROJECT_DIR\*\*:\s*[^\n]+',
+                            f"- **ACTIVE_PROJECT_DIR**: {project_dir}",
+                            sa_copy["Prompt"]
+                        )
+                        prompt = sa_copy["Prompt"]
+
             has_context = bool(
                 sa_copy.get("adaptive_context_bound") or
                 "DETERMINISTIC ADAPTIVE CONTEXT" in prompt or
