@@ -388,6 +388,19 @@ def get_defect_and_learning_lifecycle_state(
     # Check if a new user critique arrived AFTER the latest evaluation
     has_new_critique_after_eval = (latest_crit_idx >= 0 and latest_crit_idx > latest_eval_idx)
 
+    # Check if state_ledger explicitly records REMEDIATION_PHASE without active ungraduated candidates
+    if ws_list and not has_new_critique_after_eval:
+        for ws in ws_list:
+            sl_cand = os.path.join(ws, ".agents", "state", "state_ledger.json")
+            if os.path.isfile(sl_cand):
+                try:
+                    with open(sl_cand, "r", encoding="utf-8") as f_sl:
+                        sl_data = json.load(f_sl)
+                    if sl_data.get("current_state") == "REMEDIATION_PHASE" and not pending_cands:
+                        return "REMEDIATION_PHASE", [], defect_desc, defect_label
+                except Exception:
+                    pass
+
     # Compare evaluation timing with defect occurrence
     if latest_eval_idx >= 0 and not has_new_critique_after_eval:
         if pending_cands:
@@ -459,9 +472,9 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                         completed_conv_ids = set()
                         for r in t_records:
                             cnt = str(r.get("content", ""))
-                            for m in re.finditer(r'["\']conversationId["\']\s*:\s*["\']([a-f0-9\-]+)["\']', cnt):
+                            for m in re.finditer(r'["\']conversationId["\']\s*:\s*["\']([a-zA-Z0-9_\-]+)["\']', cnt):
                                 launched_conv_ids.add(m.group(1))
-                            for m in re.finditer(r'sender=([a-f0-9\-]+)', cnt):
+                            for m in re.finditer(r'sender=([a-zA-Z0-9_\-]+)', cnt):
                                 completed_conv_ids.add(m.group(1))
                         pending_subagents = launched_conv_ids - completed_conv_ids
 
@@ -481,7 +494,7 @@ def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
                             if "manage_subagents" in calls:
                                 recent_lists += 1
 
-                        if consecutive_lists >= 2 or (pending_subagents and recent_lists >= 2):
+                        if consecutive_lists >= 2 or (pending_subagents and recent_lists >= 2) or recent_lists >= 3:
                             return {
                                 "decision": "deny",
                                 "reason": (
@@ -1046,8 +1059,9 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                                 worker_type in LEARNING_WORKERS_SET or
                                                 any(k in worker_type for k in ("trajectory", "behavior", "curator", "evolver", "evaluation"))
                                             )
-                                            if is_learning_worker and state == "REMEDIATION_PHASE":
-                                                # The learning cascade was already verified and graduated on disk.
+                                            is_deliv_report = any(k in model_text for k in ("stage 4", "stage 5", "remediation", "chapter", "05_macro", "06_hypothesis", "hypothesis"))
+                                            if is_learning_worker and (state == "REMEDIATION_PHASE" or is_deliv_report):
+                                                # The learning cascade was already verified and graduated on disk, or we are reporting a thesis deliverable stage.
                                                 # Do not let historical learning envelopes block deliverable stage conclusion.
                                                 continue
 

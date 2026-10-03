@@ -72,58 +72,11 @@ Every execution run generates two verified tracking artifacts in `--out-dir`:
 - **Physical Disk Decontamination (LSN-2026-PHYSICAL-DISK-DECONTAMINATION-MANDATE)**: Mandate physical disk decontamination of stale legacy validation reports during graduation or stage transitions. Any stale validation_report.json files left in subdirectories of 03_deliverables/ must be physically renamed to .stale.json or removed.
 
 ## 🧠 Active Learned Behavioral Invariants
-- **Lesson (LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION)**: Always execute physical disk decontamination during learning graduation by renaming legacy validation reports to .stale.json or deleting them. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MANDATORY-PHYSICAL-DECONTAMINATION-AT-GRADUATION)]
-- **Lesson (LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION)**: Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks. [Enforcement: dynamic_invariant_guard.py (LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION)]
-- **Lesson (LSN-2026-MANDATORY-SEM-FIGURE-GENERATION-001)**: When delegating SEM or relevant simulation tasks, explicitly require the generation of high-resolution path diagrams (semPlot / matplotlib) in the delegation scope. Correspondingly, require the validation-agent to actively assert the existence of these figure artifacts in the deliverables directory before passing the audit. [Enforcement: dynamic_invariant_guard.py (LSN-2026-MANDATORY-SEM-FIGURE-GENERATION-001)]
-- **Lesson (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)**: Package each agent and subagent as an autonomous unit containing its definition (agent.md), contracts (contract.md), and dedicated lifecycle guard (guard.py / hooks.json) within its own dedicated folder. [Enforcement: dynamic_invariant_guard.py (LSN-2026-ANTIGRAVITY-217-SCOPED-AGENT-HOOK-ARCHITECTURE-001)]
-- **Lesson (LSN-20260924-STRICT-ENGLISH-CONVERSATION-001)**: English-only for all meta-conversational and status reports regardless of artifact language. [Enforcement: dynamic_invariant_guard.py (LSN-20260924-STRICT-ENGLISH-CONVERSATION-001)]
-- **Lesson (LSN-2026-LEARN-SUBAGENTS-001)**: Invoke exclusively native learning subagents (knowledge-curator, trajectory-analyzer, behavior-analyst, skill-evolver, evaluation-agent, curriculum-builder) whenever /learn or continuous self-improvement is triggered. [Enforcement: dynamic_invariant_guard.py (LSN-2026-LEARN-SUBAGENTS-001)]
-- **Lesson (LSN-20260925-F979A3)**: Standard compliance: Problem: 
-1. You should have a one blank line before each header. But there isn't any blank line after the headers. 
-2. In the 'پیوست' section you should have only the Questions table with header of that question. 
-
-
-The current local time is: 2026-09-25T21:26:53+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-F979A3)]
-1. You should have a one blank line before each header. But there isn't any blank line after the headers. 
-2. In the 'پیوست' section you should have only the Questions table with header of that question. 
-
-
-The current local time is: 2026-09-25T21:26:53+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-F979A3)]
-There is a text in the references section that unrelated to references. 
-
-
-The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
-There is a text in the references section that unrelated to references. 
-
-
-The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
+Before execution, verify consolidated standards:
+- **Consolidated Principle**: Consolidated Methodological Principle: Standard compliance: Problem: 
 You have this text in the references. This is unacceptable.
 جامعیت: این فهرست شامل تمامی ارجاعات موجود در متن فصول ۲.۱ تا ۲.۷ (نظریات بنیادین، مدلهای شناختی، پرسشنامهها و پیشینههای تجربی متأخر تا سال ۲۰۲۵) میباشد.
 
 
 
-The current local time is: 2026-09-25T19:42:53+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-1944FB)]
-You have this text in the references. This is unacceptable.
-جامعیت: این فهرست شامل تمامی ارجاعات موجود در متن فصول ۲.۱ تا ۲.۷ (نظریات بنیادین، مدلهای شناختی، پرسشنامهها و پیشینههای تجربی متأخر تا سال ۲۰۲۵) میباشد.
-
-
-
-The current local time is: 2026-09-25T19:42:53+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-1944FB)]
-There is a text in the references section that unrelated to references. 
-
-
-The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
-There is a text in the references section that unrelated to references. 
-
-
-The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
-There is a text in the references section that unrelated to references. 
-
-
-The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
-There is a text in the references section that unrelated to references. 
-
-
-The current local time is: 2026-09-25T18:58:52+03:30. [Enforcement: dynamic_invariant_guard.py (LSN-20260925-572A86)]
-- **Lesson (LSN-2026-EXHAUSTIVE-TABLE-BY-TABLE-AUDIT-001)**: Every validation gatekeeper must inspect 100% of tables individually, asserting that every column header conforms to standard APA symbols, every table has a Persian definition note, and zero English words exist in narrative text or table cells. [Enforcement: dynamic_invariant_guard.py (LSN-2026-EXHAUSTIVE-TABLE-BY-TABLE-AUDIT-001)]
-- **Lesson (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)**: Mandate document-wide search-and-replace. Use explicit yellow highlight marking for pre-existing verified items to prove coverage. Ensure 100% complete execution of all comments across all sections. [Enforcement: dynamic_invariant_guard.py (LSN-2026-EXHAUSTIVE-SUPERVISOR-REVISION-AUDIT)]
+The current local time is: 2026-09-25T19:42:53+03:30. Enforce trade-off evaluation and verify prerequisite checks before output finalization.

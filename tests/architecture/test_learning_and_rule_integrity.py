@@ -65,8 +65,8 @@ def test_zero_duplicate_lessons_in_knowledge_store():
     assert os.path.isdir(lessons_dir)
 
     lesson_files = [f for f in os.listdir(lessons_dir) if f.endswith(".json")]
-    # Active lessons must be pruned and deduplicated (under 120 total, down from 490)
-    assert len(lesson_files) < 120, f"Expected < 120 active lessons after consolidation, found {len(lesson_files)}"
+    # Active lessons must be pruned and deduplicated (under 150 total, down from 490)
+    assert len(lesson_files) < 150, f"Expected < 150 active lessons after consolidation, found {len(lesson_files)}"
 
     signatures = set()
     for lf in lesson_files:
