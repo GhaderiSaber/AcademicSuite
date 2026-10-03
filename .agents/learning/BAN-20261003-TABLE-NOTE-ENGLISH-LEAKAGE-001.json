@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0.0",
+  "analysis_id": "BAN-20261003-TABLE-NOTE-ENGLISH-LEAKAGE-001",
+  "trigger_type": "QC_FAILURE",
+  "trigger_event_id": "EVT-20261003-TABLE-NOTE-ENGLISH-LEAKAGE-001",
+  "target_agent": "academic-writer",
+  "target_skill": "apa-reporting",
+  "capability": "table_formatting",
+  "trajectory_id": "TRJ-20261003-TABLE-NOTE-ENGLISH-LEAKAGE-001",
+  "observable_failure_step": {
+    "step_number": 135,
+    "action_type": "document_compilation",
+    "tool_name": "write_to_file",
+    "description": "Table element 135 note and Table 22 header generated without checking for mandatory 'یادداشت:' prefix and untranslated English text 'Bentler'."
+  },
+  "failure_signature": "OMITTED_PERSIAN_TRANSLATION_AND_PREFIX",
+  "root_cause_diagnosis": "The defect occurred because the deserialized table note from 05_macro_model.json ('N = ۴۸۳. برآورد با روش حداکثر...') was passed directly to add_table_note without defensive prefix enforcement. Furthermore, the raw header containing the English word 'Bentler' was injected directly into OpenXML and Markdown without transliterating to formal academic Persian ('هو و بنتلر، ۱۹۹۹').",
+  "prescribed_behavior": "Enforce defensive validation prior to document compilation: automatically prepend the 'یادداشت: ' prefix to table notes if missing. Perform strict transliteration of English author names (e.g., 'Bentler' to 'هو و بنتلر، ۱۹۹۹') before injecting text strings into Markdown or OpenXML deliverables, enforcing zero inline Latin script within Persian tables/narratives.",
+  "created_at": "2026-10-03T03:27:23Z"
+}

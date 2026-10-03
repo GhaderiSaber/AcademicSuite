@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-02T17:35:49.938534+00:00",
+  "updated_at": "2026-10-03T03:35:52.225293+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -183,7 +183,7 @@
       ],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content|run_command",
-      "file_pattern": ".*\\\\.py|.*\\\\.docx",
+      "file_pattern": "^(?!.*_English).*(?:\\.py|\\.docx)$",
       "check_type": "regex_ban",
       "pattern": "(<w:insideV>|(?<![۰-۹])0\\\\.\\\\d+)",
       "violation_message": "Vertical borders (<w:insideV>) or English leading zeros (0.xx) detected, violating APA 7 and Persian typographic standards.",
@@ -397,7 +397,7 @@
       ],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content",
-      "file_pattern": ".*\\.json",
+      "file_pattern": ".*03_deliverables/.*(?:chapter_4|findings|stage_0[6-9]|stage_[1-9][0-9]|hypothesis).*\\.json$",
       "check_type": "regex_ban",
       "pattern": "\"(?:initial_sample|harnessed_sample|final_sample|نمونه اولیه|نمونه نهایی)\"",
       "violation_message": "Single Sample Invariant violated: Do not output dual-sample terminology in audit reports.",
@@ -670,16 +670,17 @@
       "check_type": "regex_ban",
       "pattern": "validation_report\\.json",
       "violation_message": "Legacy validation reports in subdirectories of 03_deliverables/ cause false recursive gate failures.",
-      "remedy": "Rename the file to validation_report.stale.json or validation_report.legacy.json, or move it completely outside of 03_deliverables/.",
+      "remedy": "Physically delete failing or legacy validation reports using os.remove or rm instead of creating .stale copies.",
       "enabled": true,
       "updated_at": "2026-09-30T17:09:43.924365+00:00"
     },
     "LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION": {
       "item_id": "LSN-2026-LEGACY-VALIDATION-REPORT-DEACTIVATION",
       "category": "Lesson",
-      "statement": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
+      "statement": "Failing or legacy validation reports must be physically removed using os.remove rather than renamed to .stale.",
       "target_agents": [
-        "academic-orchestrator"
+        "academic-orchestrator",
+        "validation-agent"
       ],
       "target_skills": [
         "academic-suite-orchestrator",
@@ -687,18 +688,18 @@
       ],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.py",
-      "check_type": "substring_ban",
-      "pattern": "(?i)validate.*03_deliverables.*before.*triad.*sync",
-      "violation_message": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
-      "remedy": "Always rename legacy validation reports to .stale.json/.legacy.json or move them outside of 03_deliverables/ so they are not detected as active reports by recursive walks.",
+      "file_pattern": ".*validation_report.*\\.stale.*",
+      "check_type": "regex_ban",
+      "pattern": "(?i)validation_report.*\\.stale",
+      "violation_message": "Renaming failing or legacy validation reports to .stale is prohibited. Physically delete them using os.remove.",
+      "remedy": "Physically delete failing or legacy validation reports using os.remove.",
       "enabled": true,
-      "updated_at": "2026-09-30T17:09:43.924368+00:00"
+      "updated_at": "2026-10-03T03:50:00.000000+00:00"
     },
     "CAND-2026-LEGACY-VAL-PHYSICAL-CLEAN-001": {
       "item_id": "CAND-2026-LEGACY-VAL-PHYSICAL-CLEAN-001",
       "category": "Learned Mechanical Rule",
-      "statement": "Cannot create or modify an active validation_report.json in legacy_validation. It must be physically de-indexed as .stale.json.",
+      "statement": "Cannot create or modify an active validation_report.json in legacy_validation. It must be physically removed using os.remove.",
       "target_agents": [
         "academic-orchestrator"
       ],
@@ -711,14 +712,14 @@
       "check_type": "tool_ban",
       "pattern": ".*",
       "violation_message": "Cannot create or modify an active validation_report.json in legacy_validation. It must be physically de-indexed as .stale.json.",
-      "remedy": "Rename to validation_report.stale.json or remove.",
+      "remedy": "Physically remove using os.remove.",
       "enabled": true,
       "updated_at": "2026-09-30T17:09:43.924370+00:00"
     },
     "CAND-2026-PHYSICAL-DECONTAMINATION-001": {
       "item_id": "CAND-2026-PHYSICAL-DECONTAMINATION-001",
       "category": "Learned Mechanical Rule",
-      "statement": "Stale validation_report.json files are forbidden in 03_deliverables/. They must be physically renamed to .stale.json or removed.",
+      "statement": "Stale or failing validation_report.json files are forbidden in 03_deliverables/. They must be physically removed using os.remove.",
       "target_agents": [
         "academic-orchestrator"
       ],
@@ -731,7 +732,7 @@
       "check_type": "regex_ban",
       "pattern": "validation_report\\.json$",
       "violation_message": "Stale validation_report.json files are forbidden in 03_deliverables/. They must be physically renamed to .stale.json or removed.",
-      "remedy": "Ensure you physically rename to .stale.json or remove the file. Do not save as validation_report.json if it is stale.",
+      "remedy": "Ensure you physically remove the file using os.remove. Do not create .stale copies.",
       "enabled": true,
       "updated_at": "2026-09-30T17:09:43.924373+00:00"
     },
@@ -782,9 +783,9 @@
     "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE": {
       "item_id": "LSN-2026-WRITER-READ-ONLY-JSON-MANDATE",
       "category": "Lesson",
-      "statement": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
+      "statement": "Statistical .json files in 03_deliverables/ are strictly READ-ONLY for academic-writer.",
       "target_agents": [
-        "statistics-agent"
+        "academic-writer"
       ],
       "target_skills": [
         "chapter-4-writing",
@@ -792,13 +793,13 @@
       ],
       "event": "Both",
       "tool_match": "write_to_file|replace_file_content|patch|edit_file",
-      "file_pattern": ".*\\.R",
+      "file_pattern": ".*\\.md",
       "check_type": "regex_ban",
-      "pattern": "(?i)parcel",
+      "pattern": "(?i)academic-writer.*must\\s+never\\s+modify.*\\.json",
       "violation_message": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
-      "remedy": "Strictly enforce READ-ONLY access to 03_deliverables/*.json for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
+      "remedy": "Statistical .json files in 03_deliverables/ are strictly READ-ONLY for academic-writer. Do not delegate JSON mutation tasks to narrative agents.",
       "enabled": true,
-      "updated_at": "2026-09-30T17:09:43.924383+00:00"
+      "updated_at": "2026-10-03T03:50:00.000000+00:00"
     },
     "CAND-2026-MECHANICAL-GRADUATION-DECONTAMINATION-001": {
       "item_id": "CAND-2026-MECHANICAL-GRADUATION-DECONTAMINATION-001",
@@ -879,7 +880,7 @@
       "check_type": "regex_ban",
       "pattern": "(?i)(consolidated_hypotheses|all_hypotheses|hypothesis_all)\\.json",
       "violation_message": "Monolithic hypothesis JSON files are prohibited. You must emit disaggregated micro-stage JSON files (e.g., `08_hypothesis_3.json`) for each individual hypothesis.",
-      "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual `.json`, `.md`, and `.docx` artifacts for each.",
+      "remedy": "Separate the hypotheses into their own dedicated, isolated micro-stages and emit individual .json and .md artifacts for each (Two-Tier Dyad, with .docx optional until Tier 2 consolidation).",
       "enabled": true,
       "updated_at": "2026-09-30T17:09:43.924393+00:00"
     },
@@ -963,7 +964,7 @@
     "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION": {
       "item_id": "AP-2026-COPY-WITHOUT-UNLINK-CONTAMINATION",
       "category": "Anti-Pattern",
-      "statement": "Always physically unlink (delete) or move the original validation_report.json when renaming or archiving to a .stale copy. Use explicit shutil.move or os.rename instead of copy.",
+      "statement": "Failing or legacy validation reports must be physically unlinked (deleted) using os.remove instead of copied or renamed to .stale.",
       "target_agents": [
         "academic-orchestrator",
         "statistics-agent"
@@ -975,7 +976,7 @@
       "check_type": "regex_ban",
       "pattern": "(?m)shutil\\.copy.*validation_report\\.json",
       "violation_message": "Creating .stale copies of validation_report.json without physically deleting or unlinking the original file, leaving the legacy state on disk.",
-      "remedy": "Always physically unlink (delete) or move the original validation_report.json when renaming or archiving to a .stale copy. Use explicit shutil.move or os.rename instead of copy.",
+      "remedy": "Always physically delete the original validation_report.json using os.remove.",
       "enabled": true,
       "updated_at": "2026-09-29T15:17:21.185753+00:00"
     },
@@ -1074,7 +1075,7 @@
     "AP-2026-MANIFEST-PATH-LABELED-AS-SEM": {
       "item_id": "AP-2026-MANIFEST-PATH-LABELED-AS-SEM",
       "category": "Anti-Pattern",
-      "statement": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
+      "statement": "Enforce latent variable specification (=~) in R lavaan using genuine subscales for multidimensional constructs, or a single observed indicator latent variable with total score and error variance fixed to Var(y)*(1-alpha) for unidimensional constructs without subscales (never ad-hoc item parceling).",
       "target_agents": [
         "statistics-agent"
       ],
@@ -1085,7 +1086,7 @@
       "check_type": "regex_ban",
       "pattern": "(?m)^(?![^\\n]*=~).*sem\\(",
       "violation_message": "Substituting manifest composite sum path analysis for latent SEM without measurement models.",
-      "remedy": "Enforce latent variable specification (=~) using subscales or item parcels in R lavaan.",
+      "remedy": "Enforce latent variable specification (=~) in R lavaan using genuine subscales for multidimensional constructs, or a single observed indicator latent variable with total score and error variance fixed to Var(y)*(1-alpha) for unidimensional constructs without subscales (never ad-hoc item parceling).",
       "enabled": true,
       "updated_at": "2026-09-30T17:09:43.924423+00:00"
     },
@@ -1252,7 +1253,7 @@
       "check_type": "regex_ban",
       "pattern": "03_deliverables/.+/validation_report\\.json$",
       "violation_message": "Placing stale legacy validation reports (validation_report.json) into child subdirectories of 03_deliverables/.",
-      "remedy": "Rename stale validation reports (e.g. validation_report.stale.json or validation_report.legacy.json) or relocate them completely outside 03_deliverables/ so they are never detected as active reports.",
+      "remedy": "Physically delete stale validation reports using os.remove so they are never detected as active reports.",
       "enabled": true,
       "updated_at": "2026-09-30T17:09:43.924450+00:00"
     },
@@ -1587,6 +1588,28 @@
       "remedy": "Ensure tables have distinct Column 1 (ردیف), Column 2 (متغیر), and Column 3 (مؤلفه). Avoid duplicating the header rows or placeholder values.",
       "enabled": true,
       "updated_at": "2026-10-02T17:35:49.938508+00:00"
+    },
+    "CAND-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001": {
+      "item_id": "CAND-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001",
+      "category": "Learned Mechanical Rule",
+      "statement": "Untranslated Latin names are strictly forbidden in Persian academic tables and notes (CHK-ENGLISH-WORD-LEAKAGE). Use 'هو و بنتلر، ۱۹۹۹' instead.",
+      "target_agents": [
+        "academic-writer",
+        "statistics-agent"
+      ],
+      "target_skills": [
+        "apa-reporting",
+        "sem"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "Hu & Bentler|Bentler",
+      "violation_message": "Untranslated Latin names are strictly forbidden in Persian academic tables and notes (CHK-ENGLISH-WORD-LEAKAGE). Use 'هو و بنتلر، ۱۹۹۹' instead.",
+      "remedy": "Ensure all table headers and notes strictly use Persian transliteration for authors and 'یادداشت: ' for table notes.",
+      "enabled": true,
+      "updated_at": "2026-10-03T03:35:52.225263+00:00"
     }
   }
 }

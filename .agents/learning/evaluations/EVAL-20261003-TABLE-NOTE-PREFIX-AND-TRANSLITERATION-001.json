@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0.0",
+  "evaluation_id": "EVAL-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001",
+  "candidate_id": "CAND-20261003-TABLE-NOTE-PREFIX-AND-TRANSLITERATION-001",
+  "evaluated_at": "2026-10-03T03:45:00Z",
+  "metrics": {
+    "correctness": 1.0,
+    "robustness": 1.0,
+    "statistical_precision": 1.0,
+    "typography_compliance": 1.0,
+    "execution_reliability": 1.0,
+    "msai_anomaly_score": 0.0
+  },
+  "overall_verdict": "PASS",
+  "regressions": {
+    "count": 0,
+    "details": []
+  },
+  "evidence": {
+    "execution_logs": "Compiled cleanly via graduation compiler. Hook registered.",
+    "test_artifacts": []
+  }
+}

@@ -25,9 +25,9 @@ Structural and reporting requirements for Chapter 4 research findings (یافت�
 
 ## 2. Regression Reporting Suite (Mandatory 3 Tables)
 When reporting multivariate regression hypotheses, provide the complete 3-table sequence:
-1. **Model Summary Table**: $R, R^2, \text{Adjusted } R^2, SE$.
-2. **ANOVA Table**: Sum of squares, degrees of freedom ($df$), Mean square, $F$-statistic, $p$-value.
-3. **Coefficients Table**: Unstandardized coefficients ($B, SE$), Standardized coefficient ($\beta$), $t$-statistic, $p$-value, Collinearity diagnostics (Tolerance, $VIF < 5$).
+1. **Table 1: Correlation Matrix**: Bivariate Pearson correlations ($r$), $p$-values, $M$, and $SD$ across all predictors and criterion variables.
+2. **Table 2: Model Summary & Combined ANOVA (11 columns)**: Model, $R$, $R^2$, $\Delta R^2$, Adjusted $R^2$, $SE$, Regression/Residual/Total Sum of Squares ($SS$), degrees of freedom ($df$), Mean Square ($MS$), $F$-statistic, $p$-value.
+3. **Table 3: Coefficients & Collinearity Diagnostics (8 columns)**: Variable, Unstandardized coefficients ($B, SE$), Standardized coefficient ($\beta$), $t$-statistic, $p$-value, Collinearity diagnostics (Tolerance, $VIF < 5$).
 
 ## 3. Epistemic Transparency
 - Report assumption violations and non-significant results ($p > .05$) honestly and transparently. Never alter data or drop cases arbitrarily to force statistical significance.
