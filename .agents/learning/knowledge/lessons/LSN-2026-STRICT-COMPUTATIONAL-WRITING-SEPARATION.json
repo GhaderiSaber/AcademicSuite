@@ -1,0 +1,41 @@
+{
+  "contract_version": "1.0.0",
+  "lesson_id": "LSN-2026-STRICT-COMPUTATIONAL-WRITING-SEPARATION",
+  "lesson_type": "WHAT_NOT_TO_DO",
+  "trigger_source": "USER_FEEDBACK",
+  "source_experience_id": "BAN-20261003-AGENT-ROLE-BLEED-001",
+  "diagnosis": {
+    "what_happened": "The orchestrator delegated both analytical computation and narrative authoring to the statistics-agent due to coarse string matching.",
+    "behavior_caused_outcome": "Delegating narrative work to a statistical node violated separation of concerns, bypassing specialized typographic safety checks.",
+    "what_should_have_happened": "Orchestrator must decompose tasks into a strict two-tier architecture: computation (statistics-agent) then authoring (academic-writer).",
+    "rationale_why": "Specialized agents ensure functional constraints (e.g., academic-writer for complex DOM manipulation, statistics-agent for computational accuracy) are respected without contamination."
+  },
+  "desired_behavior": "Enforce strict two-tier computational and narrative task decomposition. Route computational tasks (e.g. data generation) to statistics-agent and narrative generation (.docx, .md) to academic-writer.",
+  "generalization": "Strict separation between analytical computation and academic writing is universally required across all tasks to ensure execution fidelity.",
+  "scope": "CROSS_PROJECT_UNIVERSAL",
+  "generalization_stage": "LOCAL_LESSON",
+  "confidence": 1.0,
+  "evidence": {
+    "metric_or_check": "Agent Role Enforcement",
+    "observed_value": "Bleed of narrative scope to computational agent",
+    "threshold_value": "Zero instances of `.docx` or `.md` authoring by statistics-agent",
+    "supporting_report_ids": [
+      "BAN-20261003-AGENT-ROLE-BLEED-001"
+    ],
+    "supporting_artifact_paths": []
+  },
+  "related_skills": [
+    "chapter-4-writing",
+    "statistical-data-analyst"
+  ],
+  "is_active_behavior": true,
+  "status": "VALIDATED",
+  "created_at": "2026-10-03T14:45:00Z",
+  "derived_by": "knowledge-curator",
+  "target_agent": "academic-orchestrator",
+  "target_agents": [
+    "academic-orchestrator",
+    "statistics-agent",
+    "validation-agent"
+  ]
+}
