@@ -180,3 +180,154 @@ class TestTrajectoryAnalyzerDelegationPrompts:
         res = orch_guard.handle_pre_tool_use(payload)
         assert res.get("decision") == "deny"
         assert "Input Anchor Required for Trajectory Analyzer" in res.get("reason", "")
+
+    def test_06_trajectory_analysis_report_resolved_in_repo_directory(self, tmp_path, monkeypatch):
+        """When trajectory files are written to the central suite repository, handle_stop resolves them successfully."""
+        project_ws = tmp_path / "client_project"
+        project_ws.mkdir()
+        repo_ws = tmp_path / "suite_repo"
+        repo_ws.mkdir()
+
+        # Set ACADEMIC_SUITE_REPO to mock repo
+        monkeypatch.setenv("ACADEMIC_SUITE_REPO", str(repo_ws))
+
+        # Create trajectory files ONLY in the suite repo
+        exp_dir = repo_ws / ".agents" / "learning" / "experience" / "TRJ-TEST-001"
+        exp_dir.mkdir(parents=True)
+        traj_json = exp_dir / "trajectory.json"
+        traj_md = exp_dir / "trajectory_report.md"
+        traj_json.write_text('{"trajectory_id": "TRJ-TEST-001", "status": "COMPLETED"}')
+        traj_md.write_text("# Trajectory Analysis Report\nObserved actions reconstructed.")
+
+        sub_conv_id = "trj-subagent-999"
+        cde = {
+            "task_id": "TSK-2026-LEARN-TRJ-006",
+            "stage": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+            "worker_agent": "trajectory-analyzer",
+            "objective": "Reconstruct error trajectory",
+            "inputs": ["03_deliverables/validation_report.json"],
+            "required_artifacts": [
+                ".agents/learning/experience/TRJ-TEST-001/trajectory.json",
+                ".agents/learning/experience/TRJ-TEST-001/trajectory_report.md"
+            ]
+        }
+
+        records = [
+            {"type": "USER_INPUT", "content": "Please diagnose the failure."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {
+                            "Subagents": [
+                                {
+                                    "TypeName": "trajectory-analyzer",
+                                    "Role": "Trajectory Analyzer",
+                                    "Prompt": json.dumps(cde)
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "GENERIC",
+                "content": f'Created the following subagents:\n{{\n  "conversationId": "{sub_conv_id}"\n}}'
+            },
+            {
+                "type": "SYSTEM_MESSAGE",
+                "content": f"[Message] timestamp=2026-10-03T12:00:00Z sender={sub_conv_id} priority=MESSAGE_PRIORITY_HIGH content=Trajectory reconstructed."
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": "Stage completed: what was done was trajectory reconstruction. What will be done next is causal diagnosis with behavior-analyst. Please confirm to proceed.",
+                "tool_calls": []
+            }
+        ]
+
+        t_file = project_ws / "transcript.jsonl"
+        with open(t_file, "w", encoding="utf-8") as f:
+            for r in records:
+                f.write(json.dumps(r) + "\n")
+
+        payload = {
+            "transcriptPath": str(t_file),
+            "workspacePaths": [str(project_ws)],
+            "isSubagent": False
+        }
+
+        res = orch_guard.handle_stop(payload)
+        # Must NOT fail with "Missing artifacts"
+        assert res.get("decision") != "continue" or "Missing artifacts" not in res.get("reason", ""), \
+            f"Expected trajectory files resolved in repo dir, but got: {res}"
+
+    def test_07_trajectory_analysis_report_missing_in_both_blocks_stage(self, tmp_path, monkeypatch):
+        """When trajectory files are missing in both project and repo, handle_stop blocks with missing artifacts."""
+        project_ws = tmp_path / "client_project"
+        project_ws.mkdir()
+        repo_ws = tmp_path / "empty_suite_repo"
+        repo_ws.mkdir()
+
+        monkeypatch.setenv("ACADEMIC_SUITE_REPO", str(repo_ws))
+
+        sub_conv_id = "trj-subagent-888"
+        cde = {
+            "task_id": "TSK-2026-LEARN-TRJ-007",
+            "stage": "Continuous Learning Cascade - Step 1: Trajectory Reconstruction",
+            "worker_agent": "trajectory-analyzer",
+            "objective": "Reconstruct error trajectory",
+            "inputs": ["03_deliverables/validation_report.json"],
+            "required_artifacts": [
+                ".agents/learning/experience/TRJ-NONEXISTENT/trajectory.json"
+            ]
+        }
+
+        records = [
+            {"type": "USER_INPUT", "content": "Please diagnose the failure."},
+            {
+                "type": "PLANNER_RESPONSE",
+                "tool_calls": [
+                    {
+                        "name": "invoke_subagent",
+                        "args": {
+                            "Subagents": [
+                                {
+                                    "TypeName": "trajectory-analyzer",
+                                    "Role": "Trajectory Analyzer",
+                                    "Prompt": json.dumps(cde)
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "GENERIC",
+                "content": f'Created the following subagents:\n{{\n  "conversationId": "{sub_conv_id}"\n}}'
+            },
+            {
+                "type": "SYSTEM_MESSAGE",
+                "content": f"[Message] timestamp=2026-10-03T12:00:00Z sender={sub_conv_id} priority=MESSAGE_PRIORITY_HIGH content=Trajectory reconstructed."
+            },
+            {
+                "type": "PLANNER_RESPONSE",
+                "content": "Stage completed: what was done was trajectory reconstruction. What will be done next is causal diagnosis with behavior-analyst. Please confirm to proceed.",
+                "tool_calls": []
+            }
+        ]
+
+        t_file = project_ws / "transcript.jsonl"
+        with open(t_file, "w", encoding="utf-8") as f:
+            for r in records:
+                f.write(json.dumps(r) + "\n")
+
+        payload = {
+            "transcriptPath": str(t_file),
+            "workspacePaths": [str(project_ws)],
+            "isSubagent": False
+        }
+
+        res = orch_guard.handle_stop(payload)
+        assert res.get("decision") == "continue"
+        assert "Missing artifacts" in res.get("reason", "")

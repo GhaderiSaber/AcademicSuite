@@ -121,6 +121,8 @@ Followed by numbered matrix columns (`۱`, `۲`, `۳`, ...) containing correlati
 
 ### 10.4 Hierarchical Variable Layout & Composite Row Invariant
 - For instruments with parent variables and subscales, use a two-column structure: Column 1 = `متغیر`, Column 2 = `مؤلفه`.
+- **Total-First Hierarchy (LSN-2026-TOTAL-FIRST-CONSTRUCT-HIERARCHY-PARITY)**: Across all tables (descriptives, correlations, regression suites), multi-dimensional constructs MUST strictly follow the hierarchical order where the Composite Total Score precedes its constituent subscales.
+- **Cross-Table Sequence Parity (BAN-20261003-CORRELATION-ORDER-001)**: The identical hierarchical sequence MUST be strictly asserted across all Chapter 4 tables without drift.
 - **Composite Row Invariant**: The overall/composite metric of the parent variable must be placed **directly on the parent variable row** (Col 1 = Variable name, Col 2 = blank, Cols 3+ = total score $M, SD$, etc.). Subscales are listed on subsequent rows in Col 2.
 - Creating an empty parent row followed by a separate redundant "نمره کل" or "مجموع" row at the bottom is strictly prohibited.
 

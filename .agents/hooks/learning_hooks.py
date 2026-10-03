@@ -29,10 +29,12 @@ for p in (ROOT_DIR, AGENTS_DIR, HOOKS_DIR):
 try:
     from contracts.hook_identity_contract import resolve_transcript_path, is_main_agent_developer
     from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+    from contracts.current_work_resolver import resolve_current_work_stage_dirs, get_current_work_validation_reports
 except ImportError:
     try:
         from .contracts.hook_identity_contract import resolve_transcript_path, is_main_agent_developer
         from .contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+        from .contracts.current_work_resolver import resolve_current_work_stage_dirs, get_current_work_validation_reports
     except ImportError:
         def resolve_transcript_path(payload):
             return payload.get("transcriptPath") if isinstance(payload, dict) else None
@@ -42,6 +44,10 @@ except ImportError:
             return False, None
         def extract_clean_user_message(raw_text):
             return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
+        def resolve_current_work_stage_dirs(*args, **kwargs):
+            return []
+        def get_current_work_validation_reports(*args, **kwargs):
+            return []
 
 
 def load_transcript(transcript_path: Optional[str]) -> List[Dict[str, Any]]:
@@ -552,23 +558,20 @@ class LearningHooks:
                                 if any(k in t_name for k in ("trajectory", "behavior", "curator", "evolver", "writer", "academic-writer")):
                                     return None
 
-        # 2. Inspect on-disk validation_report.json across workspacePaths
+        # 2. Inspect on-disk validation_report.json strictly scoped to CURRENT WORK stage directories
         try:
             workspaces = payload.get("workspacePaths", [ROOT_DIR])
-            for ws in workspaces:
-                if not ws or not os.path.exists(ws):
-                    continue
-                cand_paths = [
-                    os.path.join(ws, "03_deliverables", "validation_report.json"),
-                    os.path.join(ws, "validation_report.json")
-                ]
-                deliv_dir = os.path.join(ws, "03_deliverables")
-                if os.path.isdir(deliv_dir):
-                    for sdir in os.listdir(deliv_dir):
-                        cp = os.path.join(deliv_dir, sdir, "validation_report.json")
-                        if os.path.exists(cp):
-                            cand_paths.append(cp)
-                for cp in cand_paths:
+            active_stage_dirs = resolve_current_work_stage_dirs(
+                workspaces=workspaces,
+                payload=payload,
+                records=records
+            )
+            cand_paths = []
+            for sdir in active_stage_dirs:
+                cp = os.path.join(sdir, "validation_report.json")
+                if os.path.isfile(cp):
+                    cand_paths.append(cp)
+            for cp in cand_paths:
                     if os.path.isfile(cp):
                         try:
                             with open(cp, "r", encoding="utf-8") as vf:

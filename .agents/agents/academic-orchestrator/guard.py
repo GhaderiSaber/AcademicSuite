@@ -82,6 +82,17 @@ except ImportError:
         def extract_clean_user_message(raw_text):
             return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
 
+try:
+    from contracts.current_work_resolver import resolve_current_work_stage_dirs, get_current_work_validation_reports
+except ImportError:
+    try:
+        from current_work_resolver import resolve_current_work_stage_dirs, get_current_work_validation_reports
+    except ImportError:
+        def resolve_current_work_stage_dirs(*args, **kwargs):
+            return []
+        def get_current_work_validation_reports(*args, **kwargs):
+            return []
+
 FORBIDDEN_ORCHESTRATOR_TOOLS = {
     "run_command",
     "write_to_file",
@@ -173,34 +184,31 @@ def is_validation_failure_active(records: List[Dict[str, Any]], workspaces: List
                     summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
                 return True, summary, active_records
 
-    # 2. Check on disk in workspaces
+    # 2. Check on disk strictly scoped to CURRENT WORK stage directories
     ws_list = workspaces or [ROOT_DIR]
-    for ws in ws_list:
-        if not ws or not os.path.exists(ws):
-            continue
-        candidate_paths = [
-            os.path.join(ws, "03_deliverables", "validation_report.json"),
-            os.path.join(ws, "validation_report.json")
-        ]
-        deliv_dir = os.path.join(ws, "03_deliverables")
-        if os.path.isdir(deliv_dir):
-            for sdir in os.listdir(deliv_dir):
-                cand = os.path.join(deliv_dir, sdir, "validation_report.json")
-                if os.path.exists(cand):
-                    candidate_paths.append(cand)
-        for cp in candidate_paths:
-            if os.path.exists(cp):
-                try:
-                    with open(cp, "r", encoding="utf-8") as vf:
-                        v_data = json.load(vf)
-                    verdict = str(v_data.get("overall_verdict", "")).strip().upper()
-                    ev_sum = v_data.get("evidence_summary", {})
-                    checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
-                    if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
-                        summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
-                        return True, summary, active_records
-                except Exception:
-                    pass
+    cand_paths = []
+    active_stage_dirs = resolve_current_work_stage_dirs(
+        workspaces=ws_list,
+        records=records
+    )
+    for sdir in active_stage_dirs:
+        cp = os.path.join(sdir, "validation_report.json")
+        if os.path.isfile(cp):
+            cand_paths.append(cp)
+
+    for cp in cand_paths:
+        if os.path.exists(cp):
+            try:
+                with open(cp, "r", encoding="utf-8") as vf:
+                    v_data = json.load(vf)
+                verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                ev_sum = v_data.get("evidence_summary", {})
+                checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                    summary = f"Validation report '{os.path.basename(cp)}' in '{os.path.basename(os.path.dirname(cp))}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                    return True, summary, active_records
+            except Exception:
+                pass
 
     return False, "", active_records
 
@@ -315,39 +323,34 @@ def get_defect_and_learning_lifecycle_state(
                         summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
                     latest_val_txt = summary
 
-    # Check on-disk validation failure
+    # Check on-disk validation failure strictly scoped to CURRENT WORK stage directories
     disk_val_fail = False
     disk_val_summary = ""
     ws_list = workspaces or [ROOT_DIR]
-    for ws in ws_list:
-        if not ws or not os.path.exists(ws):
-            continue
-        candidate_paths = [
-            os.path.join(ws, "03_deliverables", "validation_report.json"),
-            os.path.join(ws, "validation_report.json")
-        ]
-        deliv_dir = os.path.join(ws, "03_deliverables")
-        if os.path.isdir(deliv_dir):
-            for sdir in os.listdir(deliv_dir):
-                cand = os.path.join(deliv_dir, sdir, "validation_report.json")
-                if os.path.exists(cand):
-                    candidate_paths.append(cand)
-        for cp in candidate_paths:
-            if os.path.exists(cp):
-                try:
-                    with open(cp, "r", encoding="utf-8") as vf:
-                        v_data = json.load(vf)
-                    verdict = str(v_data.get("overall_verdict", "")).strip().upper()
-                    ev_sum = v_data.get("evidence_summary", {})
-                    checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
-                    if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
-                        disk_val_fail = True
-                        disk_val_summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
-                        break
-                except Exception:
-                    pass
-        if disk_val_fail:
-            break
+    cand_paths = []
+    active_stage_dirs = resolve_current_work_stage_dirs(
+        workspaces=ws_list,
+        records=records
+    )
+    for sdir in active_stage_dirs:
+        cp = os.path.join(sdir, "validation_report.json")
+        if os.path.isfile(cp):
+            cand_paths.append(cp)
+
+    for cp in cand_paths:
+        if os.path.exists(cp):
+            try:
+                with open(cp, "r", encoding="utf-8") as vf:
+                    v_data = json.load(vf)
+                verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                ev_sum = v_data.get("evidence_summary", {})
+                checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                    disk_val_fail = True
+                    disk_val_summary = f"Validation report '{os.path.basename(cp)}' in '{os.path.basename(os.path.dirname(cp))}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                    break
+            except Exception:
+                pass
 
     # Determine defect index
     defect_idx = -1
@@ -971,6 +974,23 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
 
                     # Directive 3: Triad Artifact Completion Audit on Stage Conclusion
                     workspaces = payload.get("workspacePaths", [ROOT_DIR])
+                    canonical_repo = ROOT_DIR
+                    try:
+                        from contracts.canonical_paths import (
+                            resolve_canonical_repo_root,
+                            redirect_learning_target_to_canonical,
+                            is_canonical_learning_path
+                        )
+                        canonical_repo = resolve_canonical_repo_root()
+                    except Exception:
+                        def redirect_learning_target_to_canonical(p): return os.path.join(ROOT_DIR, p) if not os.path.isabs(p) else p
+                        def is_canonical_learning_path(p): return any(k in str(p).replace("\\", "/") for k in (".agents/learning", "learning/", ".agents/state"))
+
+                    search_workspaces = [ws for ws in workspaces if ws and os.path.isdir(ws)]
+                    for cr in (canonical_repo, ROOT_DIR, os.environ.get("ACADEMIC_SUITE_REPO")):
+                        if cr and os.path.isdir(cr) and cr not in search_workspaces:
+                            search_workspaces.append(cr)
+
                     for r in active_records:
                         for tc in r.get("tool_calls", []):
                             if (tc.get("name") or "").lower() == "invoke_subagent":
@@ -983,27 +1003,59 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                                         if not isinstance(sub, dict):
                                             continue
                                         p_text = sub.get("Prompt", "")
-                                        is_cde, _, env = validate_delegation_prompt(p_text, expected_worker=sub.get("TypeName"))
+                                        worker_type = (sub.get("TypeName") or "").strip().lower()
+                                        is_cde, _, env = validate_delegation_prompt(p_text, expected_worker=worker_type)
                                         if env and env.get("required_artifacts"):
                                             req_arts = env.get("required_artifacts", [])
                                             missing_arts = []
                                             empty_arts = []
+                                            is_learning_worker = (
+                                                worker_type in LEARNING_WORKERS_SET or
+                                                any(k in worker_type for k in ("trajectory", "behavior", "curator", "evolver", "evaluation"))
+                                            )
                                             for art in req_arts:
+                                                art_str = str(art.get("path") if isinstance(art, dict) else art).strip()
+                                                if not art_str:
+                                                    continue
                                                 found = []
-                                                if os.path.isabs(art) and os.path.isfile(art):
-                                                    found = [art]
-                                                else:
-                                                    for ws in workspaces:
-                                                        cand = os.path.join(ws, art)
+                                                # 1. Absolute path check
+                                                if os.path.isabs(art_str) and os.path.isfile(art_str):
+                                                    found = [art_str]
+
+                                                # 2. Canonical learning path redirection (central suite repo)
+                                                if not found and (is_canonical_learning_path(art_str) or is_learning_worker):
+                                                    redir = redirect_learning_target_to_canonical(art_str)
+                                                    if os.path.isfile(redir):
+                                                        found = [redir]
+                                                    else:
+                                                        for rdir in (canonical_repo, ROOT_DIR, os.environ.get("ACADEMIC_SUITE_REPO")):
+                                                            if rdir:
+                                                                cand_r = os.path.join(rdir, art_str.lstrip("/\\"))
+                                                                if os.path.isfile(cand_r):
+                                                                    found = [cand_r]
+                                                                    break
+
+                                                # 3. Search across all search workspaces (project workspaces + suite repo)
+                                                if not found:
+                                                    for ws in search_workspaces:
+                                                        cand = os.path.join(ws, art_str)
                                                         if os.path.isfile(cand):
                                                             found.append(cand)
+
+                                                # 4. Fallback: match by pattern across search workspaces
                                                 if not found:
-                                                    art_name = os.path.basename(art)
-                                                    found = find_files_matching(workspaces, re.escape(art_name))
+                                                    has_path_sep = "/" in art_str or "\\" in art_str
+                                                    if not has_path_sep:
+                                                        found = find_files_matching(search_workspaces, re.escape(art_str))
+                                                    else:
+                                                        clean_rel = art_str.replace("\\", "/").lstrip("./")
+                                                        suffix_pat = r"(?:^|/)" + re.escape(clean_rel) + r"$"
+                                                        found = find_files_matching(search_workspaces, suffix_pat)
+
                                                 if not found:
-                                                    missing_arts.append(art)
+                                                    missing_arts.append(art_str)
                                                 elif all(os.path.getsize(f) == 0 for f in found):
-                                                    empty_arts.append(art)
+                                                    empty_arts.append(art_str)
                                             if missing_arts or empty_arts:
                                                 msg = (
                                                     f"CONSTITUTIONAL VIOLATION (Directive 3 — Artifact-Gated Stage Execution):\n"

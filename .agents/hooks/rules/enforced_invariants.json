@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T12:01:00.431719+00:00",
+  "updated_at": "2026-10-03T13:40:08.053110+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1719,6 +1719,27 @@
       "remedy": "Ensure format parity. Update the corresponding .docx whenever a .md file is changed.",
       "enabled": true,
       "updated_at": "2026-10-03T12:01:00.431687+00:00"
+    },
+    "CAND-2026-TOTAL-FIRST-CONSTRUCT-HIERARCHY": {
+      "item_id": "CAND-2026-TOTAL-FIRST-CONSTRUCT-HIERARCHY",
+      "category": "Learned Mechanical Rule",
+      "statement": "BAN-20261003-CORRELATION-ORDER-001: Composite Total Score must strictly precede its constituent subscales across all tables (Total First).",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "CHAPTER4_WRITING",
+        "APA_REPORTING"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|edit_file",
+      "file_pattern": ".*\\.(md|docx|json)$",
+      "check_type": "regex_ban",
+      "pattern": "(?i)subscale.*total|total.*bottom",
+      "violation_message": "BAN-20261003-CORRELATION-ORDER-001: Composite Total Score must strictly precede its constituent subscales across all tables (Total First).",
+      "remedy": "Reorder the variables so the total construct score comes first, followed by its subscales, maintaining cross-table parity.",
+      "enabled": true,
+      "updated_at": "2026-10-03T13:40:08.053079+00:00"
     }
   }
 }

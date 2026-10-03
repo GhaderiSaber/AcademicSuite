@@ -38,6 +38,11 @@ try:
         LEARNING_SUBAGENTS,
     )
     from contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+    from contracts.current_work_resolver import (
+        resolve_current_work_stage_dirs,
+        get_current_work_validation_reports,
+        is_validation_report_for_current_work,
+    )
 except ImportError:
     try:
         from .contracts.hook_identity_contract import (
@@ -48,6 +53,11 @@ except ImportError:
             LEARNING_SUBAGENTS,
         )
         from .contracts.critique_detection_contract import is_meaningful_user_critique, extract_clean_user_message
+        from .contracts.current_work_resolver import (
+            resolve_current_work_stage_dirs,
+            get_current_work_validation_reports,
+            is_validation_report_for_current_work,
+        )
     except ImportError:
         def resolve_transcript_path(payload):
             return payload.get("transcriptPath") if isinstance(payload, dict) else None
@@ -57,6 +67,12 @@ except ImportError:
             return False, None
         def extract_clean_user_message(raw_text):
             return re.sub(r"<[^>]+>", "", str(raw_text)).strip()
+        def resolve_current_work_stage_dirs(*args, **kwargs):
+            return []
+        def get_current_work_validation_reports(*args, **kwargs):
+            return []
+        def is_validation_report_for_current_work(*args, **kwargs):
+            return True
         LEARNING_SUBAGENTS = (
             "behavior-analyst", "curriculum-builder", "evaluation-agent",
             "knowledge-curator", "skill-evolver", "trajectory-analyzer",
@@ -393,6 +409,10 @@ class IntegrityHooks:
                                 )
                             a_path = art.get("path", "")
                             a_full = a_path if os.path.isabs(a_path) else os.path.join(base_dir, a_path)
+                            if not os.path.exists(a_full):
+                                alt = os.path.join(ROOT_DIR, a_path)
+                                if os.path.exists(alt):
+                                    a_full = alt
                             if not os.path.exists(a_full) or os.path.getsize(a_full) == 0:
                                 return False, (
                                     f"HARD HOOK ENFORCEMENT (Manifest Verification): Stage in '{root}' declares "
@@ -799,12 +819,17 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def verify_post_analysis(workspaces: List[str], caller: str = "") -> Tuple[bool, str]:
+    def verify_post_analysis(workspaces: List[str], caller: str = "", payload: Optional[Dict[str, Any]] = None) -> Tuple[bool, str]:
         """
         Secondary Enforcement (Post-Analysis Validation Gate):
         Enforces Directive 22 (Fail-Closed Mechanical Validation Gate Invariant):
         PASS + checks_failed == 0 -> accept
         Everything else            -> reject (fail closed).
+
+        CURRENT WORK ISOLATION:
+        Only analyzes validation_report.json files belonging to the CURRENT WORK stage(s).
+        Unrelated validation reports in other stages or projects across the workspace are strictly ignored.
+        If the current work did not touch any deliverable stage, verification passes without blocking.
 
         A validation report is ONLY accepted if:
         1. It is a valid, readable JSON object.
@@ -827,14 +852,12 @@ class IntegrityHooks:
             "default", "main", "developer", "coding", "cli-developer", "ide-developer"
         ):
             return True, ""
-        active_stage_dirs = []
-        for ws in workspaces:
-            for rel_root in ("projects", "03_deliverables", "."):
-                p_dir = os.path.join(ws, rel_root)
-                if os.path.exists(p_dir):
-                    for root, dirs, files in os.walk(p_dir):
-                        if "validation_report.json" in files:
-                            active_stage_dirs.append(root)
+
+        active_stage_dirs = resolve_current_work_stage_dirs(
+            workspaces=workspaces,
+            payload=payload,
+            caller=caller
+        )
 
         for s_dir in set(active_stage_dirs):
             val_rep_path = os.path.join(s_dir, "validation_report.json")
@@ -1124,9 +1147,16 @@ class IntegrityHooks:
         return True, ""
 
     @staticmethod
-    def detect_validation_failure(active_records: List[Dict[str, Any]], workspaces: Optional[List[str]] = None) -> Tuple[bool, str]:
+    def detect_validation_failure(
+        active_records: Optional[List[Dict[str, Any]]] = None,
+        workspaces: Optional[List[str]] = None,
+        records: Optional[List[Dict[str, Any]]] = None,
+        payload: Optional[Dict[str, Any]] = None,
+        **kwargs
+    ) -> Tuple[bool, str]:
+        recs = active_records if active_records is not None else (records or [])
         # 1. Transcript records check
-        for rec in reversed(active_records):
+        for rec in reversed(recs):
             t = rec.get("type", "")
             src = rec.get("source", "")
             if t in ("EPHEMERAL_MESSAGE",) or src in ("SYSTEM_SDK",):
@@ -1160,34 +1190,32 @@ class IntegrityHooks:
                         summary = f"Validation failed ({num} checks failed, overall_verdict: FAIL)"
                     return True, summary
 
-        # 2. Disk check
+        # 2. Disk check strictly scoped to CURRENT WORK stage directories
         ws_list = workspaces or []
-        for ws in ws_list:
-            if not ws or not os.path.exists(ws):
-                continue
-            cand_paths = [
-                os.path.join(ws, "03_deliverables", "validation_report.json"),
-                os.path.join(ws, "validation_report.json")
-            ]
-            deliv_dir = os.path.join(ws, "03_deliverables")
-            if os.path.isdir(deliv_dir):
-                for sdir in os.listdir(deliv_dir):
-                    cp = os.path.join(deliv_dir, sdir, "validation_report.json")
-                    if os.path.exists(cp):
-                        cand_paths.append(cp)
-            for cp in cand_paths:
-                if os.path.exists(cp):
-                    try:
-                        with open(cp, "r", encoding="utf-8") as vf:
-                            v_data = json.load(vf)
-                        verdict = str(v_data.get("overall_verdict", "")).strip().upper()
-                        ev_sum = v_data.get("evidence_summary", {})
-                        checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
-                        if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
-                            summary = f"Validation report '{os.path.basename(cp)}' overall_verdict is FAIL ({checks_failed} checks failed)"
-                            return True, summary
-                    except Exception:
-                        pass
+        cand_paths = []
+        active_stage_dirs = resolve_current_work_stage_dirs(
+            workspaces=ws_list,
+            records=recs,
+            payload=payload
+        )
+        for sdir in active_stage_dirs:
+            cp = os.path.join(sdir, "validation_report.json")
+            if os.path.isfile(cp):
+                cand_paths.append(cp)
+
+        for cp in cand_paths:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as vf:
+                        v_data = json.load(vf)
+                    verdict = str(v_data.get("overall_verdict", "")).strip().upper()
+                    ev_sum = v_data.get("evidence_summary", {})
+                    checks_failed = ev_sum.get("checks_failed", v_data.get("checks_failed", 0))
+                    if verdict == "FAIL" or (isinstance(checks_failed, int) and checks_failed > 0):
+                        summary = f"Validation report '{os.path.basename(cp)}' in '{os.path.basename(os.path.dirname(cp))}' overall_verdict is FAIL ({checks_failed} checks failed)"
+                        return True, summary
+                except Exception:
+                    pass
         return False, ""
 
     @staticmethod
@@ -1427,17 +1455,22 @@ class IntegrityHooks:
                 for m in re.findall(r'([^\s\'"\\,]+\.json)', r_text):
                     if any(k in m for k in ("lessons", "candidates", "anti-patterns", "principles", "LSN-", "CAND-", "AP-", "PRN-")):
                         m_clean = m.strip().strip("'\"")
-                        if m_clean not in seen_json_paths and os.path.isfile(m_clean):
+                        target_file = m_clean
+                        if not os.path.isfile(target_file):
+                            alt = os.path.join(ROOT_DIR, m_clean.lstrip("/\\"))
+                            if os.path.isfile(alt):
+                                target_file = alt
+                        if m_clean not in seen_json_paths and os.path.isfile(target_file):
                             seen_json_paths.add(m_clean)
                             try:
-                                with open(m_clean, "r", encoding="utf-8") as jf:
+                                with open(target_file, "r", encoding="utf-8") as jf:
                                     jdata = json.load(jf)
                                 if jdata.get("graduation_status") == "PENDING_GRADUATION":
                                     item_id = jdata.get("lesson_id") or os.path.basename(m_clean)
-                                    pending_items.append((m_clean, item_id, "PENDING_GRADUATION"))
+                                    pending_items.append((target_file, item_id, "PENDING_GRADUATION"))
                                 elif jdata.get("status") == "STAGED" and jdata.get("target_component"):
                                     item_id = jdata.get("candidate_id") or os.path.basename(m_clean)
-                                    pending_items.append((m_clean, item_id, "STAGED"))
+                                    pending_items.append((target_file, item_id, "STAGED"))
                             except Exception:
                                 pass
 
@@ -1481,14 +1514,31 @@ class IntegrityHooks:
         """
         workspaces = payload.get("workspacePaths", [])
         caller = resolve_caller(payload)
+        caller_clean = (caller or "").lower().strip()
 
-        # Antigravity 2.18.1: Subagents and specialist workers always terminate cleanly
-        if payload.get("isSubagent") or payload.get("parentConversationId") or payload.get("is_subagent"):
-            return {"decision": "allow"}
-        if caller and caller not in ("academic-orchestrator", "default", "main"):
+        # Auditor agents (validation-agent, results-auditor, etc.) and learning subagents
+        # are exempt from stop gates so they can report findings or benchmark diagnostics.
+        if is_auditor_agent(caller_clean) or is_learning_subagent(caller_clean):
             return {"decision": "allow"}
 
-        # 1. Standalone Python Orchestrator Prohibition (Directive 12.1)
+        # 1. Post-Analysis Validation Reports (strictly scoped to current work)
+        # Blocks ANY agent or delivery subagent if the current work stage validation report fails.
+        ok, reason = IntegrityHooks.verify_post_analysis(workspaces, caller=caller, payload=payload)
+        if not ok:
+            return {"decision": "continue", "reason": reason}
+
+        # 2. Specialist workers and subagents terminate cleanly once post-analysis passes,
+        # without being subjected to orchestrator-level transcript / learning checks.
+        is_subagent_call = (
+            payload.get("isSubagent") or
+            payload.get("parentConversationId") or
+            payload.get("is_subagent") or
+            (caller and caller_clean not in ("academic-orchestrator", "default", "main"))
+        )
+        if is_subagent_call:
+            return {"decision": "allow"}
+
+        # 3. Standalone Python Orchestrator Prohibition (Directive 12.1)
         for ws in workspaces:
             forbidden_file = os.path.join(ws, ".agents", "skills", "academic-suite-orchestrator", "scripts", "multi_agent_orchestrator.py")
             if os.path.exists(forbidden_file):
@@ -1502,33 +1552,28 @@ class IntegrityHooks:
                     "reason": msg
                 }
 
-        # 2. Skill Modularity (Directive 18)
+        # 4. Skill Modularity (Directive 18)
         ok, reason = IntegrityHooks.verify_skill_modularity(workspaces)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 3. State Machine Consistency (Invalid State Transition Detection)
+        # 5. State Machine Consistency (Invalid State Transition Detection)
         ok, reason = IntegrityHooks.verify_state_transitions(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 3.5 Worker Return Structure (Phase 21 Invariant)
+        # 6. Worker Return Structure (Phase 21 Invariant)
         ok, reason = IntegrityHooks.verify_worker_returns(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 4. Missing Artifacts Detection (Triad Invariant & Manifest Deliverables)
+        # 7. Missing Artifacts Detection (Triad Invariant & Manifest Deliverables)
         ok, reason = IntegrityHooks.verify_missing_artifacts(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
-        # 5. Provenance Integrity Detection (Input/Output Hashes & Dependencies)
+        # 8. Provenance Integrity Detection (Input/Output Hashes & Dependencies)
         ok, reason = IntegrityHooks.verify_provenance(workspaces, caller=caller)
-        if not ok:
-            return {"decision": "continue", "reason": reason}
-
-        # 6. Post-Analysis Validation Reports
-        ok, reason = IntegrityHooks.verify_post_analysis(workspaces, caller=caller)
         if not ok:
             return {"decision": "continue", "reason": reason}
 
@@ -1565,6 +1610,7 @@ class IntegrityHooks:
         """
         Advisory verification after model tool turn:
         Injects advisory if active stage validation report is FAIL.
+        Strictly scoped to the CURRENT WORK stage(s); ignores unrelated stages.
         Suppressed for auditor agents and main developer.
         """
         caller = resolve_caller(payload)
@@ -1580,53 +1626,58 @@ class IntegrityHooks:
 
         workspaces = payload.get("workspacePaths", [])
         inject_steps = []
-        for ws in workspaces:
-            for root, dirs, files in os.walk(ws):
-                if "validation_report.json" in files:
-                    v_path = os.path.join(root, "validation_report.json")
-                    try:
-                        with open(v_path, "r", encoding="utf-8") as vf:
-                            v_data = json.load(vf)
-                        if not isinstance(v_data, dict):
-                            inject_steps.append({
-                                "ephemeralMessage": (
-                                    f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
-                                    f"is malformed (expected JSON object, got {type(v_data).__name__}). Please fix or regenerate."
-                                )
-                            })
-                            break
-                        verdict = str(v_data.get("overall_verdict", v_data.get("verdict", ""))).strip().upper()
-                        checks_failed = None
-                        if isinstance(v_data.get("evidence_summary"), dict):
-                            checks_failed = v_data["evidence_summary"].get("checks_failed")
-                        if checks_failed is None and "checks_failed" in v_data:
-                            checks_failed = v_data.get("checks_failed")
-
-                        is_zero = (
-                            checks_failed is not None
-                            and isinstance(checks_failed, (int, float))
-                            and not isinstance(checks_failed, bool)
-                            and int(checks_failed) == 0
-                        )
-
-                        if verdict != "PASS" or not is_zero:
-                            inject_steps.append({
-                                "ephemeralMessage": (
-                                    f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
-                                    f"does not satisfy passing contract (overall_verdict: '{verdict or 'MISSING'}', "
-                                    f"checks_failed: {checks_failed if checks_failed is not None else 'MISSING'}). "
-                                    f"Contract strictly requires overall_verdict == 'PASS' and checks_failed == 0."
-                                )
-                            })
-                            break
-                    except Exception as e:
+        active_stage_dirs = resolve_current_work_stage_dirs(
+            workspaces=workspaces,
+            payload=payload,
+            caller=caller
+        )
+        for root in active_stage_dirs:
+            v_path = os.path.join(root, "validation_report.json")
+            if os.path.isfile(v_path):
+                try:
+                    with open(v_path, "r", encoding="utf-8") as vf:
+                        v_data = json.load(vf)
+                    if not isinstance(v_data, dict):
                         inject_steps.append({
                             "ephemeralMessage": (
                                 f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
-                                f"is corrupted or unreadable: {e}. Please fix or regenerate."
+                                f"is malformed (expected JSON object, got {type(v_data).__name__}). Please fix or regenerate."
                             )
                         })
                         break
+
+                    verdict = str(v_data.get("overall_verdict", v_data.get("verdict", ""))).strip().upper()
+                    checks_failed = None
+                    if isinstance(v_data.get("evidence_summary"), dict):
+                        checks_failed = v_data["evidence_summary"].get("checks_failed")
+                    if checks_failed is None and "checks_failed" in v_data:
+                        checks_failed = v_data.get("checks_failed")
+
+                    is_zero = (
+                        checks_failed is not None
+                        and isinstance(checks_failed, (int, float))
+                        and not isinstance(checks_failed, bool)
+                        and int(checks_failed) == 0
+                    )
+
+                    if verdict != "PASS" or not is_zero:
+                        inject_steps.append({
+                            "ephemeralMessage": (
+                                f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
+                                f"does not satisfy passing contract (overall_verdict: '{verdict or 'MISSING'}', "
+                                f"checks_failed: {checks_failed if checks_failed is not None else 'MISSING'}). "
+                                f"Contract strictly requires overall_verdict == 'PASS' and checks_failed == 0."
+                            )
+                        })
+                        break
+                except Exception as e:
+                    inject_steps.append({
+                        "ephemeralMessage": (
+                            f"STAGE VERIFICATION ADVISORY: Validation report in '{root}' "
+                            f"is corrupted or unreadable: {e}. Please fix or regenerate."
+                        )
+                    })
+                    break
         return {"injectSteps": inject_steps, "terminationBehavior": ""}
 
 

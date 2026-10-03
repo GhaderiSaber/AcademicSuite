@@ -1,0 +1,29 @@
+{
+  "contract_version": "1.0.0",
+  "anti_pattern_id": "AP-2026-CROSS-TABLE-CONSTRUCT-HIERARCHY-INVERSION",
+  "category": "execution",
+  "defective_pattern": "Sequencing subscales before their composite total scores in statistical variable definitions, correlation matrices, and descriptive tables.",
+  "why_defective": "Violates the structural hierarchy of psychometric constructs and introduces cross-table mismatches between descriptive tables and correlation matrices.",
+  "observed_symptoms": [
+    "Subscales listed before total scores in correlation matrices.",
+    "Cross-table sequence parity mismatch between descriptives and correlations.",
+    "validation-agent failing to detect sequence inversion due to blindspots."
+  ],
+  "corrective_remedy": "Strictly index study variables such that Total Composite Scores precede subscales. Enforce programmatic cross-table structural parity assertions verifying correlation matrix variable sequences match descriptive table sequences.",
+  "detection_heuristic": {
+    "trigger_rule": "Detect instances where subscale variables are sequenced before parent total scores.",
+    "regex_patterns": [],
+    "pattern": "",
+    "check_type": "substring_ban",
+    "file_pattern": ".*\\.py",
+    "event": "Both"
+  },
+  "target_agent": "statistics-agent",
+  "target_agents": [
+    "statistics-agent",
+    "validation-agent",
+    "academic-writer"
+  ],
+  "reusable": true,
+  "updated_at": "2026-10-03T12:36:40Z"
+}

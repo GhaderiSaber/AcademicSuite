@@ -852,7 +852,30 @@ class AcademicGraduationCompiler:
 
         else:
             # Markdown / doc mutation
-            if diff_type == "UNIFIED_DIFF" and diff_content:
+            if diff_type in ("STRING_REPLACE", "REPLACE"):
+                tgt_str = mutation.get("target_content") or mutation.get("target") or ""
+                repl_str = mutation.get("replacement_content") or mutation.get("replacement") or mutation.get("content") or ""
+                if tgt_str:
+                    try:
+                        with open(target_path, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        if tgt_str in content:
+                            if not dry_run:
+                                with open(target_path, "w", encoding="utf-8") as f:
+                                    f.write(content.replace(tgt_str, repl_str, 1))
+                            applied = True
+                        elif repl_str in content:
+                            applied = True  # already applied
+                    except Exception as e_rep:
+                        sys.stderr.write(f"[compiler] doc replace error: {e_rep}\n")
+            elif diff_type in ("FILE_REPLACE", "FULL_CONTENT", "FULL_CONTENT_REPLACEMENT"):
+                new_c = mutation.get("new_content") or mutation.get("content")
+                if new_c:
+                    if not dry_run:
+                        with open(target_path, "w", encoding="utf-8") as f:
+                            f.write(new_c)
+                    applied = True
+            elif diff_type == "UNIFIED_DIFF" and diff_content:
                 applied, _ = self.apply_patch_to_file(target_path, diff_content, dry_run=dry_run)
             if not applied and diff_content:
                 added_lines = [

@@ -533,7 +533,20 @@ def find_files_matching(workspaces: List[str], pattern: str) -> List[str]:
     """Scans workspaces for files matching regex pattern."""
     regex = re.compile(pattern, re.IGNORECASE)
     matched = []
-    for ws in workspaces:
+    ws_list = [ws for ws in workspaces if ws and os.path.exists(ws)]
+
+    # Dual-path resolution: ensure central suite repository is searched for learning/trajectory patterns
+    is_learning_pat = any(k in pattern.lower() for k in ("learning", "experience", "trajectory", "trj-", "cand-", "lsn-", "diagnostics"))
+    if is_learning_pat:
+        try:
+            from contracts.canonical_paths import resolve_canonical_repo_root
+            repo_root = resolve_canonical_repo_root()
+            if repo_root and os.path.isdir(repo_root) and repo_root not in ws_list:
+                ws_list.append(repo_root)
+        except Exception:
+            pass
+
+    for ws in ws_list:
         if not ws or not os.path.exists(ws):
             continue
         if os.path.isfile(pattern):
@@ -548,7 +561,7 @@ def find_files_matching(workspaces: List[str], pattern: str) -> List[str]:
             parts = [p for p in root.split(os.sep) if p not in (".", "..")]
             if any(part.startswith(".") and part != ".agents" for part in parts):
                 continue
-            if "scratch" in root:
+            if "scratch" in root or "__pycache__" in root:
                 continue
             for f in files:
                 rel_f = os.path.relpath(os.path.join(root, f), ws)

@@ -1,0 +1,736 @@
+{
+  "contract_version": "1.0.0",
+  "trajectory_id": "TRJ-20261003-CORRELATION-ORDER-001",
+  "experience_id": "EXP-20261003-CORRELATION-ORDER-001",
+  "project_id": "Mohtasham_Valiyanpur",
+  "task_id": "TSK-2026-LEARN-CORRELATION-ORDER-TRAJECTORY",
+  "ordered_actions": [
+    {
+      "step_number": 1,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T10:27:53.131990+00:00",
+      "description": "academic-orchestrator delegated Phase 4B parametric assumptions and descriptives computations to statistics-agent.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-PHASE-4B-ASSUMPTIONS",
+        "target_script": "python3 02_analysis_code/compute_stage4b3_assumptions.py && python3 02_analysis_code/compute_stage4b2_descriptives.py && python3 02_analysis_code/compute_stage4b4_correlations.py",
+        "required_artifacts": [
+          "03_deliverables/03_assumptions_report.json",
+          "03_deliverables/02_descriptives_payload.json",
+          "03_deliverables/04_correlations_payload.json"
+        ]
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 2,
+      "action_type": "FILE_READ",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T10:28:34.561865+00:00",
+      "description": "statistics-agent inspected 02_analysis_code/compute_stage4b4_correlations.py prior to executing bivariate computations.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/compute_stage4b4_correlations.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 3,
+      "action_type": "COMMAND_STARTED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T10:34:01.145414+00:00",
+      "description": "statistics-agent initiated execution of compute_stage4b4_correlations.py via Python CLI.",
+      "observable_input": {
+        "command_line": "PATH=\"$PWD/.venv/bin:$PATH\" python3 02_analysis_code/compute_stage4b4_correlations.py"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 4,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T10:34:03.355176+00:00",
+      "description": "statistics-agent completed correlation computations; injected inverted variable ordering (subscales before composite total scores).",
+      "observable_input": {
+        "command_line": "PATH=\"$PWD/.venv/bin:$PATH\" python3 02_analysis_code/compute_stage4b4_correlations.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "output_file": "03_deliverables/04_correlations_payload.json",
+        "variable_sequence": [
+          "SCI_T",
+          "IUS_FA",
+          "IUS_RA",
+          "IUS_T",
+          "Ru_Ref",
+          "Ru_Bro",
+          "Ru_Dep",
+          "RRS_T",
+          "PA_Negative",
+          "PA_Positive",
+          "BSSI_T"
+        ]
+      }
+    },
+    {
+      "step_number": 5,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T10:34:20.984589+00:00",
+      "description": "statistics-agent verified presence and metadata of 03_deliverables/04_correlations_payload.json (N = 483, 11 variables).",
+      "observable_input": {
+        "command_line": "PATH=\"$PWD/.venv/bin:$PATH\" python3 -c \"import json, os; files=['03_deliverables/03_assumptions_report.json','03_deliverables/02_descriptives_payload.json','03_deliverables/04_correlations_payload.json']; ...\""
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "sample_size": 483,
+        "total_variables": 11
+      }
+    },
+    {
+      "step_number": 6,
+      "action_type": "TOOL_RETURNED",
+      "actor": "statistics-agent",
+      "timestamp": "2026-10-03T10:35:37.473473+00:00",
+      "description": "statistics-agent returned Phase 4B completion payload with verdict SUCCESS.",
+      "observable_input": {
+        "task_id": "TSK-2026-CH4-PHASE-4B-ASSUMPTIONS",
+        "status": "SUCCESS"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 7,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T12:10:08.738176+00:00",
+      "description": "academic-orchestrator inspected 03_deliverables/03_correlations.json to verify analytical anchor existence prior to Stage 4.3 drafting.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "file_path": "${WORKSPACE_ROOT}/03_deliverables/03_correlations.json"
+      },
+      "observable_output": {
+        "status": "FILE_NOT_FOUND"
+      }
+    },
+    {
+      "step_number": 8,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T12:11:00.718400+00:00",
+      "description": "academic-orchestrator dispatched project-organizer to establish 03_deliverables/03_correlations.json from 04_correlations_payload.json.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4.3-SYNC-ANCHOR",
+        "target_script": "cp '03_deliverables/04_correlations_payload.json' '03_deliverables/03_correlations.json'"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 9,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "project-organizer",
+      "timestamp": "2026-10-03T12:11:15.820120+00:00",
+      "description": "project-organizer copied 04_correlations_payload.json to 03_correlations.json, transferring inverted variable sequence into canonical anchor.",
+      "observable_input": {
+        "command_line": "cp 03_deliverables/04_correlations_payload.json 03_deliverables/03_correlations.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "copied_file": "03_deliverables/03_correlations.json"
+      }
+    },
+    {
+      "step_number": 10,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T12:12:29.854259+00:00",
+      "description": "academic-orchestrator delegated Stage 4.3 drafting to academic-writer for docx and md deliverable compilation.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4.3-DRAFT",
+        "target_script": "02_analysis_code/build_correlations_triad.py",
+        "inputs": [
+          "03_deliverables/03_correlations.json"
+        ],
+        "required_artifacts": [
+          "03_deliverables/03_correlations.docx",
+          "03_deliverables/03_correlations.md"
+        ]
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 11,
+      "action_type": "FILE_READ",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T12:12:36.310396+00:00",
+      "description": "academic-writer inspected 03_deliverables/03_correlations.json to extract correlation parameters and variable list.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "file_path": "${WORKSPACE_ROOT}/03_deliverables/03_correlations.json"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 12,
+      "action_type": "FILE_WRITTEN",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T12:13:18.469285+00:00",
+      "description": "academic-writer authored 02_analysis_code/build_correlations_triad.py, iterating over vars_info sequentially without reordering.",
+      "observable_input": {
+        "tool_name": "write_to_file",
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/build_correlations_triad.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 13,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T12:13:29.238322+00:00",
+      "description": "academic-writer executed build_correlations_triad.py; compiled Table 4-14 with subscales preceding total scores into docx and md.",
+      "observable_input": {
+        "command_line": ".venv/bin/python3 02_analysis_code/build_correlations_triad.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS",
+        "generated_artifacts": [
+          "03_deliverables/03_correlations.docx",
+          "03_deliverables/03_correlations.md"
+        ]
+      }
+    },
+    {
+      "step_number": 14,
+      "action_type": "TOOL_RETURNED",
+      "actor": "academic-writer",
+      "timestamp": "2026-10-03T12:13:51.033531+00:00",
+      "description": "academic-writer returned completion payload reporting bilateral format parity and 3-column prefix structure.",
+      "observable_input": {
+        "contract_id": "TSK-2026-CH4-STAGE-4.3-DRAFT",
+        "status": "SUCCESS"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 15,
+      "action_type": "TOOL_CALLED",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T12:14:50.965166+00:00",
+      "description": "academic-orchestrator dispatched validation-agent for Stage 4.3 independent verification.",
+      "observable_input": {
+        "tool_name": "invoke_subagent",
+        "task_id": "TSK-2026-CH4-STAGE-4.3-VALIDATION",
+        "target_script": ".venv/bin/python3 02_analysis_code/validate_stage43_correlations.py",
+        "inputs": [
+          "03_deliverables/03_correlations.docx",
+          "03_deliverables/03_correlations.md",
+          "03_deliverables/03_correlations.json"
+        ]
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 16,
+      "action_type": "FILE_WRITTEN",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T12:15:27.748071+00:00",
+      "description": "validation-agent authored validate_stage43_correlations.py auditing docx size, caption, 3-prefix columns, and N=483.",
+      "observable_input": {
+        "tool_name": "write_to_file",
+        "file_path": "${WORKSPACE_ROOT}/02_analysis_code/validate_stage43_correlations.py"
+      },
+      "observable_output": {
+        "status": "SUCCESS"
+      }
+    },
+    {
+      "step_number": 17,
+      "action_type": "VALIDATION_STARTED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T12:15:34.232187+00:00",
+      "description": "validation-agent initiated execution of validate_stage43_correlations.py.",
+      "observable_input": {
+        "command_line": ".venv/bin/python3 02_analysis_code/validate_stage43_correlations.py",
+        "validator_type": "script"
+      },
+      "observable_output": {
+        "status": "STARTED"
+      }
+    },
+    {
+      "step_number": 18,
+      "action_type": "COMMAND_FINISHED",
+      "actor": "validation-agent",
+      "timestamp": "2026-10-03T12:15:34.676871+00:00",
+      "description": "validation-agent completed validation, generating 03_deliverables/03_correlations_validation_report.json with PASS verdict.",
+      "observable_input": {
+        "command_line": ".venv/bin/python3 02_analysis_code/validate_stage43_correlations.py"
+      },
+      "observable_output": {
+        "overall_verdict": "PASS",
+        "checks_failed": 0,
+        "note": "Validator had blindspot for construct hierarchical ordering parity between Table 4-13 and Table 4-14."
+      }
+    },
+    {
+      "step_number": 19,
+      "action_type": "FILE_READ",
+      "actor": "academic-orchestrator",
+      "timestamp": "2026-10-03T12:15:53.903466+00:00",
+      "description": "academic-orchestrator inspected validation report and accepted Stage 4.3 deliverable package.",
+      "observable_input": {
+        "tool_name": "view_file",
+        "file_path": "${WORKSPACE_ROOT}/03_deliverables/03_correlations_validation_report.json"
+      },
+      "observable_output": {
+        "overall_verdict": "PASS",
+        "checks_failed": 0
+      }
+    },
+    {
+      "step_number": 20,
+      "action_type": "USER_CORRECTION",
+      "actor": "user",
+      "timestamp": "2026-10-03T12:19:12.392466+00:00",
+      "description": "User issued critical feedback: Order of variables/subscales in correlation table must match descriptive table (Total score first, then subscales).",
+      "observable_input": {
+        "matched_term": "You should have a"
+      },
+      "observable_output": {
+        "correction_text": "Order of the variables and subscales in the descriptive table is correct. But in the correlation table they are not correct. You should have a total score of the variable and then the subscales just like the descriptive table."
+      }
+    }
+  ],
+  "tool_usages": [
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 1,
+      "arguments_summary": {
+        "Role": "Specialist Statistics Worker",
+        "TypeName": "statistics-agent",
+        "task_id": "TSK-2026-CH4-PHASE-4B-ASSUMPTIONS"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 453
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 2,
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/02_analysis_code/compute_stage4b4_correlations.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 320
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 3,
+      "arguments_summary": {
+        "CommandLine": "PATH=\"$PWD/.venv/bin:$PATH\" python3 02_analysis_code/compute_stage4b4_correlations.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 2210
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 4,
+      "arguments_summary": {
+        "CommandLine": "PATH=\"$PWD/.venv/bin:$PATH\" python3 -c \"import json, os; ...\""
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 395
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 5,
+      "arguments_summary": {
+        "Recipient": "caee8f0c-2d40-4bdf-a46e-f3a700674151",
+        "task_id": "TSK-2026-CH4-PHASE-4B-ASSUMPTIONS"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 314
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 6,
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/03_deliverables/03_correlations.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 298
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 7,
+      "arguments_summary": {
+        "Role": "Project Organization Specialist",
+        "TypeName": "project-organizer",
+        "task_id": "TSK-2026-CH4-STAGE-4.3-SYNC-ANCHOR"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 380
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 8,
+      "arguments_summary": {
+        "Role": "Master Academic Writer",
+        "TypeName": "academic-writer",
+        "task_id": "TSK-2026-CH4-STAGE-4.3-DRAFT"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 369
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 9,
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/03_deliverables/03_correlations.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 285
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 10,
+      "arguments_summary": {
+        "TargetFile": "${WORKSPACE_ROOT}/02_analysis_code/build_correlations_triad.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 379
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 11,
+      "arguments_summary": {
+        "CommandLine": ".venv/bin/python3 02_analysis_code/build_correlations_triad.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 603
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 12,
+      "arguments_summary": {
+        "Recipient": "caee8f0c-2d40-4bdf-a46e-f3a700674151",
+        "contract_id": "TSK-2026-CH4-STAGE-4.3-DRAFT"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 327
+    },
+    {
+      "tool_name": "invoke_subagent",
+      "invocation_index": 13,
+      "arguments_summary": {
+        "Role": "Independent Quality Auditor",
+        "TypeName": "validation-agent",
+        "task_id": "TSK-2026-CH4-STAGE-4.3-VALIDATION"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 421
+    },
+    {
+      "tool_name": "write_to_file",
+      "invocation_index": 14,
+      "arguments_summary": {
+        "TargetFile": "${WORKSPACE_ROOT}/02_analysis_code/validate_stage43_correlations.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 360
+    },
+    {
+      "tool_name": "run_command",
+      "invocation_index": 15,
+      "arguments_summary": {
+        "CommandLine": ".venv/bin/python3 02_analysis_code/validate_stage43_correlations.py"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 444
+    },
+    {
+      "tool_name": "send_message",
+      "invocation_index": 16,
+      "arguments_summary": {
+        "Recipient": "caee8f0c-2d40-4bdf-a46e-f3a700674151",
+        "contract_id": "TSK-2026-CH4-STAGE-4.3-VALIDATION"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 299
+    },
+    {
+      "tool_name": "view_file",
+      "invocation_index": 17,
+      "arguments_summary": {
+        "AbsolutePath": "${WORKSPACE_ROOT}/03_deliverables/03_correlations_validation_report.json"
+      },
+      "status": "SUCCESS",
+      "execution_time_ms": 368
+    }
+  ],
+  "skill_activations": [
+    {
+      "skill_name": "assumption-testing",
+      "script_path": "02_analysis_code/compute_stage4b3_assumptions.py",
+      "cli_command": "PATH=\"$PWD/.venv/bin:$PATH\" python3 02_analysis_code/compute_stage4b3_assumptions.py",
+      "exit_code": 0,
+      "duration_seconds": 3.31
+    },
+    {
+      "skill_name": "descriptive-statistics",
+      "script_path": "02_analysis_code/compute_stage4b2_descriptives.py",
+      "cli_command": "PATH=\"$PWD/.venv/bin:$PATH\" python3 02_analysis_code/compute_stage4b2_descriptives.py",
+      "exit_code": 0,
+      "duration_seconds": 3.33
+    },
+    {
+      "skill_name": "apa-reporting",
+      "script_path": "02_analysis_code/compute_stage4b4_correlations.py",
+      "cli_command": "PATH=\"$PWD/.venv/bin:$PATH\" python3 02_analysis_code/compute_stage4b4_correlations.py",
+      "exit_code": 0,
+      "duration_seconds": 2.21
+    },
+    {
+      "skill_name": "chapter-4-writing",
+      "script_path": "02_analysis_code/build_correlations_triad.py",
+      "cli_command": ".venv/bin/python3 02_analysis_code/build_correlations_triad.py",
+      "exit_code": 0,
+      "duration_seconds": 0.60
+    },
+    {
+      "skill_name": "thesis-integrity-auditor",
+      "script_path": "02_analysis_code/validate_stage43_correlations.py",
+      "cli_command": ".venv/bin/python3 02_analysis_code/validate_stage43_correlations.py",
+      "exit_code": 0,
+      "duration_seconds": 0.44
+    }
+  ],
+  "subagent_delegations": [
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "statistics-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "statistics-agent",
+      "stage_id": "TSK-2026-CH4-PHASE-4B-ASSUMPTIONS",
+      "task_id": "TSK-2026-CH4-PHASE-4B-ASSUMPTIONS",
+      "envelope_summary": "Phase 4B Parametric Assumptions Verification & Descriptives Computations",
+      "objective": "Execute Phase 4B computational scripts to verify parametric assumptions, calculate univariate descriptives, and generate correlation matrices on disk.",
+      "status": "COMPLETED",
+      "input_artifacts": [
+        "02_analysis_code/data_cleaned.xlsx",
+        "02_analysis_code/compute_stage4b3_assumptions.py",
+        "02_analysis_code/compute_stage4b2_descriptives.py",
+        "02_analysis_code/compute_stage4b4_correlations.py"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_assumptions_report.json",
+        "03_deliverables/02_descriptives_payload.json",
+        "03_deliverables/04_correlations_payload.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/04_correlations_payload.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "project-organizer",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "project-organizer",
+      "stage_id": "TSK-2026-CH4-STAGE-4.3-SYNC-ANCHOR",
+      "task_id": "TSK-2026-CH4-STAGE-4.3-SYNC-ANCHOR",
+      "envelope_summary": "Stage 4.3 Statistical Anchor Synchronization",
+      "objective": "Copy 03_deliverables/04_correlations_payload.json to 03_deliverables/03_correlations.json to establish canonical analytical JSON anchor.",
+      "status": "COMPLETED",
+      "input_artifacts": [
+        "03_deliverables/04_correlations_payload.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_correlations.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/03_correlations.json"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "academic-writer",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "academic-writer",
+      "stage_id": "TSK-2026-CH4-STAGE-4.3-DRAFT",
+      "task_id": "TSK-2026-CH4-STAGE-4.3-DRAFT",
+      "envelope_summary": "Stage 4.3 Bivariate Pearson Correlation Matrix & Preliminary Analysis Drafting",
+      "objective": "Draft and compile formal scholarly narrative and complete APA 7 correlation matrix for Stage 4.3 into 03_correlations.docx and 03_correlations.md based on 03_correlations.json.",
+      "status": "COMPLETED",
+      "input_artifacts": [
+        "03_deliverables/03_correlations.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_correlations.docx",
+        "03_deliverables/03_correlations.md"
+      ],
+      "handoff_artifact_path": "03_deliverables/03_correlations.docx"
+    },
+    {
+      "delegator": "academic-orchestrator",
+      "delegatee": "validation-agent",
+      "parent_agent": "academic-orchestrator",
+      "child_agent": "validation-agent",
+      "stage_id": "TSK-2026-CH4-STAGE-4.3-VALIDATION",
+      "task_id": "TSK-2026-CH4-STAGE-4.3-VALIDATION",
+      "envelope_summary": "Stage 4.3 Micro-Stage Validation (Bivariate Pearson Correlation Matrix Audit)",
+      "objective": "Conduct independent adversarial verification of Stage 4.3 deliverables (03_correlations.docx, 03_correlations.md, 03_correlations.json) to audit bilateral synchronization and APA standards.",
+      "status": "COMPLETED",
+      "input_artifacts": [
+        "03_deliverables/03_correlations.docx",
+        "03_deliverables/03_correlations.md",
+        "03_deliverables/03_correlations.json"
+      ],
+      "output_artifacts": [
+        "03_deliverables/03_correlations_validation_report.json"
+      ],
+      "handoff_artifact_path": "03_deliverables/03_correlations_validation_report.json"
+    }
+  ],
+  "important_decisions": [
+    {
+      "decision_id": "DEC-20261003-CORR-VAR-ORDER-001",
+      "decision_type": "VARIABLE_ORDERING_SPECIFICATION",
+      "selected_option": "SUBSCALES_BEFORE_TOTAL_IN_CORRELATIONS",
+      "rationale": "compute_stage4b4_correlations.py defined study_vars_meta with IUS subscales (IUS_FA, IUS_RA) preceding IUS_T, and Rumination subscales (Ru_Ref, Ru_Bro, Ru_Dep) preceding RRS_T, inverting the hierarchical Total-first structure established in Table 4-13.",
+      "alternatives_considered": [
+        {
+          "option": "TOTAL_COMPOSITE_FIRST_THEN_SUBSCALES",
+          "verdict": "REJECTED_BY_SCRIPT_AUTHOR",
+          "reason": "Author of compute_stage4b4_correlations.py hardcoded subscale indicators before parent totals."
+        },
+        {
+          "option": "SUBSCALES_BEFORE_TOTAL_IN_CORRELATIONS",
+          "verdict": "EXECUTED_CAUSED_DEFECT",
+          "reason": "Hardcoded in compute_stage4b4_correlations.py lines 115-187 and blindly propagated to 03_correlations.json, .md, and .docx."
+        }
+      ]
+    },
+    {
+      "decision_id": "DEC-20261003-CORR-VALIDATION-BLINDSPOT-002",
+      "decision_type": "VALIDATOR_ASSERTION_SCOPE",
+      "selected_option": "OMIT_HIERARCHICAL_ORDER_CROSS_CHECK",
+      "rationale": "validate_stage43_correlations.py checked only presence of 3 prefix columns ('ردیف', 'متغیر', 'مؤلفه') and Table 4-14 caption, omitting cross-table structural assertion comparing Table 4-14 row ordering against Table 4-13.",
+      "alternatives_considered": [
+        {
+          "option": "ENFORCE_CROSS_TABLE_HIERARCHICAL_ORDER_PARITY",
+          "verdict": "OMITTED_FROM_VALIDATOR",
+          "reason": "Validator script lacked assertions verifying that Total composite score must precede subscales for all multidimensional constructs."
+        },
+        {
+          "option": "OMIT_HIERARCHICAL_ORDER_CROSS_CHECK",
+          "verdict": "EXECUTED_FALSE_PASS",
+          "reason": "Validator emitted overall_verdict: PASS with checks_failed: 0 despite defect being present."
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "03_deliverables/02_descriptives.md",
+      "sha256": "82a8595568328eb9753c1ad9ff0286822c548a8eb543ad4f71a0673418525b6a",
+      "type": "descriptives_reference_markdown"
+    },
+    {
+      "path": "03_deliverables/04_correlations_payload.json",
+      "sha256": "bca8f244589d38c1192e4e1302821eb19965a396495333aa2eec7eb3cf11559d",
+      "type": "correlations_computation_payload_json"
+    },
+    {
+      "path": "03_deliverables/03_correlations.json",
+      "sha256": "bca8f244589d38c1192e4e1302821eb19965a396495333aa2eec7eb3cf11559d",
+      "type": "correlations_analytical_anchor_json"
+    },
+    {
+      "path": "03_deliverables/03_correlations.md",
+      "sha256": "5c9e46a7be7a87e07661b3e811776993a4bc6aa6d061f00b21ea7a4072fbc043",
+      "type": "correlations_markdown_deliverable"
+    },
+    {
+      "path": "03_deliverables/03_correlations.docx",
+      "sha256": "787c95e1b204f63a12d1b840e4f5a31a965d1d6e1fae0176846be0d5f87b8f04",
+      "type": "correlations_docx_deliverable"
+    },
+    {
+      "path": "03_deliverables/03_correlations_validation_report.json",
+      "sha256": "5b27344cfd911bca05b637d6e6761f021966a33b006c9e0d16df69611f0ebc02",
+      "type": "validation_report_json"
+    },
+    {
+      "path": "02_analysis_code/compute_stage4b4_correlations.py",
+      "sha256": "8064cf6852fce1fae07502ca2197ae1d5fbc1c27ad6e17409249e001a4db4cb0",
+      "type": "correlation_computation_engine"
+    },
+    {
+      "path": "02_analysis_code/build_correlations_triad.py",
+      "sha256": "fbe161b17e47a9f60cb05c0be319e345cb062a4d33a1e2f3d4c5b6a7e8f901a2",
+      "type": "correlation_triad_generator"
+    },
+    {
+      "path": "02_analysis_code/validate_stage43_correlations.py",
+      "sha256": "d98e72c815152b113ebad92518174542ce06d0b34526d7010f37ae275fb63102",
+      "type": "correlation_validator_script"
+    }
+  ],
+  "validation_events": [
+    {
+      "validator_name": "validate_stage43_correlations_script",
+      "verdict": "PASS",
+      "failed_checks": [],
+      "evidence_summary": {
+        "verified_sample_size": 483,
+        "verified_degrees_of_freedom": 481,
+        "table_caption_found": "جدول ۴- ۱۴. ماتریس همبستگی پیرسون بین متغیرهای پژوهش",
+        "docx_size_bytes": 37422,
+        "prefix_columns_found": [
+          "ردیف",
+          "متغیر",
+          "مؤلفه"
+        ],
+        "note": "False pass: Validator asserted presence of 3 prefix columns but did not verify hierarchical construct ordering (Total score first vs Subscales first) relative to Table 4-13."
+      }
+    },
+    {
+      "validator_name": "user_evaluation",
+      "verdict": "FAIL",
+      "failed_checks": [
+        "Inverted Variable Sequence in Correlation Matrix: Table 4-14 places subscales before total composite scores, conflicting with the hierarchical Total-first structure established in Table 4-13."
+      ],
+      "evidence_summary": {
+        "user_critique": "Order of the variables and subscales in the descriptive table is correct. But in the correlation table they are not correct. You should have a total score of the variable and then the subscales just like the descriptive table.",
+        "table_4_13_structure": "Variable -> Total score ('کل') -> Subscales",
+        "table_4_14_structure": "Variable -> Subscales -> Total score ('کل')",
+        "affected_scales": [
+          "عدم تحمل بلاتکلیفی (Total IUS_T vs Subscales IUS_FA, IUS_RA)",
+          "نشخوار فکری (Total RRS_T vs Subscales Ru_Ref, Ru_Bro, Ru_Dep)"
+        ]
+      }
+    }
+  ],
+  "feedback": [
+    "FDB-20261003-CORRELATION-ORDER-001"
+  ],
+  "outcome": "FAILURE"
+}

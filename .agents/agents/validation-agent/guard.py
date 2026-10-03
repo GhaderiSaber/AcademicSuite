@@ -22,9 +22,20 @@ from typing import Dict, Any
 
 HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(HOOKS_DIR, "..", "..", ".."))
-for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents", "hooks")):
+for p in (ROOT_DIR, os.path.join(ROOT_DIR, ".agents", "hooks"), os.path.join(ROOT_DIR, ".agents", "contracts")):
     if p not in sys.path:
         sys.path.insert(0, p)
+
+try:
+    from contracts.current_work_resolver import resolve_current_work_stage_dirs, get_current_work_validation_reports
+except ImportError:
+    try:
+        from current_work_resolver import resolve_current_work_stage_dirs, get_current_work_validation_reports
+    except ImportError:
+        def resolve_current_work_stage_dirs(*args, **kwargs):
+            return []
+        def get_current_work_validation_reports(*args, **kwargs):
+            return []
 
 
 def handle_pre_tool_use(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -57,22 +68,30 @@ def handle_stop(payload: Dict[str, Any]) -> Dict[str, Any]:
                     content = rec.get("content", "").lower()
                     claims_pass = any(w in content for w in ("verdict: pass", "status: pass", "approved for release", "checks passed"))
                     if claims_pass:
-                        # Check workspace for validation_report.json
+                        # Check workspace for validation_report.json strictly for current work stage
                         ws_paths = payload.get("workspacePaths", [ROOT_DIR])
                         found_pass_report = False
                         reject_reason = None
 
-                        for ws in ws_paths:
-                            candidate_reports = [
-                                os.path.join(ws, "validation_report.json"),
-                                os.path.join(ws, "03_deliverables", "validation_report.json"),
-                                os.path.join(ws, ".agents", "validation", "last_report.json")
-                            ]
-                            # Also check subdirectories in 03_deliverables
-                            deliv_dir = os.path.join(ws, "03_deliverables")
-                            if os.path.isdir(deliv_dir):
-                                for sdir in os.listdir(deliv_dir):
-                                    cand = os.path.join(deliv_dir, sdir, "validation_report.json")
+                        active_stage_dirs = resolve_current_work_stage_dirs(
+                            workspaces=ws_paths,
+                            payload=payload,
+                            records=records,
+                            caller="validation-agent"
+                        )
+                        candidate_reports = []
+                        for sdir in active_stage_dirs:
+                            cand = os.path.join(sdir, "validation_report.json")
+                            if os.path.exists(cand):
+                                candidate_reports.append(cand)
+
+                        if not candidate_reports:
+                            for ws in ws_paths:
+                                for cand in (
+                                    os.path.join(ws, "validation_report.json"),
+                                    os.path.join(ws, "03_deliverables", "validation_report.json"),
+                                    os.path.join(ws, ".agents", "validation", "last_report.json")
+                                ):
                                     if os.path.exists(cand):
                                         candidate_reports.append(cand)
 

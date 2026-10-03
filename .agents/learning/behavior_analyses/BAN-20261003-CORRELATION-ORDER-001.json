@@ -1,0 +1,9 @@
+{
+  "analysis_id": "BAN-20261003-CORRELATION-ORDER-001",
+  "target_agent": "statistics-agent",
+  "target_skill": "chapter-4-writing",
+  "observable_failure_step": "Step 4 (compute_stage4b4_correlations.py) and Step 16 (Validator blindspot)",
+  "failure_signature": "VIOLATED_ASSUMPTION_IGNORED",
+  "root_cause_diagnosis": "The structural defect originated in compute_stage4b4_correlations.py where statistics-agent hardcoded study_vars_meta with subscales preceding their composite total scores. This bottom-up sequence was uncritically propagated by academic-writer into Table 4-14. validation-agent failed to flag the defect because validate_stage43_correlations.py lacked an invariant assertion enforcing cross-table row sequence parity between Table 4-13 and Table 4-14.",
+  "prescribed_behavior": "statistics-agent must strictly index study_vars_meta such that Total Composite Scores precede subscales. validation-agent must enforce programmatic cross-table structural parity assertions verifying correlation matrix variable sequences match descriptive table sequences."
+}
