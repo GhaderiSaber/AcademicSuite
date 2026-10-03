@@ -9,7 +9,9 @@ Ensures all agents and subagents:
 3. Automatically resolves the central AcademicSuite repository root across any environment or client workspace.
 """
 
+import json
 import os
+import re
 import sys
 import tempfile
 from typing import Optional
@@ -192,3 +194,51 @@ def redirect_learning_target_to_canonical(target_path: str) -> str:
         return os.path.join(canonical_repo, ".agents", "memory", subpath)
         
     return clean_target
+
+
+def resolve_active_project_dir(prompt: str = "", suite_root: Optional[str] = None) -> str:
+    """
+    Authoritatively resolves the real client project directory.
+    Prevents erroneously assigning the suite repo or plugin internal path as the project workspace.
+    """
+    if not suite_root:
+        suite_root = resolve_canonical_repo_root()
+
+    # 1. Environment variable override (if explicitly set and outside suite repo)
+    env_dir = os.environ.get("ACTIVE_PROJECT_DIR")
+    if env_dir and os.path.isdir(env_dir) and not env_dir.startswith(suite_root):
+        return os.path.abspath(env_dir)
+
+    # 2. Extract explicit project_workspace from prompt JSON / text
+    if prompt:
+        m_ws = re.search(r'["\']project_workspace["\']\s*:\s*["\']([^"\']+)["\']', prompt)
+        if m_ws:
+            cand = m_ws.group(1).strip()
+            if os.path.isdir(cand) and not cand.startswith(suite_root):
+                return os.path.abspath(cand)
+
+        # 3. Check for absolute path markers (01_raw_inputs, 02_analysis_code, 03_deliverables, 04_references_and_lit)
+        for marker in ('/01_raw_inputs', '/02_analysis_code', '/03_deliverables', '/04_references_and_lit'):
+            for m in re.finditer(r'([^\s"\'`]+' + re.escape(marker) + r')', prompt):
+                cand = m.group(1).split(marker)[0]
+                if os.path.isdir(cand) and not cand.startswith(suite_root):
+                    return os.path.abspath(cand)
+
+    # 4. Check active project recorded in academic-state
+    state_file = os.path.join(suite_root, "academic-state", "data", "data_quality.json")
+    if os.path.isfile(state_file):
+        try:
+            with open(state_file, "r", encoding="utf-8") as f:
+                cand = json.load(f).get("project_metadata", {}).get("project_workspace")
+                if cand and os.path.isdir(cand) and not cand.startswith(suite_root):
+                    return os.path.abspath(cand)
+        except Exception:
+            pass
+
+    # 5. Fallback to os.getcwd() ONLY if outside suite_root
+    cwd = os.getcwd()
+    if not cwd.startswith(suite_root) and os.path.isdir(cwd):
+        return os.path.abspath(cwd)
+
+    return os.path.abspath(cwd)
+

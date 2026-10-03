@@ -137,6 +137,23 @@ def test_runtime_anchor_injection_fresh_dispatch():
     assert "Run SEM analysis on 02_analysis_code/data.xlsx." in enriched_prompt
 
 
+def test_resolve_active_project_dir_extracts_client_workspace():
+    """resolve_active_project_dir must resolve the real client workspace and never return plugin internal path."""
+    from contracts.canonical_paths import resolve_active_project_dir, resolve_canonical_repo_root
+    suite_root = resolve_canonical_repo_root()
+
+    # 1. From CDE / JSON task assignment
+    prompt_with_cde = '{"project_workspace": "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"}'
+    resolved = resolve_active_project_dir(prompt=prompt_with_cde, suite_root=suite_root)
+    assert resolved == "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+
+    # 2. From inputs path
+    prompt_with_inputs = '{"inputs": ["/home/saber-ghaderi/My Work/Mohtasham Valiyanpur/01_raw_inputs"]}'
+    resolved2 = resolve_active_project_dir(prompt=prompt_with_inputs, suite_root=suite_root)
+    assert resolved2 == "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+    assert not resolved2.startswith(os.path.join(suite_root, ".agents"))
+
+
 def test_is_unbounded_search_target_detection():
     """is_unbounded_search_target correctly flags root and $HOME while allowing project subdirectories."""
     home_dir = os.path.expanduser("~")

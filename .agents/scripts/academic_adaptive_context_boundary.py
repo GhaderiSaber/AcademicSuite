@@ -34,13 +34,14 @@ except ImportError:
     from academic_context_token_budgeter import AcademicContextTokenBudgeter
 
 try:
-    from contracts.canonical_paths import resolve_canonical_repo_root, get_canonical_learning_dir
+    from contracts.canonical_paths import resolve_canonical_repo_root, get_canonical_learning_dir, resolve_active_project_dir
 except ImportError:
     try:
-        from .contracts.canonical_paths import resolve_canonical_repo_root, get_canonical_learning_dir
+        from .contracts.canonical_paths import resolve_canonical_repo_root, get_canonical_learning_dir, resolve_active_project_dir
     except ImportError:
         def resolve_canonical_repo_root(): return os.getcwd()
         def get_canonical_learning_dir(): return os.path.join(os.getcwd(), ".agents", "learning")
+        def resolve_active_project_dir(prompt="", suite_root=None): return os.getcwd()
 
 # Canonical mapping from keyword patterns to capability, default task, and primary agent
 ACADEMIC_CAPABILITY_SIGNATURES: List[Dict[str, Any]] = [
@@ -431,7 +432,7 @@ class AcademicAdaptiveContextBoundary:
 
             suite_root = resolve_canonical_repo_root()
             learning_dir = get_canonical_learning_dir()
-            project_dir = os.environ.get("ACTIVE_PROJECT_DIR") or os.getcwd()
+            project_dir = resolve_active_project_dir(prompt=prompt, suite_root=suite_root)
             anchors = (
                 f"📂 ACTIVE ENVIRONMENT DIRECTORY ANCHORS:\n"
                 f"- **SUITE_REPO_DIR**: {suite_root}\n"
