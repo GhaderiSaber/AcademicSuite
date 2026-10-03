@@ -331,7 +331,7 @@ class LearningHooks:
                 try:
                     from scripts.academic_adaptive_context_boundary import AcademicAdaptiveContextBoundary
                     boundary = AcademicAdaptiveContextBoundary(base_dir=ROOT_DIR)
-                    enriched_subagents = boundary.enrich_subagent_dispatch(subagents)
+                    enriched_subagents = boundary.enrich_subagent_dispatch(subagents, payload=payload)
                     if enriched_subagents and enriched_subagents != subagents:
                         return {
                             "decision": "allow",
@@ -1064,7 +1064,7 @@ class LearningHooks:
                 # Skip trivial queries or single words
                 if clean_prompt and len(clean_prompt) >= 6:
                     from contracts.canonical_paths import resolve_active_project_dir
-                    target_project_dir = resolve_active_project_dir(prompt=clean_prompt, suite_root=ROOT_DIR)
+                    target_project_dir = resolve_active_project_dir(prompt=clean_prompt, suite_root=ROOT_DIR, payload=payload)
                     from scripts.academic_task_router import route_and_persist_plan
                     routing_plan = route_and_persist_plan(
                         prompt=clean_prompt,

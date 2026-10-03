@@ -153,6 +153,47 @@ def test_resolve_active_project_dir_extracts_client_workspace():
     assert resolved2 == "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
     assert not resolved2.startswith(os.path.join(suite_root, ".agents"))
 
+    # 3. From hook payload workspacePaths
+    payload_sample = {"workspacePaths": ["/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"]}
+    resolved3 = resolve_active_project_dir(prompt="relative/path/only", suite_root=suite_root, payload=payload_sample)
+    assert resolved3 == "/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"
+
+    # 4. Strict Invariant: Never return suite repo or plugin internal path
+    with patch("os.getcwd", return_value=os.path.join(suite_root, ".agents", "plugins", "academic-suite")):
+        resolved_plugin = resolve_active_project_dir(prompt="03_deliverables/test.docx", suite_root=suite_root)
+        assert not resolved_plugin.startswith(suite_root), f"Expected client project, got {resolved_plugin}"
+
+
+def test_enrich_subagent_dispatch_repairs_leaked_anchor():
+    """Boundary must self-heal and repair an existing anchor if ACTIVE_PROJECT_DIR was leaked to suite repo."""
+    boundary = AcademicAdaptiveContextBoundary()
+    from contracts.canonical_paths import resolve_canonical_repo_root
+    suite_root = resolve_canonical_repo_root()
+    leaked_dir = os.path.join(suite_root, ".agents", "plugins", "academic-suite")
+
+    subagents = [
+        {
+            "TypeName": "validation-agent",
+            "Role": "Validation Release Gatekeeper",
+            "Prompt": (
+                f"📂 ACTIVE ENVIRONMENT DIRECTORY ANCHORS:\n"
+                f"- **SUITE_REPO_DIR**: {suite_root}\n"
+                f"- **CANONICAL_LEARNING_DIR**: {suite_root}/.agents/learning\n"
+                f"- **ACTIVE_PROJECT_DIR**: {leaked_dir}\n\n"
+                f"Perform validation on 03_deliverables/Chapter_4_Results.docx."
+            ),
+        }
+    ]
+
+    payload = {"workspacePaths": ["/home/saber-ghaderi/My Work/Mohtasham Valiyanpur"]}
+    enriched = boundary.enrich_subagent_dispatch(subagents, payload=payload)
+    assert len(enriched) == 1
+    enriched_prompt = enriched[0]["Prompt"]
+
+    assert leaked_dir not in enriched_prompt
+    assert "- **ACTIVE_PROJECT_DIR**: /home/saber-ghaderi/My Work/Mohtasham Valiyanpur" in enriched_prompt
+
+
 
 def test_is_unbounded_search_target_detection():
     """is_unbounded_search_target correctly flags root and $HOME while allowing project subdirectories."""
