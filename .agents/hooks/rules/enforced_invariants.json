@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0.0",
-  "updated_at": "2026-10-03T14:49:40.644528+00:00",
+  "updated_at": "2026-10-03T15:12:38.078363+00:00",
   "invariants": {
     "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001": {
       "item_id": "LSN-2026-CHAPTER-5-PROSE-ONLY-INVARIANT-001",
@@ -1763,6 +1763,27 @@
       "remedy": "Map and inject revised markdown strings directly into <w:t> text runs using a DOM parser. Assert exact concordance in validation.",
       "enabled": true,
       "updated_at": "2026-10-03T14:49:40.644496+00:00"
+    },
+    "CAND-20261003-SURGICAL-DOCX-SECTION-INJECTION-MANDATE": {
+      "item_id": "CAND-20261003-SURGICAL-DOCX-SECTION-INJECTION-MANDATE",
+      "category": "Learned Mechanical Rule",
+      "statement": "Unbounded multi-section markdown injection or unstructured deletions are prohibited. You must parse markdown into discrete sections and surgically inject them under their canonical DOM headings.",
+      "target_agents": [
+        "academic-writer"
+      ],
+      "target_skills": [
+        "GENERAL_ACADEMIC",
+        "DOCX_FORMATTING"
+      ],
+      "event": "Both",
+      "tool_match": "write_to_file|replace_file_content|run_command",
+      "file_pattern": ".*\\.py",
+      "check_type": "regex_ban",
+      "pattern": "(?i)clear_section|replace_entire_section_with_markdown",
+      "violation_message": "Unbounded multi-section markdown injection or unstructured deletions are prohibited. You must parse markdown into discrete sections and surgically inject them under their canonical DOM headings.",
+      "remedy": "Parse markdown revisions into discrete sections. Inject strictly under canonical DOM headings. Target deletions to specific sub-headings to preserve sibling sections like Operational Definitions.",
+      "enabled": true,
+      "updated_at": "2026-10-03T15:12:38.078342+00:00"
     }
   }
 }
